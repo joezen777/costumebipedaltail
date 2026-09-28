@@ -11,6 +11,17 @@ steel washers:
 - the simulated response with and without ballast is in `results/figures/test_section_hip_snap.png` and
   `results/data/test_section_metrics.json`.
 
+## Simulated predictions for the test section (compare against the filmed hip snap)
+
+| 30° hip snap in 0.35 s | Lag | Overshoot | Swing-backs | Settling | 45° turn overshoot | Walk tip/hip ratio |
+|---|---|---|---|---|---|---|
+| 4 joints + 625 g ballast rod | 32.1° | 11.9° | 1 | 1.2 s | 35.5° | 1.88 |
+| 4 joints, no ballast | 27.9° | 27.3° | 1 | 0.8 s | 29.6° | 1.34 |
+| Full 8-joint tail, as built (for reference) | 38.6° | 10.3° | 1 | 1.9 s | 28.7° | 1.61 |
+
+With ballast, the test section reproduces the full tail's character, so tuning the liner and springs on it
+carries over.
+
 ## Measurements, and what each one calibrates in `tailsim`
 
 | # | Test | Method | Model parameter | Pass criterion |

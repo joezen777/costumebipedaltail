@@ -79,12 +79,16 @@ swap the part. No glue is structural.
 
 ## Strength
 
-`docs/tables/strength.md` (generated) compares the peak simulated ball-neck bending moment, stop torque and spring
-load of each joint with the printed section capacity:
+`docs/tables/strength.md` (generated from the as-built simulation of every standard motion) gives:
 
-- Necks are hollow PETG tubes (cord bore Ø8) printed with layers along the axis (clamshell halves), allowable
-  ~20 MPa.
-- Cap ears are 10 mm PETG plates loaded in-plane.
-- Fin holes are bossed to 8–12 mm thickness.
+| Element | Worst case | Capacity | Safety factor |
+|---|---|---|---|
+| Ball necks (hollow PETG tubes, cord bore Ø8, layers along the axis in the clamshell halves) | J1: 6.4 N·m = peak ball moment 4.4 N·m + 59 N lateral × neck length | 42.8 N·m at 20 MPa | ≥ 4.9 on every joint |
+| Cap ears (10 mm PETG, out-of-plane load) | J1 dorsal spring: 218 N peak → 15 MPa | 45 MPa UTS | 3.0 |
+| Fin anchor holes | Bossed to fin + 4 mm | — | — |
+| Axial seat compression | ≤ 281 N → < 1 MPa on the neck | — | negligible |
 
-A safety factor ≥ 3 on the simulated peak loads is the acceptance criterion for the 4-joint POC.
+Not covered by simulation: someone stepping on the tail, or a hard wall strike. Those are what drop tests 7–8 in
+`docs/test_plan.md` are for. If the J1 ear or a root neck cracks there:
+- print the J1–J3 ball halves and caps at 100 % infill (already recommended), or
+- split the J1 dorsal spring into two springs on two ears.

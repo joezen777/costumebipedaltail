@@ -90,31 +90,38 @@ def main():
     # per-joint peak loads from the reference runs
     from tailsim import motions
     from tailsim.metrics import evaluate
-    peak = dict(neck=np.zeros(p.n), stop=np.zeros(p.n), N=np.zeros(p.n), springT=np.zeros(len(sim.spring)))
+    peak = dict(neck=np.zeros(p.n), stop=np.zeros(p.n), N=np.zeros(p.n), Nlat=np.zeros(p.n), springT=np.zeros(len(sim.spring)))
+    import sys
+    sys.path.insert(0, str(ROOT / "experiments"))
+    from run_suite import hardware_configs
+    built = hardware_configs()["as_built"]                  # CAD masses, as-built springs
     for mo in motions.standard_tests():
-        r = TailSim(p).run(mo)
+        r = TailSim(built).run(mo)
         peak["neck"] = np.maximum(peak["neck"], r["peak_neck_moment"])
         peak["stop"] = np.maximum(peak["stop"], r["peak_stop_torque"])
         peak["N"] = np.maximum(peak["N"], r["joint_force"].max(0))
+        lat = np.sqrt(np.maximum(r["joint_force"] ** 2 - r["seat_comp"] ** 2, 0))
+        peak["Nlat"] = np.maximum(peak["Nlat"], lat.max(0))
         peak["springT"] = np.maximum(peak["springT"], r["spring_T"].max(0))
     rows = []
     for i in range(1, p.n + 1):
         Z = g.neck_section_modulus(c, i)
         M_allow = PETG_ALLOW * Z / 1000
-        M_design = peak["neck"][i-1] + peak["N"][i-1] * g.DF(c, i) / 1000      # conservative: whole ball force as shear at the flange
+        M_design = peak["neck"][i-1] + peak["Nlat"][i-1] * g.DF(c, i) / 1000    # ball moment + lateral ball force x neck length
         Td = max(s for s, sp in zip(peak["springT"], sim.spring) if sp["joint"] == i - 1)
         ear_M = Td * (g.spring_arm(c, i) - g.cap_outer_r(c, i)) / 1000
         ear_Z = g.ear_w(c, i) * g.cap_ear_t(c) ** 2 / 6
         ear_sigma = ear_M * 1000 / ear_Z
-        rows.append([f"J{i}", f"{peak['neck'][i-1]:.2f}", f"{peak['N'][i-1]:.0f}", f"{M_design:.2f}", f"{M_allow:.1f}",
+        rows.append([f"J{i}", f"{peak['neck'][i-1]:.2f}", f"{peak['N'][i-1]:.0f} / {peak['Nlat'][i-1]:.0f}", f"{M_design:.2f}", f"{M_allow:.1f}",
                      f"{M_allow / max(M_design, 1e-6):.1f}", f"{Td:.0f}", f"{ear_sigma:.1f}", f"{PETG_UTS / ear_sigma:.1f}"])
     (OUT / "strength.md").write_text(
-        "# Strength check (reference design, all standard motion tests)\n\n"
-        "Neck design moment = peak moment carried through the ball (friction + stop) + peak ball force x neck length "
-        "(conservative: treats the whole ball force as shear). Allowable = 20 MPa on the hollow neck section "
+        "# Strength check (as-built tail: CAD masses, all standard motion tests)\n\n"
+        "Neck design moment = peak moment carried through the ball (friction + stop) + peak *lateral* ball force x neck length "
+        "(peak moment and peak force are combined even if they occur at different instants, which is conservative; the axial "
+        "seat compression from the spring preload does not bend the neck). Allowable = 20 MPa on the hollow neck section "
         "(layers run along the neck in the clamshell ball halves). Cap ear: dorsal/lateral spring peak tension as an "
         "out-of-plane cantilever load on the 10 mm ear, compared with PETG UTS 45 MPa.\n\n"
-        + md(["joint", "peak ball moment (N·m)", "peak ball force (N)", "neck design moment (N·m)", "neck allowable (N·m)",
+        + md(["joint", "peak ball moment (N·m)", "peak ball force total / lateral (N)", "neck design moment (N·m)", "neck allowable (N·m)",
               "neck SF", "peak spring tension (N)", "ear stress (MPa)", "ear SF vs UTS"], rows))
     rows = []
     for r, ref in zip(budget(c, sim.spring_table()), [450, 400, 330, 270, 210, 160, 110, 70]):

@@ -5,16 +5,32 @@ The question from the brief:
 > When a human performer turns their hips, does this mechanism produce the exaggerated but physically believable
 > secondary tail movement of traditional practical creature suits?
 
-**Short answer: yes, but only with passive centring springs across each joint.** A friction-only ball chain
-(README configurations A–D taken literally) cannot swing back. With a spring spine the tail:
-- lags ~40° behind a 30° hip snap,
-- catches up,
-- overshoots by 5–10°,
-- makes one visible return swing,
-- settles in about 1 s.
+**Short answer: yes, but only with passive centring springs across each joint.**
 
-Ordinary walking gives a restrained 1.7–2× tip sway. The rest of this document explains the model, the findings
-that shaped the CAD, and how the model was checked.
+A friction-only ball chain cannot swing back. The "no springs" run never follows the hip: it ends 33° off the
+hip's heading and drags on the floor when crouching.
+
+With the spring spine designed here, and the **as-built masses from the exported CAD**, the tail's response to a
+30° hip snap in 0.35 s is:
+
+| Metric | As built | README intent |
+|---|---|---|
+| Maximum tip lag behind the hip | 38.6° (tip first swings the *other* way as the root is carried sideways) | "tail mass lags behind" |
+| Tip overshoot after the hip stops | 10.3° (34 %) | "tip overshoots" |
+| Visible swing-back / oscillations | 1 | 1–2 decreasing oscillations |
+| Settling (within 2°) | 1.9 s | settles |
+| Residual offset | 0.0° | — |
+| 45° dramatic turn overshoot | 28.7° | "tip swings noticeably" |
+| Walking tip/hip yaw ratio (1.5 / 2.0 steps/s) | 1.61 / 1.27, no stop hits | visible but restrained |
+| Crouch (−150 mm, 10°) | no floor contact, no binding | — |
+
+Animations: `results/animations/as_built_*.gif`. Joint-yaw waterfall showing the wave travelling root → tip:
+`results/figures/as_built_hip_snap_waterfall.png`. Tuning knobs, from the same-hardware study
+(`docs/tables/hardware.md`):
+- **The seat liner (friction) is the main knob.** PTFE instead of felt gives a whippy 41° overshoot with two
+  oscillations; dry PETG gives 20°.
+- **Cord preload barely matters** on built hardware (5 → 40 N changes overshoot by 0.4°).
+- **Removing the roll key halves the swing.** The energy leaks into twisting.
 
 ## 1. Model (MuJoCo 3.13, `tailsim/`)
 
@@ -87,36 +103,66 @@ yaw–roll stiffness matrix of the joint is indefinite, with determinant −a_p�
 ### 2.5 COM offset (gravity bias) helps roll, not yaw
 
 - τ = m·g·r·sin θ acts about the **roll** axis. For yaw it only helps through the 15° root pitch.
-- **COM sweep (0, 15, 30, 50 mm):**
-  - Linear analysis: the offset raises the twist-mode frequency (0.12 → 0.34 Hz before the anchor fix).
-  - Time domain: it slightly reduces overshoot and adds a little residual offset.
-- A modest 15 mm is the reference. There is no benefit in going to 50 mm; see `docs/tables/study.md`.
+- **Design study, 0 → 50 mm:**
+  - The lowest (twist) mode stiffens from 0.18 to 0.31 Hz.
+  - Snap overshoot grows from 1.4° to 4.9°, and the tail settles cleaner (residual 0.5° → 0°).
+- **Same hardware, 0 / 15 / 30 mm:** overshoot 9.2° / 10.3° / 11.2°, settling 2.1 / 1.9 / 1.7 s.
+- So a modest offset does help natural settling and twist resistance, but it is a secondary knob.
+- 15 mm is the reference (ballast low in the frame, e.g. a steel washer on the ventral fin). 50 mm buys little and
+  adds mass.
+
+### 2.5a The roll key
+
+- **Roll free vs roll key** (`roll_free_vs_roll_key.gif`, same hardware): the hip-snap overshoot drops from 10.3°
+  to 5.7° and the turn overshoot from 28.7° to 11.2°. Roll reaches 9.7°.
+- In the design study, D with unrestricted roll loses its overshoot entirely.
+- Energy that should swing the tail goes into twisting the chain, so keeping roll at ±7° with the key is worth it.
 
 ### 2.6 The cord's job is retention, not motion
 
-In a rigid-socket model a centred cord stores no bending energy. Its only mechanical effect is seat compression,
-which adds friction. Raising the preload from 5 to 40 N monotonically adds friction and deadens the tail
-(`study_preload_hip_snap.png`). Keep the preload low (5–10 N): enough to keep the balls seated and take up slack.
-The joint-load output (`min_seat_compression`) confirms the seats never unload during the tests. The springs keep
-every ball in compression.
+In a rigid-socket model a centred cord stores no bending energy. Its only effect is seat compression, and
+therefore friction.
+
+- **Same built tail** (`hardware.md`): cord preload 5 → 40 N changes the hip-snap overshoot only from 10.4° to
+  10.0° and the turn overshoot from 29.0° to 26.8°. The ~150 N dorsal and ~15–20 N lateral spring tensions already
+  dominate the ball load.
+- **Design study** (`study.md`), where the springs are re-sized for each preload: higher preload leads to stiffer
+  springs and *more* overshoot (0.8° → 10.6°).
+- **Recommendation:** set the cord for retention only (5–10 N, slack taken up) and tune motion with the liner and
+  springs. `min_seat_compression` stays positive in every test, so no ball ever lifts off its seat.
 
 ### 2.7 Walking vs. snap: frequency placement
 
 - Pelvis yaw in walking repeats once per **stride**, i.e. at half the step rate (0.75–1.0 Hz for 1.5–2.0 steps/s).
-- The tail's first swing mode sits below that, so walking drives it above resonance. The tip heading amplitude is
-  1.7–2× the hip's (visible but restrained, no stop hits). A hip snap, being a transient, gets the full lag and
-  overshoot.
-- The README-literal case (yaw at the full 1.75 Hz step rate) is also run (`walk_1.75Hz_literal`).
+- The tail's first swing mode sits below that, so walking drives it above resonance. Tip heading amplitude is
+  1.3–1.8× the hip's in every spring configuration (no stop hits). A hip snap, being a transient, gets the full lag
+  and overshoot.
+- With the README-literal input (yaw at the full 1.75 Hz step rate) the tail barely follows (ratio ≈ 0.9).
+- HIGH friction is the exception. There the springs are sized stiff enough to beat the friction, and walking whip
+  rises to 2.7–3.1×.
+
+### 2.7a Other study results (`docs/tables/study.md`)
+
+- **Joint count:**
+  - 10 joints scores slightly better than 8 (4.2° overshoot, turn 22.6°).
+  - 6 joints is heavier-looking and more swingy (12° overshoot, turn 35°).
+  - 12 joints begins to look snake-like and the tip hangs lower (crouch tip 0.33 m).
+  - 8 is kept for part count.
+- **Progressive vs uniform limits:** uniform ±16.9° limits (A–C) give 10–14° snap overshoot versus 2.7° for the
+  progressive 8 → 28° set (D, README masses). The stiff root reins in the swing and keeps the bend near the tip.
+- **Mass taper:** uniform 250 g segments overshoot 14° and walk with less tip motion. The README's aggressive
+  taper gives a heavier-root, looser-tip look.
 
 ### 2.8 Mass budget: the distal end is heavier than the README guess
 
-The printed + hardware + foam/skin mass per segment (`docs/tables/mass_budget.md`) matches the README at the root
-(~475 vs 450 g) but is 1.5–2.8× heavier toward the tip. Two floors cause this:
+The printed + hardware + foam/skin mass per segment (`docs/tables/mass_budget.md`) is about 12 % over the README at
+the root (507 vs 450 g) but 1.5–2.8× heavier toward the tip. The total is ~2.55 kg against the README's 2.0 kg. Two floors cause this:
 - the minimum practical ball (Ø34 mm) with M4 bolts;
 - two-line fins on a 150 mm segment.
 
-The `cad_masses` configuration re-runs every test with these masses (row "reference, CAD masses" in
-`docs/tables/study.md`), so the prototype is judged on its real inertia.
+The `cad_masses` / `as_built` configurations re-run every test with these masses, so the prototype is judged on its
+real inertia. The heavier tip turns out to *help* the theatrical look: overshoot 2.7° → 10.3° and a clear
+swing-back. Loads rise ~10 %, still within the strength margins (`docs/tables/strength.md`).
 
 ## 3. Validation (`tests/test_physics.py`, all passing)
 
