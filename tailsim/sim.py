@@ -65,7 +65,11 @@ class TailSim:
         for i in range(p.n):
             s = self.I_yaw[i] / self.I_yaw[0]
             for dofs in (info.yaw_dofs, info.pitch_dofs, info.roll_dofs):
-                m.dof_damping[dofs[i]] = visc * s
+                if dofs:
+                    m.dof_damping[dofs[i]] += visc * s
+        if p.joint_type == "hinge":
+            # a pinned hinge: friction radius is the pin, plus preloaded washers (scaled by distal mass)
+            self.r_fric = np.full(p.n, p.hinge_pin_radius)
         self.hip_inertia = np.array([M[k, k] for k in info.hip_dofs])
         self.hip_ref0 = d.qpos[info.hip_qpos].copy()
         self.m_distal = np.array([m.body_subtreemass[b] for b in info.body_ids])
@@ -81,6 +85,8 @@ class TailSim:
         self.last_N = self._static_N()
         self.last_comp = self.last_N.copy()
         self.last_M = np.zeros(p.n)
+        self.last_stop = np.zeros(p.n)
+        self._radii = p.diameters() / 2 * 0.9
         if settle:
             self._settle()
 
@@ -99,8 +105,9 @@ class TailSim:
         self.jnt_to_joint = -np.ones(m.njnt, int)
         for i in range(self.p.n):
             for dofs in (info.yaw_dofs, info.pitch_dofs, info.roll_dofs):
-                self.jnt_to_joint[m.dof_jntid[dofs[i]]] = i
-        self.fric_dofs = np.array([info.yaw_dofs, info.pitch_dofs, info.roll_dofs], int)
+                if dofs:
+                    self.jnt_to_joint[m.dof_jntid[dofs[i]]] = i
+        self.fric_dofs = np.array([d for d in (info.yaw_dofs, info.pitch_dofs, info.roll_dofs) if d], int)
 
     def _static_N(self):
         """Quasi-static ball load: distal weight plus every tension crossing."""
@@ -191,6 +198,9 @@ class TailSim:
         # guard: the coupled yaw/pitch/roll system must be statically stable
         from .linear import linear_modes
         self.stiffen_steps = 0
+        self.lowest_mode_hz = float("nan")
+        if "D" not in p.spring_sides:
+            return      # tail rests on stops/floor: no free equilibrium to linearise about
         while self.stiffen_steps < 12:
             f = linear_modes(self, rest)[0]
             if f[0] > p.min_mode_hz:
@@ -263,6 +273,7 @@ class TailSim:
             f_t[ok] += self.cord_T * u[ok] / nu[ok, None]
         fj = f_need - f_t
         e = d.xmat[b].reshape(-1, 3, 3)[:, :, 0]
+        self.last_root_moment = float(np.linalg.norm(t_need[0]))
         N = np.linalg.norm(fj, axis=1)
         comp = (fj * e).sum(1)
         Mneck = np.linalg.norm(t_need - t_t, axis=1)
@@ -270,12 +281,18 @@ class TailSim:
 
     def _update_friction(self):
         fl = self.mu * self.r_fric * self.last_N
+        if self.p.joint_type == "hinge" and self.p.hinge_washer_torque:
+            fl = fl + self.p.hinge_washer_torque * self.m_distal / self.m_distal[0]
+        if self.p.stop_friction:
+            # a joint held against its stop also slides on the stop face (normal ~ stop torque / R)
+            fl = fl + self.mu * self.last_stop
         self.model.dof_frictionloss[self.fric_dofs] = fl[None, :]
 
     def _step(self, q_ref, v_ref, a_ref, s):
         m, d = self.model, self.data
         if s % self.load_every == 0:
             self.last_N, self.last_comp, self.last_M = self.joint_loads()
+            self.last_stop = self.stop_torques()
             self._update_friction()
         mujoco.mj_step1(m, d)
         self._apply_forces(q_ref, v_ref, a_ref)
@@ -324,7 +341,8 @@ class TailSim:
         steps = int(round(motion.duration / p.dt))
         keys = ("time", "pelvis_pos", "pelvis_ypr", "yaw", "pitch", "roll", "tip_pos", "tip_vel", "tip_acc",
                 "cord_tension", "tip_heading", "hip_yaw", "tip_disp", "tip_disp_lat", "joint_force", "seat_comp",
-                "neck_moment", "stop_torque", "floor_force", "hip_err", "spring_T", "tip_height", "bodies")
+                "neck_moment", "stop_torque", "floor_force", "hip_err", "spring_T", "tip_height", "bodies",
+                "clearance", "root_moment")
         rec = {k: [] for k in keys}
         vel6 = np.zeros(6); acc6 = np.zeros(6)
         peak_stop = np.zeros(p.n)
@@ -347,8 +365,8 @@ class TailSim:
                 rec["pelvis_pos"].append(pos)
                 rec["pelvis_ypr"].append(np.degrees(d.qpos[info.hip_qpos[3:6]] - self.hip_ref0[3:6]))
                 rec["yaw"].append(np.degrees(d.qpos[info.yaw_qpos]))
-                rec["pitch"].append(np.degrees(d.qpos[info.pitch_qpos]))
-                rec["roll"].append(np.degrees(d.qpos[info.roll_qpos]))
+                rec["pitch"].append(np.degrees(d.qpos[info.pitch_qpos]) if info.pitch_qpos else np.zeros(p.n))
+                rec["roll"].append(np.degrees(d.qpos[info.roll_qpos]) if info.roll_qpos else np.zeros(p.n))
                 rec["tip_pos"].append(tip)
                 rec["tip_vel"].append(vel6[3:].copy())
                 # MuJoCo's cacc carries the -g offset of the world frame
@@ -366,6 +384,9 @@ class TailSim:
                 rec["hip_err"].append(math.degrees(abs(d.qpos[info.hip_qpos[3]] - self.hip_ref0[3] - q_ref[3])))
                 rec["spring_T"].append(np.asarray(self.spring_T).copy())
                 rec["tip_height"].append(tip[2])
+                zc = np.r_[d.site_xpos[info.pivot_sites][:, 2] - self._radii, tip[2] - p.tip_diameter / 2]
+                rec["clearance"].append(zc.min())
+                rec["root_moment"].append(getattr(self, "last_root_moment", 0.0))
                 rec["bodies"].append(np.vstack([d.site_xpos[info.pivot_sites], d.site_xpos[info.tip_site][None]]))
             if s < steps:
                 self._step(q_ref, v_ref, a_ref, s)

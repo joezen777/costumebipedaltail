@@ -98,3 +98,54 @@ def crouch():
 
 def standard_tests():
     return [hip_snap(), dramatic_turn(), Walk(1.5), Walk(2.0), Walk(1.75, literal=True), side_step(), crouch()]
+
+
+class Sampled(Motion):
+    """Motion from a position function q(t) (6-vector); velocity/acceleration by central differences."""
+
+    def __init__(self, name, fn, duration, stop_time):
+        self.name, self.fn, self.duration, self.stop_time = name, fn, duration, stop_time
+
+    def __call__(self, t, h=1e-3):
+        q = self.fn(t)
+        return q, (self.fn(t + h) - self.fn(t - h)) / (2 * h), (self.fn(t + h) - 2 * q + self.fn(t - h)) / (h * h)
+
+
+def bend_over(angle_deg=45.0, drop=0.10, T=1.0):
+    """Performer bends forward at the hips (pelvis pitches nose-down) and holds."""
+    return Ramp("bend_over", [0, 0, -drop, 0, math.radians(angle_deg), 0], T, duration=5.0)
+
+
+def _hermite(t, T, p0, v0, p1, v1):
+    x = min(max(t / T, 0.0), 1.0)
+    h00, h10, h01, h11 = 2*x**3 - 3*x**2 + 1, x**3 - 2*x**2 + x, -2*x**3 + 3*x**2, x**3 - x**2
+    return h00 * p0 + h10 * T * v0 + h01 * p1 + h11 * T * v1
+
+
+def jump(height=0.25, crouch_depth=0.12, t0=0.3):
+    """Counter-movement jump: crouch, push-off, ballistic flight (pelvis rises `height`),
+    landing absorption and recovery. Position and velocity are continuous."""
+    g = 9.81
+    v0 = math.sqrt(2 * g * height)
+    t_c, t_p, t_a, t_r = 0.35, 0.25, 0.25, 0.6      # crouch, push-off, absorb, recover
+    t_f = 2 * v0 / g
+    t_to = t0 + t_c + t_p
+    t_land = t_to + t_f
+
+    def z(t):
+        if t < t0:
+            return 0.0
+        if t < t0 + t_c:
+            return -crouch_depth * min_jerk(t - t0, t_c)[0]
+        if t < t_to:
+            return _hermite(t - t0 - t_c, t_p, -crouch_depth, 0.0, 0.0, v0)
+        if t < t_land:
+            tf = t - t_to
+            return v0 * tf - 0.5 * g * tf * tf
+        if t < t_land + t_a:
+            return _hermite(t - t_land, t_a, 0.0, -v0, -crouch_depth, 0.0)
+        return -crouch_depth + crouch_depth * min_jerk(t - t_land - t_a, t_r)[0]
+
+    m = Sampled("jump", lambda t: np.array([0, 0, z(t), 0, 0, 0]), duration=t_land + 2.5, stop_time=t_land)
+    m.t_land = t_land
+    return m

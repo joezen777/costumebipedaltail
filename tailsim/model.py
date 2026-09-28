@@ -35,7 +35,7 @@ def _rot_y(a):
 
 def root_rotation(p: TailParams):
     """Rotation of vertebra 1 relative to the hip block: backward and down."""
-    th = math.radians(p.root_pitch_deg)
+    th = math.radians(p.root_pitch_deg + p.droop_list()[0])
     ex = np.array([-math.cos(th), 0, -math.sin(th)])
     ez = np.array([-math.sin(th), 0, math.cos(th)])
     ey = np.cross(ez, ex)
@@ -83,7 +83,11 @@ def build_xml(p: TailParams) -> str:
     m = p.mass_list()
     lat, dor = p.spring_arms()
     yaw_lim = p.yaw_limit_list()
-    pitch_lim = p.pitch_limit_list()
+    pitch_up, pitch_dn = p.pitch_range_list()
+    droop = p.droop_list()
+    sides = p.spring_sides if p.springs_enabled else ""
+    kst = p.joint_stiffness
+    kdm = p.joint_damping
     a_par, a = p.spring_spans()
     R1 = root_rotation(p)
     q1 = _quat_from_matrix(R1)
@@ -95,6 +99,8 @@ def build_xml(p: TailParams) -> str:
     sites_hip = [f'<site name="cord_0" pos="{_fmt(pivot1_in_hip + R1 @ np.array([-0.06, 0, 0]))}" size="0.004"/>']
     # spring anchors of joint 1 on the hip block (expressed via root rotation)
     for side, off in (("L", (0, lat[0], 0)), ("R", (0, -lat[0], 0)), ("D", (0, 0, dor[0]))):
+        if side not in sides:
+            continue
         pos = pivot1_in_hip + R1 @ np.array([-a_par[0], off[1], off[2]])
         sites_hip.append(f'<site name="sp_1_{side}_p" pos="{_fmt(pos)}" size="0.003"/>')
 
@@ -106,23 +112,37 @@ def build_xml(p: TailParams) -> str:
         if i == 0:
             pos, quat = pivot1_in_hip, q1
         else:
-            pos, quat = np.array([L, 0, 0]), _quat_from_matrix(_rot_y(math.radians(p.rest_droop_deg)))
-        yl, pl = yaw_lim[i], pitch_lim[i]
-        s = [f'<body name="v{i+1}" pos="{_fmt(pos)}" quat="{_fmt(quat)}">',
-             f'<joint name="j{i+1}_yaw" axis="0 0 1" limited="true" range="{-yl} {yl}" {stop}/>',
-             f'<joint name="j{i+1}_pitch" axis="0 1 0" limited="true" range="{-pl} {pl}" {stop}/>',
-             f'<joint name="j{i+1}_roll" axis="1 0 0" {roll_attr} {stop}/>',
+            pos, quat = np.array([L, 0, 0]), _quat_from_matrix(_rot_y(math.radians(droop[i])))
+        yl, pu, pd = yaw_lim[i], pitch_up[i], pitch_dn[i]
+        ks = kst[i] if kst is not None else (0, 0, 0)
+        cs = kdm[i] if kdm is not None else (0, 0, 0)
+        sr = p.joint_springref[i] if p.joint_springref is not None else (0, 0, 0)
+        ea = [f'stiffness="{ks[k]:.6g}" damping="{cs[k]:.6g}" springref="{sr[k]:.6g}"' for k in range(3)]
+        Rw = R1 if i == 0 else Rw @ _rot_y(math.radians(droop[i]))      # rest orientation in the hip frame
+        if p.joint_type == "hinge":
+            t = math.radians(p.hinge_tilt_deg)
+            ax = Rw.T @ np.array([-math.sin(t), 0.0, math.cos(t)])        # axis top leans back toward the tail
+            jx = [f'<joint name="j{i+1}_yaw" axis="{_fmt(ax)}" limited="true" range="{-yl} {yl}" {stop} {ea[0]}/>']
+        else:
+            jx = [f'<joint name="j{i+1}_yaw" axis="0 0 1" limited="true" range="{-yl} {yl}" {stop} {ea[0]}/>',
+                  f'<joint name="j{i+1}_pitch" axis="0 1 0" limited="true" range="{-pu} {pd}" {stop} {ea[1]}/>',
+                  f'<joint name="j{i+1}_roll" axis="1 0 0" {roll_attr} {stop} {ea[2]}/>']
+        s = [f'<body name="v{i+1}" pos="{_fmt(pos)}" quat="{_fmt(quat)}">', *jx, 
              f'<inertial pos="{_fmt(com)}" mass="{m[i]:.6g}" diaginertia="{_fmt(inertia)}"/>',
              f'<geom name="g{i+1}" type="capsule" fromto="{0.12*L:.5g} 0 0 {0.88*L:.5g} 0 0" size="{Di/2*0.9:.5g}" '
              f'contype="2" conaffinity="0" mass="0" rgba="0.35 0.55 0.3 0.6" solref="0.02 1" condim="3" friction="{p.floor_friction} 0.005 0.0001"/>',
              f'<site name="cord_{i+1}" pos="0 0 0" size="0.004"/>']
         # proximal spring anchors on this vertebra (child side of joint i+1)
         for side, off in (("L", (0, lat[i], 0)), ("R", (0, -lat[i], 0)), ("D", (0, 0, dor[i]))):
+            if side not in sides:
+                continue
             s.append(f'<site name="sp_{i+1}_{side}_c" pos="{_fmt([a, off[1], off[2]])}" size="0.003"/>')
         # distal anchors for the next joint, in this vertebra's frame
         if i + 1 < n:
-            Rn = _rot_y(math.radians(p.rest_droop_deg))
+            Rn = _rot_y(math.radians(droop[i+1]))
             for side, off in (("L", (0, lat[i+1], 0)), ("R", (0, -lat[i+1], 0)), ("D", (0, 0, dor[i+1]))):
+                if side not in sides:
+                    continue
                 ppos = np.array([L, 0, 0]) + Rn @ np.array([-a_par[i+1], off[1], off[2]])
                 s.append(f'<site name="sp_{i+2}_{side}_p" pos="{_fmt(ppos)}" size="0.003"/>')
         body_xml.append(s)
@@ -153,7 +173,7 @@ def build_xml(p: TailParams) -> str:
         acts.append('<general name="a_cord" tendon="cord" gainprm="1" ctrllimited="false"/>')
     if p.springs_enabled:
         for i in range(n):
-            for side in "LRD":
+            for side in sides:
                 tendons.append(f'<spatial name="sp_{i+1}_{side}" width="0.002" rgba="0.8 0.2 0.2 1">'
                                f'<site site="sp_{i+1}_{side}_p"/><site site="sp_{i+1}_{side}_c"/></spatial>')
                 acts.append(f'<general name="a_sp_{i+1}_{side}" tendon="sp_{i+1}_{side}" gainprm="1" ctrllimited="false"/>')
@@ -201,18 +221,19 @@ def build(p: TailParams):
     springs, spring_act = [], []
     if p.springs_enabled:
         for i in range(n):
-            for side in "LRD":
+            for side in p.spring_sides:
                 springs.append((i, side, tid(f"sp_{i+1}_{side}")))
                 spring_act.append(aid(f"a_sp_{i+1}_{side}"))
     hipn = ("hx", "hy", "hz", "hyaw", "hpitch", "hroll")
+    ball = p.joint_type != "hinge"
     info = ModelInfo(
         n=n,
         yaw_dofs=[dof(f"j{i+1}_yaw") for i in range(n)],
-        pitch_dofs=[dof(f"j{i+1}_pitch") for i in range(n)],
-        roll_dofs=[dof(f"j{i+1}_roll") for i in range(n)],
+        pitch_dofs=[dof(f"j{i+1}_pitch") for i in range(n)] if ball else [],
+        roll_dofs=[dof(f"j{i+1}_roll") for i in range(n)] if ball else [],
         yaw_qpos=[qadr(f"j{i+1}_yaw") for i in range(n)],
-        pitch_qpos=[qadr(f"j{i+1}_pitch") for i in range(n)],
-        roll_qpos=[qadr(f"j{i+1}_roll") for i in range(n)],
+        pitch_qpos=[qadr(f"j{i+1}_pitch") for i in range(n)] if ball else [],
+        roll_qpos=[qadr(f"j{i+1}_roll") for i in range(n)] if ball else [],
         hip_dofs=[dof(h) for h in hipn],
         hip_qpos=[qadr(h) for h in hipn],
         body_ids=[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"v{i+1}") for i in range(n)],

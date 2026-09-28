@@ -4,6 +4,7 @@ Brief: [brief.md](brief.md) (original design brief). Results overview: [../READM
 
 | Document | Contents |
 |---|---|
+| [gojira.md](gojira.md) | Gojira "x² + 1" hovering profile: five mechanisms compared, the recommended design, simulated photos |
 | [physics.md](physics.md) | Simulation model, the design findings it produced, validation tests, how to reproduce |
 | [design.md](design.md) | Mechanical architecture, twist-stable spring geometry, performer fit (5 ft 8 in), strength approach |
 | [printing.md](printing.md) | 1.2 mm nozzle settings, print orientation per part, material choice (PETG vs PLA/TPU vs resin), hardware list, assembly |

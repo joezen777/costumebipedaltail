@@ -44,6 +44,9 @@ class TailParams:
     root_back_offset: float = 0.20         # pelvis centre -> joint 1 pivot
     root_pitch_deg: float = 15.0           # tail root points down behind the actor
     rest_droop_deg: float = 1.5            # additional rest pitch per joint
+    rest_droop_list: list | None = None    # per-joint rest droop (deg); [0] adds to the root pitch
+    pitch_down_limits: list | None = None  # per-joint pitch-down stop beyond rest (deg); None -> symmetric
+    pitch_up_limits: list | None = None    # per-joint pitch-up stop (deg)
 
     # --- overall size (README 2-4) ----------------------------------------
     joint_count: int = 8
@@ -91,6 +94,16 @@ class TailParams:
 
     # --- spring spine: passive restoring springs (see docs/physics.md) ------
     springs_enabled: bool = True
+    spring_sides: str = "LRD"              # which springs each joint has: L/R lateral pair, D dorsal
+    joint_type: str = "ball"               # "ball" (yaw/pitch/roll) or "hinge" (yaw-only gate hinge)
+    hinge_tilt_deg: float = 15.0           # hinge axis leans back from vertical (self-closing gate)
+    hinge_pin_radius: float = 0.004        # M8 pin: friction radius of a hinge
+    hinge_washer_torque: float = 0.0       # N*m Coulomb torque from preloaded friction washers (root; scaled by distal mass)
+    stop_friction: bool = True             # joint loaded against its stop also rubs (mu * stop torque)
+    # continuous elastic spine (no ball friction): bending/torsion stiffness per joint, N*m/rad
+    joint_stiffness: list | None = None    # [[k_yaw, k_pitch, k_roll], ...] per joint
+    joint_damping: list | None = None      # [[c_yaw, c_pitch, c_roll], ...] per joint
+    joint_springref: list | None = None    # [[yaw, pitch, roll], ...] deg: unloaded (pre-camber) angles of the elastic core
     yaw_local_hz: float = 0.7              # per-joint yaw "local" frequency
     pitch_local_hz: float = 1.3
     lateral_preload_margin: float = 0.6    # lateral preload / (k * arm * yaw limit)
@@ -154,6 +167,20 @@ class TailParams:
         if not self.progressive_limits:
             lim = np.full(self.n, float(np.mean(lim)))
         return lim
+
+    def droop_list(self) -> np.ndarray:
+        if self.rest_droop_list is not None:
+            return np.asarray(self.rest_droop_list, float)
+        d = np.full(self.n, self.rest_droop_deg)
+        d[0] = 0.0
+        return d
+
+    def pitch_range_list(self):
+        """(up, down) stop angles per joint in degrees (positive pitch = down)."""
+        pl = self.pitch_limit_list()
+        up = np.asarray(self.pitch_up_limits, float) if self.pitch_up_limits is not None else pl
+        dn = np.asarray(self.pitch_down_limits, float) if self.pitch_down_limits is not None else pl
+        return up, dn
 
     def pitch_limit_list(self) -> np.ndarray:
         return self.pitch_ratio * self.yaw_limit_list()

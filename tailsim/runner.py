@@ -13,6 +13,8 @@ def stability(p: TailParams):
     """Lowest small-motion frequencies about the rest pose (negative = unstable)."""
     from .linear import linear_modes
     sim = TailSim(p)
+    if p.springs_enabled and "D" not in p.spring_sides or not p.springs_enabled and p.joint_stiffness is None:
+        return dict(lowest_mode_hz=float("nan"), modes_hz=[])
     f = linear_modes(sim)[0]
     return dict(lowest_mode_hz=float(f[0]), modes_hz=[round(float(x), 3) for x in f[:6]])
 

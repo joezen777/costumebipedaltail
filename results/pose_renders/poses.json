@@ -1,0 +1,37 @@
+{
+ "1_standing": {
+  "t": 0.0,
+  "hip_yaw": 0.0,
+  "tip_heading": 0.0,
+  "clearance_m": 0.08922848405610065,
+  "pelvis_z": 0.949849981494019
+ },
+ "2_bending_over": {
+  "t": 3.0,
+  "hip_yaw": 0.0,
+  "tip_heading": 0.0,
+  "clearance_m": 0.6236761270180764,
+  "pelvis_z": 0.8498461522098048
+ },
+ "3_turning": {
+  "t": 0.625,
+  "hip_yaw": 43.7561940887661,
+  "tip_heading": -5.0490060026407555,
+  "clearance_m": 0.13946400206331253,
+  "pelvis_z": 0.949848416717887
+ },
+ "4_jerk_left": {
+  "t": 0.53,
+  "hip_yaw": 29.99477212404394,
+  "tip_heading": -5.125533121122934,
+  "clearance_m": 0.11717022340340957,
+  "pelvis_z": 0.9498464742943813
+ },
+ "5_jump_before_landing": {
+  "t": 1.3,
+  "hip_yaw": -9.238295931344718e-21,
+  "tip_heading": 0.0,
+  "clearance_m": 0.22311793536875624,
+  "pelvis_z": 1.051707163165589
+ }
+}

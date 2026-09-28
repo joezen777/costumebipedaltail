@@ -42,6 +42,10 @@ def common(r):
         min_seat_compression=float(np.min(r["min_seat_comp"])),
         max_cord_tension=float(np.max(r["cord_tension"])),
         max_hip_tracking_error_deg=float(r["hip_err"].max()),
+        min_floor_clearance=float(r["clearance"].min()) if "clearance" in r else float("nan"),
+        rest_floor_clearance=float(r["clearance"][0]) if "clearance" in r else float("nan"),
+        peak_root_moment=float(r["root_moment"].max()) if "root_moment" in r else float("nan"),
+        rest_root_moment=float(r["root_moment"][5]) if "root_moment" in r else float("nan"),
     )
 
 
@@ -140,7 +144,7 @@ def score(results: dict) -> tuple[float, dict]:
         d = results["dramatic_turn_45"]
         terms["turn_overshoot"] = band(d["maximum_tip_overshoot"], 6, 18, 3)
         terms["turn_stop_torque"] = band(d["peak_stop_torque"], 0, 15, 5)
-    if "linear" in results:
+    if "linear" in results and results["linear"]["lowest_mode_hz"] == results["linear"]["lowest_mode_hz"]:
         terms["unstable_twist"] = band(results["linear"]["lowest_mode_hz"], 0.1, 99, 0.05)
     walks = [v for k, v in results.items() if k.startswith("walk") and not k.endswith("literal")]
     for w in walks:
