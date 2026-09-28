@@ -96,7 +96,7 @@ Details: [docs/physics.md](docs/physics.md).
    All tests were re-run with these masses; the heavier tip makes the motion *more* theatrical.
    See [docs/tables/mass_budget.md](docs/tables/mass_budget.md).
 
-### README §27 comparison: configurations A–D on identical inputs
+### brief §27 comparison: configurations A–D on identical inputs
 
 All four include the spring spine. A = friction only (no cord), B = + cord preload, C = + 15 mm COM offset,
 D = + progressive joint limits 8° → 28°. Full numbers in [docs/tables/study.md](docs/tables/study.md). No single
@@ -117,21 +117,21 @@ Other tests for A–D:
 - [side step](results/figures/compare_ABCD_side_step_300mm.png)
 - [crouch](results/figures/compare_ABCD_crouch.png)
 - [walking at 2.0 steps/s](results/figures/compare_ABCD_walk_2.00Hz.png)
-- [README-literal walk](results/figures/compare_ABCD_walk_1.75Hz_literal.png)
+- [brief-literal walk](results/figures/compare_ABCD_walk_1.75Hz_literal.png)
 
 Parameter studies (each re-designs its springs):
 - [friction](results/figures/study_friction_hip_snap.png)
 - [cord preload](results/figures/study_preload_hip_snap.png)
 - [roll](results/figures/study_roll_hip_snap.png)
 
-Reference-design responses (README masses):
+Reference-design responses (brief masses):
 - [hip snap](results/figures/reference_hip_snap_30.png)
 - [joint waterfall](results/figures/reference_hip_snap_joint_waterfall.png)
 - [turn](results/figures/reference_dramatic_turn_45.png)
 - [side step](results/figures/reference_side_step_300mm.png)
 - [crouch](results/figures/reference_crouch.png) and [crouch animation](results/animations/reference_crouch.gif)
 - walks at [1.5](results/figures/reference_walk_1.50Hz.png), [2.0](results/figures/reference_walk_2.00Hz.png)
-  and [README-literal](results/figures/reference_walk_1.75Hz_literal.png) steps/s
+  and [brief-literal](results/figures/reference_walk_1.75Hz_literal.png) steps/s
 
 ### How the model was validated
 
@@ -189,7 +189,7 @@ More views:
 
 | Deliverable | Path |
 |---|---|
-| Parametric OpenSCAD (README §20 modules, `PART` views, print-oriented parts) | [cad/openscad/suit_tail.scad](cad/openscad/suit_tail.scad) |
+| Parametric OpenSCAD (brief §20 modules, `PART` views, print-oriented parts) | [cad/openscad/suit_tail.scad](cad/openscad/suit_tail.scad) |
 | Parametric FreeCAD builder (`createVertebra(index, parameters)`) | [cad/freecad/build_tail.py](cad/freecad/build_tail.py) |
 | FreeCAD documents + STEP (full tail, 4-joint test section) | [cad/freecad/output/](cad/freecad/output/) |
 | Print-ready STLs, full tail (35 parts) | [cad/stl/full/](cad/stl/full/) |
