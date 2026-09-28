@@ -36,7 +36,7 @@ The cheaper candidates each fail a requirement:
 ### Simulated photos of the full tail on a performer
 
 Tail shape in every image comes from the physics simulation of the recommended design. The performer is posed from
-the simulated pelvis motion. The photoreal versions are Z-Image Turbo image-to-image passes over the physics
+the simulated pelvis motion. The photoreal versions (denoise 0.55; the 0.65 variants sometimes invent tip curls not present in the physics) are Z-Image Turbo image-to-image passes over the physics
 renders, which keep the simulated geometry and camera. Every physics render and all AI variants are in
 [results/pose_renders/](results/pose_renders/) and [results/simulated_photos/](results/simulated_photos/).
 
