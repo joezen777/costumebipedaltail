@@ -1,0 +1,126 @@
+{
+ "20_figure_body": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   44.5,
+   55.9,
+   194.7
+  ],
+  "volume_ml": 56.72,
+  "fits_printer": true,
+  "error": ""
+ },
+ "21_protogen_head": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   35.2,
+   26.9,
+   37.9
+  ],
+  "volume_ml": 9.817,
+  "fits_printer": true,
+  "error": ""
+ },
+ "22_display_base": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   86.0,
+   64.0,
+   4.0
+  ],
+  "volume_ml": 21.788,
+  "fits_printer": true,
+  "error": ""
+ },
+ "23_level_pin": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   2.2,
+   2.2,
+   7.2
+  ],
+  "volume_ml": 0.008,
+  "fits_printer": true,
+  "error": ""
+ },
+ "plate_levels_mm": [
+  -16.0,
+  -12.0,
+  -8.0,
+  -4.0,
+  0.0,
+  4.0,
+  8.0,
+  12.0,
+  16.0,
+  20.0,
+  24.0,
+  28.0,
+  32.0,
+  36.0
+ ],
+ "plate_clearance": {
+  "-16": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "-12": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "-8": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "-4": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+0": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+4": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+8": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+12": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+16": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+20": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+24": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+28": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+32": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  },
+  "+36": {
+   "plate_points_in_body": 0,
+   "body_points_in_plate": 0
+  }
+ },
+ "tipping": {
+  "com_x_mm": -6.8,
+  "com_y_mm": -0.0,
+  "margin_to_rear_edge_mm": 43.2
+ },
+ "display_mass_g": 103.1
+}

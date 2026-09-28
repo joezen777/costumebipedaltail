@@ -49,6 +49,18 @@ class TestCad(unittest.TestCase):
                 self.assertTrue(all(x <= 200.0 for x in st["bbox_mm"]), f"{pj.name}:{name} {st['bbox_mm']}")
                 self.assertTrue(st["on_bed"], f"{pj.name}:{name}")
 
+    def test_figurine_parts_and_plate_slot(self):
+        rj = ROOT / "cad" / "stl" / "figurine_1to8_resin" / "report.json"
+        if not rj.exists():
+            self.skipTest("run cad/export_figurine.py first")
+        r = json.loads(rj.read_text())
+        for name in ("20_figure_body", "21_protogen_head", "22_display_base", "23_level_pin"):
+            self.assertTrue(r[name]["single_clean_volume"] and r[name]["fits_printer"], name)
+        self.assertEqual(len(r["plate_levels_mm"]), 14)
+        for lvl, c in r["plate_clearance"].items():
+            self.assertEqual((c["plate_points_in_body"], c["body_points_in_plate"]), (0, 0), f"plate at {lvl}")
+        self.assertGreater(r["tipping"]["margin_to_rear_edge_mm"], 10)
+
 
 if __name__ == "__main__":
     unittest.main()

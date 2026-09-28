@@ -9,7 +9,8 @@ performer. The client revision asked for:
 
 It was validated in a MuJoCo physics model, then built as parametric OpenSCAD and FreeCAD models. The print-ready
 parts are for an Ender 3 V2 / Sprite Pro with a **1.2 mm nozzle** (no part larger than a 20 cm cube), plus a
-**1:8 snap-together resin kit** for the Photon Mono 5s.
+**1:8 snap-together resin kit** for the Photon Mono 5s, and a **1:8 low-poly figurine with a protogen head** whose
+back slot takes the kit's plate at 14 heights.
 
 - Design document: [docs/barney.md](docs/barney.md)
 - Documentation index: [docs/README.md](docs/README.md)
@@ -120,6 +121,17 @@ Print settings, assembly and the kit shopping list are in that folder's
 
 ![1:8 kit assembled](cad/stl/replica_1to8_resin/preview.png)
 
+### 1:8 figurine with a protogen head
+
+**[`cad/stl/figurine_1to8_resin/`](cad/stl/figurine_1to8_resin/)**: a low-poly 5 ft 8 in male at 1:8 with a
+protogen head, for trying the kit at different heights.
+- **Back slot:** a T-slot rail on the back takes the kit's hip plate unchanged. It slides in from the top.
+- **Levels:** pins through the lip holes stop the plate at 14 levels, from 128 mm below to 288 mm above the design
+  height (full-size).
+- **Parts:** body, head, base and two level pins.
+
+![figurine with the tail at three levels](cad/stl/figurine_1to8_resin/preview_levels_side.png)
+
 ## 4. The tail on a performer: five simulated poses
 
 Every row is one instant of the as-built simulation, shown three ways:
@@ -175,6 +187,7 @@ cd cad && ~/.venvs/costumebipedaltail/bin/python export_stl.py --variant barney 
 PYTHONPATH=. ~/.venvs/costumebipedaltail/bin/python experiments/barney.py                # design + as-built simulation
 PYTHONPATH=. ~/.venvs/costumebipedaltail/bin/python experiments/barney_tables.py         # springs / strength / mass tables
 PYTHONPATH=. ~/.venvs/costumebipedaltail/bin/python cad/export_replica.py                # 1:8 resin kit
+PYTHONPATH=. ~/.venvs/costumebipedaltail/bin/python cad/export_figurine.py               # 1:8 protogen figurine
 TAIL_VARIANT=barney ~/Applications/freecad-experiment/squashfs-root/usr/bin/freecadcmd cad/freecad/build_tail.py
 python3 cad/render_views.py --variant barney                                             # CAD views
 MUJOCO_GL=egl PYTHONPATH=. ~/.venvs/costumebipedaltail/bin/python experiments/pose_renders.py

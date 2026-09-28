@@ -71,6 +71,7 @@ self-centring.
 | FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` |
 | Springs / strength / mass | [tables/barney_springs.md](tables/barney_springs.md), [tables/barney_strength.md](tables/barney_strength.md), [tables/barney_mass_budget.md](tables/barney_mass_budget.md) |
 | 1:8 snap-together resin kit | `cad/stl/replica_1to8_resin/` (README there) |
+| 1:8 protogen figurine with the adjustable-height plate slot | `cad/stl/figurine_1to8_resin/` (README there) |
 | CAD renders, pose renders, photos | `results/cad_renders_barney/`, `results/pose_renders/`, `results/simulated_photos/` |
 
 The whole tail is only 6 joints, so it *is* the prototype. There is no separate 4-joint test section; run the
