@@ -159,7 +159,9 @@ def write_csv(r, path: Path):
                "tip_heading", "tip_displacement", "cord_tension", "floor_force"]
     header += [f"joint{i+1}_ball_force" for i in range(n)] + [f"joint{i+1}_neck_moment" for i in range(n)]
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", newline="") as f:
+    import gzip
+    opener = (lambda: gzip.open(path, "wt", newline="")) if path.suffix == ".gz" else (lambda: open(path, "w", newline=""))
+    with opener() as f:
         w = csv.writer(f)
         w.writerow(header)
         for k in range(len(r["time"])):

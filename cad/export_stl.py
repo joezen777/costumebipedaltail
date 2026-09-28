@@ -65,6 +65,21 @@ def estimate_mass(st, perimeters=3, line=1.3, infill=0.20):
     return (shell + infill * core) * PETG * 1000
 
 
+def to_binary_stl(path):
+    """OpenSCAD writes ASCII STL; store binary (about 5x smaller, same triangles)."""
+    tri = read_stl(path)
+    if path.read_bytes()[:5] != b"solid":
+        return
+    n = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    n /= np.maximum(np.linalg.norm(n, axis=1), 1e-12)[:, None]
+    rec = np.zeros(len(tri), dtype=np.dtype([("n", "<f4", 3), ("v", "<f4", (3, 3)), ("a", "<u2")]))
+    rec["n"], rec["v"] = n, tri
+    with open(path, "wb") as f:
+        f.write(b"suit tail binary STL".ljust(80, b" "))
+        f.write(struct.pack("<I", len(tri)))
+        f.write(rec.tobytes())
+
+
 def render(name, part, idx, force=False):
     path = OUT / "full" / f"{name}.stl"
     if path.exists() and not force:
@@ -74,6 +89,7 @@ def render(name, part, idx, force=False):
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode or not path.exists():
         return name, path, "FAILED: " + r.stderr[-400:]
+    to_binary_stl(path)
     return name, path, "ok"
 
 

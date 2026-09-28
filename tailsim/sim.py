@@ -162,8 +162,18 @@ class TailSim:
                 if T0 < 0:
                     raise RuntimeError(f"dorsal spring {i+1} would need compression")
             self.spring.append(dict(joint=i, side=side, tid=tid, aid=aid, k=k, T0=T0, L0=L, arm=abs(r)))
-        db = math.radians(p.deadband_deg)
         rest = d.qpos.copy()
+        if p.spring_override is not None:
+            # same physical springs as a previously designed tail (hardware study)
+            for s, o in zip(self.spring, p.spring_override):
+                s["k"], s["T0"] = float(o["k"]), float(o["T0"])
+            from .linear import linear_modes
+            self.K_target = (np.zeros(p.n), np.zeros(p.n))
+            self.K_eff = self.stiffness_at_rest(rest)
+            self.stiffen_steps = 0
+            self.lowest_mode_hz = float(linear_modes(self, rest)[0][0])
+            return
+        db = math.radians(p.deadband_deg)
         for _ in range(8):
             tau_f = self.mu * self.r_fric * self._static_N()
             Kyt = np.maximum((2 * math.pi * p.yaw_local_hz) ** 2 * self.I_yaw, tau_f / db)

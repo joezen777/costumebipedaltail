@@ -39,7 +39,7 @@ def _run(args):
     return name, mname, r
 
 
-def run_matrix(configs: dict, motion_names, workers=6):
+def run_matrix(configs: dict, motion_names, workers=5):
     jobs = [(n, p, m) for n, p in configs.items() for m in motion_names]
     out = {n: {} for n in configs}
     with ProcessPoolExecutor(workers) as ex:
@@ -111,6 +111,23 @@ def test_section_config(ballast=True):
     return TailParams(**kw)
 
 
+def hardware_configs():
+    """Same built tail (CAD masses, reference springs) with user-adjustable settings changed."""
+    built, _ = cad_mass_config()
+    sim = TailSim(built, settle=False)
+    springs = [dict(k=s["k"], T0=s["T0"]) for s in sim.spring]
+    base = built.variant(spring_override=springs, label="as built")
+    cfg = {"as_built": base}
+    for t in (5.0, 20.0, 40.0):
+        cfg[f"hw_preload_{int(t)}N"] = base.variant(label=f"as built, cord {t:.0f} N", cord_preload=t)
+    for f in ("VERY_LOW", "LOW", "HIGH"):
+        cfg[f"hw_friction_{f}"] = base.variant(label=f"as built, {f} friction", friction=f)
+    for c in (0.0, 0.03):
+        cfg[f"hw_com_{int(c*1000)}mm"] = base.variant(label=f"as built, COM {c*1000:.0f} mm", com_offset=c)
+    cfg["hw_roll_free"] = base.variant(label="as built, roll key removed", roll_unrestricted=True)
+    return cfg
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-anim", action="store_true")
@@ -142,7 +159,7 @@ def main():
         # per-test CSVs for the four README configurations and the reference
         for name in ("A_friction_only", "B_cord_preload", "C_offset_com", "D_progressive", "reference", "naive_no_springs"):
             for mname, r in raw[name].items():
-                write_csv(r, data / "csv" / f"{name}__{mname}.csv")
+                write_csv(r, data / "csv" / f"{name}__{mname}.csv.gz")
         abcd = {k: raw[k] for k in ("A_friction_only", "B_cord_preload", "C_offset_com", "D_progressive")}
         for mname in MOTIONS:
             viz.comparison_plot({k: v[mname] for k, v in abcd.items()}, fig / f"compare_ABCD_{mname}.png",
@@ -167,6 +184,28 @@ def main():
                         anim / "naive_vs_reference_hip_snap.gif", titles=["no springs (naive)", "reference"], fps=20)
             viz.animate(raw["reference"]["crouch"], anim / "reference_crouch.gif", titles=["reference, crouch"], fps=20)
         print("study", round(time.time() - t0), "s")
+
+    if not a.only or a.only == "hardware":
+        cfg = hardware_configs()
+        raw = run_matrix(cfg, ["hip_snap_30", "dramatic_turn_45", "walk_1.50Hz", "walk_2.00Hz", "crouch"])
+        save(metrics_table(raw, cfg), data / "hardware_metrics.json")
+        for group, keys in (("preload", ["hw_preload_5N", "as_built", "hw_preload_20N", "hw_preload_40N"]),
+                            ("friction", ["hw_friction_VERY_LOW", "hw_friction_LOW", "as_built", "hw_friction_HIGH"]),
+                            ("com_roll", ["hw_com_0mm", "as_built", "hw_com_30mm", "hw_roll_free"])):
+            viz.comparison_plot({cfg[k].label: raw[k]["hip_snap_30"] for k in keys}, fig / f"hardware_{group}_hip_snap.png",
+                                title=f"Same built tail, {group} changed - 30° hip snap")
+        viz.response_plots(raw["as_built"]["hip_snap_30"], fig / "as_built_hip_snap_30.png", "As built (CAD masses) - 30° hip snap")
+        viz.response_plots(raw["as_built"]["dramatic_turn_45"], fig / "as_built_dramatic_turn_45.png", "As built (CAD masses) - 45° turn")
+        viz.waterfall(raw["as_built"]["hip_snap_30"], fig / "as_built_hip_snap_waterfall.png", "As built: joint yaw propagation")
+        for mname, r in raw["as_built"].items():
+            write_csv(r, data / "csv" / f"as_built__{mname}.csv.gz")
+        if not a.no_anim:
+            viz.animate(raw["as_built"]["hip_snap_30"], anim / "as_built_hip_snap_30.gif", titles=["as built, 30° hip snap"], fps=20)
+            viz.animate(raw["as_built"]["dramatic_turn_45"], anim / "as_built_dramatic_turn_45.gif", titles=["as built, 45° turn"], fps=20)
+            viz.animate(raw["as_built"]["walk_1.50Hz"], anim / "as_built_walk_1.5Hz.gif", titles=["as built, walking 1.5 steps/s"], fps=20)
+            viz.animate([raw["hw_roll_free"]["hip_snap_30"], raw["as_built"]["hip_snap_30"]], anim / "roll_free_vs_roll_key.gif",
+                        titles=["roll key removed", "with roll key"], fps=20)
+        print("hardware", round(time.time() - t0), "s")
 
     if not a.only or a.only == "test_section":
         cfg = {"test_ballast": test_section_config(True), "test_bare": test_section_config(False)}

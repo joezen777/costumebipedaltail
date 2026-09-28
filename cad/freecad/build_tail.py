@@ -29,6 +29,7 @@ V = App.Vector
 OUT = HERE / "output"
 OUT.mkdir(exist_ok=True)
 X, Y, Z = V(1, 0, 0), V(0, 1, 0), V(0, 0, 1)
+FUZZ = 0.0           # mm; >0 enables fuzzy booleans (made the caps invalid in FreeCAD 1.1)
 
 # ----------------------------------------------------------------- primitives
 
@@ -62,16 +63,27 @@ def at_springs(make):
 
 
 def fuse(shapes):
-    s = shapes[0]
-    for o in shapes[1:]:
-        s = s.fuse(o)
-    return s.removeSplitter()
+    """Multi-argument boolean union (sequential fuses can fail in OCC on coplanar faces)."""
+    s = shapes[0].multiFuse(shapes[1:], FUZZ) if len(shapes) > 1 else shapes[0]
+    s = s.removeSplitter()
+    if not s.isValid():
+        s.fix(1e-4, 1e-4, 1e-3)
+    if s.Volume <= 0:
+        raise RuntimeError("fuse produced an empty shape")
+    return s
 
 
 def cut(base, tools):
-    for t in tools:
-        base = base.cut(t)
-    return base
+    v0 = base.Volume
+    out = base.cut(tools, FUZZ) if tools else base
+    if out.Volume <= 0.2 * v0:
+        # fall back to sequential cuts if the multi-tool cut misbehaves
+        out = base
+        for t in tools:
+            out = out.cut(t)
+    if out.Volume <= 0:
+        raise RuntimeError("cut produced an empty shape")
+    return out
 
 
 def hex_prism_x(af, x0, length, zoff):
@@ -234,17 +246,13 @@ def createHipMount(p):
     fin_t = 3 * p.line_w + 0.1
     plate = Part.makeBox(p.hip_plate_t, p.hip_plate_w, p.hip_plate_h,
                          V(-p.harness_plate_offset - p.hip_plate_t, -p.hip_plate_w / 2, -p.hip_plate_h / 2))
-    c0 = Part.Wire(Part.makeCircle(g.flange_r(p, 1) + 6, V(-p.harness_plate_offset - p.hip_plate_t, 0, 0), X))
-    c1 = Part.makeCircle(g.flange_r(p, 1), V(-pf - 8, 0, 0), X)
-    c1 = Part.Wire(c1.transformGeometry(P.toMatrix()))
-    boss = Part.makeLoft([c0, c1], True)
-    local = []
+    # boss: a cylinder on the tail axis from the ball-1 flange forward through the plate
+    reach = (p.root_back_offset - p.harness_plate_offset) / math.cos(math.radians(p.root_pitch)) + 20
+    local = [cyl_x(g.flange_r(p, 1) + 4, -reach, -pf)]
     for a in (0, 90, -90):
         arm = Part.makeBox(12, fin_t + 2, w + 5, V(-pf - 12, -fin_t / 2 - 1, 0))
-        # web from the arm forward to the harness plate
-        reach = (p.root_back_offset - p.harness_plate_offset) / math.cos(math.radians(p.root_pitch)) - pf - 12 + 6
-        web = Part.makeBox(reach, fin_t + 2, 0.5 * w, V(-pf - 12 - reach, -fin_t / 2 - 1, 0))
-        local.append(rot_x(arm.fuse(web), a))
+        web = Part.makeBox(reach - pf - 12, fin_t + 2, 0.5 * w, V(-reach, -fin_t / 2 - 1, 0))
+        local += [rot_x(arm, a), rot_x(web, a)]
     tail_side = Part.makeBox(100, 200, 200, V(-pf + 0.01, -100, -100))
     local_tools = [tail_side, cyl_x(g.bore_r(p), -pf - 80, 0), cyl_x(9, -pf - 36, -pf - 22),
                    Part.makeBox(14, 18, 60, V(-pf - 36, -9, -60))]
@@ -255,7 +263,10 @@ def createHipMount(p):
     def place(s):
         return s.transformGeometry(P.toMatrix())
 
-    body = fuse([plate, boss] + [place(s) for s in local])
+    tail_part = place(fuse(local))
+    # keep only what lies behind the harness plate's front face
+    keep = Part.makeBox(400, 400, 400, V(-p.harness_plate_offset - 400, -200, -200))
+    body = fuse([plate, tail_part.common(keep)])
     tools = [place(s) for s in local_tools]
     for y in (-75, 75):
         for zz in (-50, 50):

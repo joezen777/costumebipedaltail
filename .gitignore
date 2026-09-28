@@ -44,3 +44,4 @@ cad/build/
 *.stl.tmp
 cad/stl/*.tmp
 results/sweep/*.json.tmp
+*.FCBak

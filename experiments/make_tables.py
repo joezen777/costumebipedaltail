@@ -57,6 +57,25 @@ def strength(p, c, study):
     return md(["joint", "neck OD / bore (mm)", "section modulus (mm³)", "allowable moment @20 MPa (N·m)"], rows), peak_neck, peak_stop
 
 
+HEAD = ["configuration", "snap lag", "snap overshoot", "oscillations", "settle", "residual", "turn overshoot",
+        "walk whip 1.5/2.0", "peak tip v", "max roll", "crouch min tip z", "crouch floor N", "lowest mode Hz", "score"]
+
+
+def study_rows(study, keys):
+    rows = []
+    for k, label in keys:
+        if k not in study:
+            continue
+        s, t, w, w2 = study[k]["hip_snap_30"], study[k]["dramatic_turn_45"], study[k]["walk_1.50Hz"], study[k]["walk_2.00Hz"]
+        cr = study[k]["crouch"]
+        rows.append([label, f"{s['maximum_tip_lag']:.1f}", f"{s['maximum_tip_overshoot']:.1f}", s["oscillation_count"],
+                     f"{s['settling_time']:.2f}", f"{s['residual_offset']:.1f}", f"{t['maximum_tip_overshoot']:.1f}",
+                     f"{w['whip_ratio']:.2f} / {w2['whip_ratio']:.2f}", f"{s['peak_tip_velocity']:.2f}",
+                     f"{s['maximum_joint_roll']:.1f}", f"{cr['min_tip_height']:.2f}", f"{cr['max_floor_force']:.1f}",
+                     f"{study[k]['linear']['lowest_mode_hz']:.3f}", f"{study[k]['score']:.1f}"])
+    return rows
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     p = TailParams()
@@ -109,24 +128,21 @@ def main():
             ("D_progressive", "D + progressive limits"), ("reference", "reference (= D, tuned)"), ("cad_masses", "reference, CAD masses"),
             ("naive_no_springs", "naive: no springs"), ("D_roll_unrestricted", "D, roll unrestricted")]
     keys += [(k, k) for k in study if k.startswith(("com_", "preload_", "friction_", "joints_", "mass_", "limits_"))]
-    rows = []
-    for k, label in keys:
-        if k not in study:
-            continue
-        s, t, w, w2 = study[k]["hip_snap_30"], study[k]["dramatic_turn_45"], study[k]["walk_1.50Hz"], study[k]["walk_2.00Hz"]
-        cr = study[k]["crouch"]
-        rows.append([label, f"{s['maximum_tip_lag']:.1f}", f"{s['maximum_tip_overshoot']:.1f}", s["oscillation_count"],
-                     f"{s['settling_time']:.2f}", f"{s['residual_offset']:.1f}", f"{t['maximum_tip_overshoot']:.1f}",
-                     f"{w['whip_ratio']:.2f} / {w2['whip_ratio']:.2f}", f"{s['peak_tip_velocity']:.2f}",
-                     f"{s['maximum_joint_roll']:.1f}", f"{cr['min_tip_height']:.2f}", f"{study[k]['linear']['lowest_mode_hz']:.3f}",
-                     f"{study[k]['score']:.1f}"])
+    rows = study_rows(study, keys)
     (OUT / "study.md").write_text(
         "# Configuration study (identical hip inputs)\n\nHip snap = 30° in 0.35 s; turn = 45° in 0.5 s; walk = ±5° yaw, ±3° roll, "
         "±20 mm bob at 1.5 and 2.0 steps/s. Angles in degrees, times in s, velocity in m/s, heights in m. Lowest mode: "
         "smallest small-motion frequency about the rest pose (negative = statically unstable). Score: penalty vs the README "
         "target bands (lower = closer; see tailsim/metrics.py).\n\n"
-        + md(["configuration", "snap lag", "snap overshoot", "oscillations", "settle", "residual", "turn overshoot",
-              "walk whip 1.5/2.0", "peak tip v", "max roll", "crouch min tip z", "lowest mode Hz", "score"], rows))
+        + md(HEAD, rows))
+    hw = DATA / "hardware_metrics.json"
+    if hw.exists():
+        h = json.loads(hw.read_text())
+        labels = {"as_built": "as built (CAD masses, cord 10 N, felt, COM 15 mm)"}
+        keys = [(k, labels.get(k, k.replace("hw_", "as built, ").replace("_", " "))) for k in h]
+        (OUT / "hardware.md").write_text(
+            "# Same built tail, one setting changed\n\nSprings frozen at the as-built design (CAD masses); only the listed "
+            "setting changes, as a builder would adjust it backstage. Columns as in study.md.\n\n" + md(HEAD, study_rows(h, keys)))
     print("tables written")
 
 

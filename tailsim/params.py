@@ -97,6 +97,7 @@ class TailParams:
     deadband_deg: float = 3.5              # max friction dead band the springs must overcome
     min_mode_hz: float = 0.1               # stiffen lateral springs until the lowest mode exceeds this
     spring_damping: float = 0.0
+    spring_override: list | None = None    # [{"k":..,"T0":..}] per spring: reuse built hardware instead of re-designing
 
     # --- foam tip ----------------------------------------------------------
     tip_bend_stiffness: float = 0.6        # N*m/rad, foam bending
