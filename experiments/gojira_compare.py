@@ -16,7 +16,7 @@ from tailsim.sim import TailSim
 
 ROOT = Path(__file__).resolve().parents[1]
 N, MECH, TIP = 10, 1.5, 0.3
-SHAPE = gojira_joints(0.95, 0.12, 0.10, MECH, N, TIP)
+SHAPE = gojira_joints(0.95, 0.145, 0.10, MECH, N, TIP)   # centreline low point; settles to ~9 cm skin clearance
 LIMITS = [8, 9, 10, 12, 14, 16, 18, 20, 23, 26]
 
 

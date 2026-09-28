@@ -37,10 +37,25 @@ FINALISTS = {
     "ball_spring_spine": gojira(label="ball chain + spring spine"),
     "hinge_60": gojira(label="gate hinges, 60° tilt, damping grease", hinge_tilt_deg=60, hinge_washer_torque=2.0, visc=3.0, **H),
     "hinge_45": gojira(label="gate hinges, 45° tilt, damping grease", hinge_tilt_deg=45, hinge_washer_torque=2.0, visc=3.0, **H),
+    "as_built": None,       # filled below: CAD masses, springs re-sized for them
     "elastic_07": elastic_spine(0.7, sag_deg=3.0, label="elastic spine, pre-cambered (0.7 Hz yaw)"),
     "elastic_10": elastic_spine(1.0, sag_deg=3.0, label="elastic spine, pre-cambered (1.0 Hz yaw)"),
     "elastic_07_stiff": elastic_spine(0.7, sag_deg=1.0, label="elastic spine, pre-cambered, stiff pitch (0.7 Hz yaw)"),
 }
+def as_built():
+    """Recommended design with the moving masses measured from the exported Gojira STLs."""
+    import json as _j
+    from cad import geometry as _g
+    from tailsim.mass_budget import budget
+    base = gojira(label="as built (CAD masses)")
+    c = _g.CadParams(**_j.loads((ROOT / "cad" / "variants" / "gojira.json").read_text()))
+    sim = TailSim(base, settle=False)
+    rows = budget(c, sim.spring_table(), parts_json=ROOT / "cad" / "stl" / "parts_gojira.json")
+    return base.variant(masses=[r["total_g"] / 1000 for r in rows])
+
+
+FINALISTS["as_built"] = as_built()
+
 MOTIONS = {"hip_snap_30": motions.hip_snap, "hip_snap_left": lambda: motions.Ramp("hip_snap_left", [0, 0, 0, 0.5236, 0, 0], 0.25, duration=6.0),
            "dramatic_turn_45": motions.dramatic_turn, "walk_1.50Hz": lambda: motions.Walk(1.5),
            "walk_2.00Hz": lambda: motions.Walk(2.0), "crouch": motions.crouch, "bend_over": motions.bend_over,
@@ -54,21 +69,30 @@ def job(a):
 
 
 def main():
-    raw = {k: {} for k in FINALISTS}
+    import sys
+    only = sys.argv[1].split(",") if len(sys.argv) > 1 else list(FINALISTS)
+    raw = {k: {} for k in only}
     with ProcessPoolExecutor(6) as ex:
-        for k, m, r in ex.map(job, [(k, m) for k in FINALISTS for m in MOTIONS]):
+        for k, m, r in ex.map(job, [(k, m) for k in only for m in MOTIONS]):
             raw[k][m] = r
     met = {k: {"label": FINALISTS[k].label, **{m: evaluate(r) for m, r in v.items()}} for k, v in raw.items()}
     data = ROOT / "results" / "data"
-    (data / "gojira_final.json").write_text(json.dumps(met, indent=1, default=float))
+    old = json.loads((data / "gojira_final.json").read_text()) if (data / "gojira_final.json").exists() else {}
+    old.update(met)
+    (data / "gojira_final.json").write_text(json.dumps(old, indent=1, default=float))
     (ROOT / "scratch").mkdir(exist_ok=True)
-    with open(ROOT / "scratch" / "gojira_raw.pkl", "wb") as f:
-        pickle.dump(raw, f)
+    rawp = ROOT / "scratch" / "gojira_raw.pkl"
+    allraw = pickle.load(open(rawp, "rb")) if rawp.exists() else {}
+    allraw.update(raw)
+    with open(rawp, "wb") as f:
+        pickle.dump(allraw, f)
+    FIN = {k: FINALISTS[k] for k in only}
     fig = ROOT / "results" / "figures"
-    for m in MOTIONS:
-        viz.comparison_plot({FINALISTS[k].label: raw[k][m] for k in FINALISTS}, fig / f"gojira_{m}.png",
-                            title=f"Gojira profile finalists: {m}")
-    for k in FINALISTS:
+    if len(only) > 1:
+        for m in MOTIONS:
+            viz.comparison_plot({FINALISTS[k].label: raw[k][m] for k in only}, fig / f"gojira_{m}.png",
+                                title=f"Gojira profile finalists: {m}")
+    for k in only:
         for m in ("hip_snap_30", "jump", "bend_over"):
             viz.response_plots(raw[k][m], fig / f"gojira_{k}_{m}.png", f"{FINALISTS[k].label} - {m}")
     for k, v in met.items():

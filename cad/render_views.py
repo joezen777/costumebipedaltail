@@ -39,7 +39,26 @@ def render(v):
     return name, r.returncode, "\n".join(l for l in r.stderr.splitlines() if "WARNING" in l or "ERROR" in l)[:300]
 
 
+def gojira_views():
+    """Same view set for the 10-joint Gojira variant (longer, steeper tail: wider cameras)."""
+    Vg = ROOT / "openscad" / "render_views_gojira.scad"
+    Sg = ROOT / "openscad" / "suit_tail_gojira.scad"
+    cams = {"side_neutral_with_actor": "-550,0,-250,90,0,0,4300", "top_neutral": "-700,0,-500,0,0,0,3000",
+            "top_moderate_turn": "-650,-300,-500,0,0,0,3400", "top_max_curvature_limit_cones": "-450,-450,-500,0,0,0,3600",
+            "iso_max_curvature": "-500,-400,-400,60,0,210,4600", "iso_cord_path": "-600,0,-450,65,0,215,2800",
+            "iso_test_section_4joint": "-300,0,-250,65,0,215,1500"}
+    out = []
+    for name, scad, defs, cam in VIEWS:
+        scad = Vg if scad == V else Sg
+        out.append((name, scad, defs, cams.get(name, cam)))
+    return out
+
+
 if __name__ == "__main__":
+    import sys
+    if "--variant" in sys.argv and "gojira" in sys.argv:
+        VIEWS = gojira_views()
+        OUT = OUT.parent / "cad_renders_gojira"
     with ThreadPoolExecutor(2) as ex:
         for name, rc, msg in ex.map(render, VIEWS):
             print(name, "ok" if rc == 0 else f"rc={rc}", msg)

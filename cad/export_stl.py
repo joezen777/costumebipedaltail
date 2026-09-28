@@ -80,12 +80,23 @@ def to_binary_stl(path):
         f.write(rec.tobytes())
 
 
+VARIANT = ""
+
+
+def full_dir():
+    return OUT / (VARIANT if VARIANT else "full")
+
+
+def scad_file():
+    return ROOT / "openscad" / (f"suit_tail_{VARIANT}.scad" if VARIANT else "suit_tail.scad")
+
+
 def render(name, part, idx, force=False):
-    path = OUT / "full" / f"{name}.stl"
+    path = full_dir() / f"{name}.stl"
     if path.exists() and not force:
         return name, path, "cached"
     path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = ["openscad", "-o", str(path), "-D", f'PART="{part}"', "-D", f"INDEX={idx}", str(SCAD)]
+    cmd = ["openscad", "-o", str(path), "-D", f'PART="{part}"', "-D", f"INDEX={idx}", str(scad_file())]
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode or not path.exists():
         return name, path, "FAILED: " + r.stderr[-400:]
@@ -98,8 +109,11 @@ def main():
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--only", default="")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--variant", default="")
     a = ap.parse_args()
-    p = CadParams()
+    global VARIANT
+    VARIANT = a.variant
+    p = CadParams(**json.loads((ROOT / "variants" / f"{VARIANT}.json").read_text())) if VARIANT else CadParams()
     todo = parts(p.joint_count)
     if a.only:
         keep = set(a.only.split(","))
@@ -118,16 +132,17 @@ def main():
         report[name] = st
         print(f"{name:22s} {status:6s} bbox {st['bbox_mm']} vol {st['volume_cm3']:.1f} cm3 ~{st['mass_g']:.0f} g"
               f" {'OK' if st['fits_200mm'] and st['on_bed'] else 'CHECK'}")
-    old = json.loads((OUT / "parts.json").read_text()) if (OUT / "parts.json").exists() else {}
+    pj = OUT / (f"parts_{VARIANT}.json" if VARIANT else "parts.json")
+    old = json.loads(pj.read_text()) if pj.exists() else {}
     old.update(report)
-    (OUT / "parts.json").write_text(json.dumps(old, indent=1))
+    pj.write_text(json.dumps(old, indent=1))
     # 4-joint test-section kit
-    ts = OUT / "test_section"
+    ts = OUT / (f"{VARIANT}_test_section" if VARIANT else "test_section")
     ts.mkdir(exist_ok=True)
     kit = ["hip_mount", "test_ballast_plate"] + [f"{k}_{i}{s}" for i in range(1, 5) for k, s in
                                                  (("ball", "_left"), ("ball", "_right"), ("cap", ""), ("body", ""))]
     for k in kit:
-        src = OUT / "full" / f"{k}.stl"
+        src = full_dir() / f"{k}.stl"
         if src.exists():
             shutil.copy2(src, ts / f"{k}.stl")
 

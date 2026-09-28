@@ -11,18 +11,6 @@
   "seed": 1017,
   "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature stands still and upright, arms held forward, tail at rest behind it."
  },
- "1_standing__dn65_s0.png": {
-  "source": "1_standing.png",
-  "denoise": 0.65,
-  "seed": 1000,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature stands still and upright, arms held forward, tail at rest behind it."
- },
- "1_standing__dn65_s1.png": {
-  "source": "1_standing.png",
-  "denoise": 0.65,
-  "seed": 1017,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature stands still and upright, arms held forward, tail at rest behind it."
- },
  "2_bending_over__dn55_s0.png": {
   "source": "2_bending_over.png",
   "denoise": 0.55,
@@ -32,18 +20,6 @@
  "2_bending_over__dn55_s1.png": {
   "source": "2_bending_over.png",
   "denoise": 0.55,
-  "seed": 1017,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature bends forward deeply at the hips, torso leaning down, the tail lifted high behind it as a counterbalance."
- },
- "2_bending_over__dn65_s0.png": {
-  "source": "2_bending_over.png",
-  "denoise": 0.65,
-  "seed": 1000,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature bends forward deeply at the hips, torso leaning down, the tail lifted high behind it as a counterbalance."
- },
- "2_bending_over__dn65_s1.png": {
-  "source": "2_bending_over.png",
-  "denoise": 0.65,
   "seed": 1017,
   "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature bends forward deeply at the hips, torso leaning down, the tail lifted high behind it as a counterbalance."
  },
@@ -59,18 +35,6 @@
   "seed": 1017,
   "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature turns its hips sharply toward its left; the heavy tail lags behind, still pointing the old direction, swinging around."
  },
- "3_turning__dn65_s0.png": {
-  "source": "3_turning.png",
-  "denoise": 0.65,
-  "seed": 1000,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature turns its hips sharply toward its left; the heavy tail lags behind, still pointing the old direction, swinging around."
- },
- "3_turning__dn65_s1.png": {
-  "source": "3_turning.png",
-  "denoise": 0.65,
-  "seed": 1017,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature turns its hips sharply toward its left; the heavy tail lags behind, still pointing the old direction, swinging around."
- },
  "4_jerk_left__dn55_s0.png": {
   "source": "4_jerk_left.png",
   "denoise": 0.55,
@@ -83,18 +47,6 @@
   "seed": 1017,
   "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature jerks its hips abruptly to the left; the long tail whips behind, lagging and curving sideways."
  },
- "4_jerk_left__dn65_s0.png": {
-  "source": "4_jerk_left.png",
-  "denoise": 0.65,
-  "seed": 1000,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature jerks its hips abruptly to the left; the long tail whips behind, lagging and curving sideways."
- },
- "4_jerk_left__dn65_s1.png": {
-  "source": "4_jerk_left.png",
-  "denoise": 0.65,
-  "seed": 1017,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature jerks its hips abruptly to the left; the long tail whips behind, lagging and curving sideways."
- },
  "5_jump_before_landing__dn55_s0.png": {
   "source": "5_jump_before_landing.png",
   "denoise": 0.55,
@@ -104,18 +56,6 @@
  "5_jump_before_landing__dn55_s1.png": {
   "source": "5_jump_before_landing.png",
   "denoise": 0.55,
-  "seed": 1017,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature is mid-air at the end of a jump, feet a few centimetres above the floor just before landing, tail raised off the floor behind it."
- },
- "5_jump_before_landing__dn65_s0.png": {
-  "source": "5_jump_before_landing.png",
-  "denoise": 0.65,
-  "seed": 1000,
-  "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature is mid-air at the end of a jump, feet a few centimetres above the floor just before landing, tail raised off the floor behind it."
- },
- "5_jump_before_landing__dn65_s1.png": {
-  "source": "5_jump_before_landing.png",
-  "denoise": 0.65,
   "seed": 1017,
   "prompt": "Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. The creature is mid-air at the end of a jump, feet a few centimetres above the floor just before landing, tail raised off the floor behind it."
  }

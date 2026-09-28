@@ -139,11 +139,11 @@ def build_xml(p: TailParams) -> str:
             s.append(f'<site name="sp_{i+1}_{side}_c" pos="{_fmt([a, off[1], off[2]])}" size="0.003"/>')
         # distal anchors for the next joint, in this vertebra's frame
         if i + 1 < n:
-            Rn = _rot_y(math.radians(droop[i+1]))
+            # parent anchor = hole in this vertebra's fins, i.e. in THIS body's frame (CAD fin holes)
             for side, off in (("L", (0, lat[i+1], 0)), ("R", (0, -lat[i+1], 0)), ("D", (0, 0, dor[i+1]))):
                 if side not in sides:
                     continue
-                ppos = np.array([L, 0, 0]) + Rn @ np.array([-a_par[i+1], off[1], off[2]])
+                ppos = np.array([L - a_par[i+1], off[1], off[2]])
                 s.append(f'<site name="sp_{i+2}_{side}_p" pos="{_fmt(ppos)}" size="0.003"/>')
         body_xml.append(s)
 

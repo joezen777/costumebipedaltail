@@ -110,7 +110,7 @@ def main():
         M_design = peak["neck"][i-1] + peak["Nlat"][i-1] * g.DF(c, i) / 1000    # ball moment + lateral ball force x neck length
         Td = max(s for s, sp in zip(peak["springT"], sim.spring) if sp["joint"] == i - 1)
         ear_M = Td * (g.spring_arm(c, i) - g.cap_outer_r(c, i)) / 1000
-        ear_Z = g.ear_w(c, i) * g.cap_ear_t(c) ** 2 / 6
+        ear_Z = g.ear_w(c, i) * g.cap_ear_t(c, i) ** 2 / 6
         ear_sigma = ear_M * 1000 / ear_Z
         rows.append([f"J{i}", f"{peak['neck'][i-1]:.2f}", f"{peak['N'][i-1]:.0f} / {peak['Nlat'][i-1]:.0f}", f"{M_design:.2f}", f"{M_allow:.1f}",
                      f"{M_allow / max(M_design, 1e-6):.1f}", f"{Td:.0f}", f"{ear_sigma:.1f}", f"{PETG_UTS / ear_sigma:.1f}"])

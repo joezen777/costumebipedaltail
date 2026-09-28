@@ -37,6 +37,7 @@ class CadParams:
     max_roll: float = 7.0
     root_pitch: float = 15.0
     rest_droop: float = 1.5
+    rest_droop_list: list = field(default_factory=list)  # per-joint rest bend (deg, + = down); [0] unused (root_pitch)
     # ball / socket
     ball_ratio: float = 0.15
     ball_min: float = 17.0
@@ -198,15 +199,26 @@ def cap_lobe_t(p):
     return 6.0
 
 
+def droop(p, i):
+    """Rest bend of joint i (deg, positive = down). Joint 1's is part of the root pitch."""
+    if i == 1:
+        return 0.0
+    if p.rest_droop_list:
+        return float(p.rest_droop_list[i - 1])
+    return p.rest_droop
+
+
 def DF(p, i):
-    """Ball centre -> ball flange face distance (neck length).
+    """Ball centre -> ball flange face distance (neck length, along the parent axis).
 
     The flange (with its bolt heads) must clear the cap's top face and its
-    bolt lobes when the joint is at its largest bend."""
+    bolt lobes when the joint is at its largest bend. A wedge flange (rest bend)
+    tilts the flange rim toward the cap, so that tilt is added."""
     t = math.radians(max_bend(p, i))
     top = cap_h(p, i) * math.cos(t) + cap_outer_r(p, i) * math.sin(t)
     lobes = cap_lobe_t(p) + p.head_h + (bolt_pcd_r(p, i) + lobe_r(p)) * math.sin(t)
-    return max(top, lobes) + p.head_h + 2.0
+    wedge = flange_r(p, i) * math.sin(math.radians(abs(droop(p, i))))
+    return max(top, lobes) + p.head_h + 2.0 + wedge
 
 
 def seat_depth(p, i):
@@ -244,8 +256,9 @@ def neck_section_modulus(p, i):
     return math.pi * (Do ** 4 - Di ** 4) / (32 * Do)
 
 
-def cap_ear_t(p):
-    return 10.0
+def cap_ear_t(p, i=None):
+    """Spring-ear thickness: 16 mm on the root caps (dorsal spring pairs up to ~400 N), 12 mm elsewhere."""
+    return 16.0 if (i is not None and RB(p, i) >= 22) else 12.0
 
 
 def spring_arm(p, i):
@@ -284,7 +297,7 @@ def slot_width(p, i):
 
 
 def coil_od(p, i):
-    return min(max(p.coil_od_ratio * D(p, i), 5.0), 10.0)
+    return min(max(p.coil_od_ratio * D(p, i), 5.0), 16.0)
 
 
 def cord_flare(p, i):
@@ -315,7 +328,7 @@ def checks(p: CadParams):
         out.append((f"J{i} spring clears cap", clear >= 0.4, f"{clear:.2f} mm"))
         room = D(p, i) / 2 - r["spring_arm"]
         out.append((f"J{i} spring anchor inside skin envelope", room >= 5.9, f"{room:.2f} mm"))
-        ear_swing = (r["spring_arm"] + 5) * math.sin(math.radians(max_bend(p, i))) + p.cap_ear_x + cap_ear_t(p) / 2
+        ear_swing = (r["spring_arm"] + 5) * math.sin(math.radians(max_bend(p, i))) + cap_ear_t(p, i)
         out.append((f"J{i} cap ear clears parent fins at full bend", DF(p, i) + flange_t(p) - ear_swing >= 3,
                     f"{DF(p, i) + flange_t(p) - ear_swing:.1f} mm"))
         sl = r["span_parent"] + r["span_child"]

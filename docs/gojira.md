@@ -77,6 +77,66 @@ supported by the same-hardware study, `docs/tables/hardware.md`):
 
 The ball chain costs more, and the extra buys the pitch compliance the hovering Gojira tail needs.
 
+## Final design as built (regenerated CAD, 10 joints)
+
+The CAD was regenerated for this shape: `cad/variants/gojira.json`, `cad/openscad/suit_tail_gojira.scad`.
+
+- **Exact CAD anchors:** the physics model was re-run with the CAD's spring anchor positions (parent anchors in the
+  parent's own frame, as the fin holes are) and the wedge-flange neck lengths.
+- **Raised design curve:** that made the tail settle ~2.5 cm lower, so the design low point was raised from 12 to
+  14.5 cm on the centreline.
+- **Real masses:** the tail was then simulated with the moving masses measured from the exported STLs, hardware and
+  foam skin. That is **3.3 kg, against 2.2 kg assumed**, and heavier toward the tip; see
+  [tables/gojira_mass_budget.md](tables/gojira_mass_budget.md).
+- **Springs re-sized:** the springs were re-sized for those masses.
+- **Geometry:** root pitch is 55°. The upward rest bends, printed as wedge flanges, are
+  -2.4°, -2.9°, -3.6°, -4.4°, -5.5°, -7.0°, -8.8°, -10.5°, -11.6°.
+
+| Test (as built) | Result |
+|---|---|
+| Rest (standing) | skin **8.6 cm** above the floor |
+| 30° hip snap | lag 38.2°, overshoot 26.1°, 2 swing-backs, settles in 4.5 s; min clearance 3.3 cm |
+| Jerk left (30° in 0.25 s) | lag 38.8°, overshoot 27.1° |
+| 45° dramatic turn | overshoot 48.2°; foam brushes the floor at 1.8 N at the extreme of the swing |
+| Walking 1.5 / 2.0 steps/s | tip/hip 1.08 / 0.85; min clearance 5.7 cm |
+| Crouch (−150 mm, 10°) | min clearance 1.4 cm |
+| Side step 300 mm | min clearance 3.5 cm |
+| Bending over 45° | tail rises clear; peak hip moment 24.5 N·m |
+| Jump (25 cm) | brief floor touch on the landing knee-bend, 26 N; hip moment 20.8 N·m |
+
+What the extra mass changes:
+- **More theatrical swing:** two swing-backs instead of one, and a larger overshoot.
+- **Stronger springs:** the root dorsal springs need ~240 N at rest (two heavy springs in parallel at joints 1–4;
+  see [tables/gojira_springs.md](tables/gojira_springs.md)).
+- **Thicker cap ears:** 16 mm on the root caps. Every checked element keeps SF ≥ 3
+  ([tables/gojira_strength.md](tables/gojira_strength.md)).
+
+If the swing reads as too loose on the 4-joint prototype:
+- first go from felt to a rubber seat liner, which adds friction;
+- then lighten the distal vertebrae (two perimeters, 10 % infill), since they carry most of the excess mass.
+
+Build files (the Gojira tail is the one to print):
+
+| What | Where |
+|---|---|
+| Print-ready STLs, full tail (10 joints) | `cad/stl/gojira/`; list with sizes and masses in [tables/gojira_parts.md](tables/gojira_parts.md) |
+| 4-joint prototype kit (joints 1–4 + ballast plate) | `cad/stl/gojira_test_section/` |
+| OpenSCAD (parametric; generated variant file) | `cad/openscad/suit_tail_gojira.scad` (includes `suit_tail.scad`) |
+| FreeCAD + STEP | `cad/freecad/output/suit_tail_gojira.FCStd/.step`, `test_section_4joint_gojira.FCStd/.step` |
+| Springs, strength, mass | [tables/gojira_springs.md](tables/gojira_springs.md), [tables/gojira_strength.md](tables/gojira_strength.md), [tables/gojira_mass_budget.md](tables/gojira_mass_budget.md) |
+| CAD renders (real parts; five simulated poses) | `results/cad_renders_gojira/` |
+
+Printing notes specific to this variant:
+- **Hip mount:** the root boss leaves the plate at 55°, so print it plate-down **with tree supports under the boss**.
+  It is the only part that needs supports.
+- **Ball halves:** each carries its joint's rest-bend wedge. Keep each ball with its joint number; they are not
+  interchangeable.
+- **Joint count:** there are 10 joints, so 10 caps, 10 bodies and 20 ball halves.
+
+The finalist comparison above was computed with the first shape (12 cm design low point, 2.2 kg). Its conclusions
+(rigid hinges are unsafe on landing, and the tube and stop-held chains fail the hover) do not depend on those
+changes.
+
 ## Simulated photos
 
 `results/pose_renders/` holds the physics-accurate renders. The tail shape at each instant comes from the simulation
@@ -84,10 +144,14 @@ of the recommended design; the performer mannequin is posed from the simulated p
 `results/simulated_photos/` holds photoreal versions: Z-Image Turbo image-to-image at partial denoise, which keeps
 the simulated geometry and camera.
 
-| Pose (instant) | Physics render | Tail state |
+| Pose (instant) | Physics render / photo / CAD render | Tail state (as built) |
 |---|---|---|
-| Standing still (rest) | `1_standing.png` | Low point 8.9 cm above the floor |
-| Bending over (pelvis pitched 45°, 3 s) | `2_bending_over.png` | Tail rises as a counterbalance, 62 cm clear |
-| Turning (45° in 0.5 s; instant of largest sideways tail deflection) | `3_turning.png` | Hips at 44°, tail still at −5°: ~49° of lag |
-| Jerk to the left (30° in 0.25 s; largest sideways deflection) | `4_jerk_left.png` | Hips at 30°, tail at −5° |
-| Jump, 50 ms before landing | `5_jump_before_landing.png` | Pelvis 10 cm above standing height, tail 22 cm clear |
+| Standing still | `1_standing` | skin 8.6 cm above the floor |
+| Bending over (pelvis pitched 45°, 3 s) | `2_bending_over` | tail rises as a counterbalance, 56 cm clear |
+| Turning (45° in 0.5 s; largest sideways tail deflection) | `3_turning` | hips at 44°, tail at −9°: ~52° of lag |
+| Jerk to the left (30° in 0.25 s) | `4_jerk_left` | hips at 30°, tail at −8° |
+| Jump, 50 ms before landing | `5_jump_before_landing` | pelvis 10 cm above standing height, tail 23 cm clear |
+
+The files are in `results/pose_renders/`, `results/simulated_photos/` (Z-Image Turbo image-to-image of the physics
+render, denoise 0.55) and `results/cad_renders_gojira/` (the real exported STLs articulated with the simulated joint
+angles).

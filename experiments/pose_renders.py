@@ -20,7 +20,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "results" / "pose_renders"
-DESIGN = "ball_spring_spine"
+DESIGN = "as_built"
 H = 1.727
 PELVIS_Z = 0.55 * H
 SKIN = "0.20 0.24 0.18 1"        # dark green-grey creature skin

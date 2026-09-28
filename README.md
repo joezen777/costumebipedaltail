@@ -13,47 +13,68 @@ models and print-ready STLs:
 
 ---
 
-## 0. Gojira profile ("x² + 1"): the optimal, cheapest workable tail
+## 0. Gojira profile ("x² + 1"): the optimal, cheapest workable tail, ready to print
 
 The target shape: the tail drops from the hips, sweeps a few centimetres **above** the floor without touching it,
-and the tip curls up. Five mechanisms were simulated on this exact shape; full comparison in
+and the tip curls up. Five mechanisms were simulated on this exact shape; full comparison and build notes are in
 [docs/gojira.md](docs/gojira.md).
 
-**Answer: the ball-and-socket chain with the spring spine, reshaped to 1.8 m** (10 joints × 150 mm + 0.3 m foam
-tip), with the rest curve printed into wedge flanges, felt liners, a light 5 N cord and no COM ballast. It hovers
-8.9 cm above the floor at rest and stays clear through walking, turning and crouching, apart from a 0.8 N foam brush
-in the most violent turn. It lags 34°, overshoots 14° and swings back once. It also takes a jump landing gently:
-20 N floor force and 13 N·m at the hips.
+**Answer: the ball-and-socket chain with the spring spine, reshaped to 1.8 m.**
+- 10 joints × 150 mm plus a 0.3 m foam tip.
+- The rest curve is printed into wedge flanges.
+- Felt seat liners and a light 5 N cord.
+
+**As built** (masses measured from the exported STLs + hardware + foam, 3.3 kg):
+- **Hover:** 8.6 cm above the floor at rest; clear while walking and crouching
+  (1.4 cm).
+- **Swing:** lags 38° behind a 30° hip snap, overshoots 26°,
+  swings back 2 times and settles in 4.5 s.
+- **Walking:** tip moves 1.1× the hip.
+- **Jump landing:** a gentle 26 N floor touch.
 
 The cheaper candidates each fail a requirement:
-- **Gate hinges** (yaw-only hinges that self-centre by gravity, no springs): the cheapest and simplest, and they swing
-  nicely. But they are rigid in pitch, so a jump landing slams the hovering tail into the floor with **~860 N and
-  ~670 N·m into the performer's pelvis**. Unsafe.
-- **Pre-bent elastic tube spine:** can't hold the hover and swing at the same time; it drags and loses the swing-back.
-- **Ball chain resting on its stops** (no dorsal springs): stop friction freezes the swing and the tail sags onto the
-  floor.
+- **Gate hinges** (yaw-only, gravity-centred, no springs): the cheapest and simplest, but rigid in pitch. A jump
+  landing slams the hovering tail into the floor with **~860 N and ~670 N·m into the performer's pelvis**.
+- **Pre-bent elastic tube spine:** drags and loses the swing-back.
+- **Ball chain resting on its stops:** freezes and sags onto the floor.
 
-### Simulated photos of the full tail on a performer
+**What to print:**
+- [`cad/stl/gojira/`](cad/stl/gojira/): 43 print-ready STLs, 2.6 kg of PETG. Print list:
+  [docs/tables/gojira_parts.md](docs/tables/gojira_parts.md).
+- [`cad/stl/gojira_test_section/`](cad/stl/gojira_test_section/): the 4-joint prototype kit.
 
-Tail shape in every image comes from the physics simulation of the recommended design. The performer is posed from
-the simulated pelvis motion. The photoreal versions (denoise 0.55; the 0.65 variants sometimes invent tip curls not present in the physics) are Z-Image Turbo image-to-image passes over the physics
-renders, which keep the simulated geometry and camera. Every physics render and all AI variants are in
-[results/pose_renders/](results/pose_renders/) and [results/simulated_photos/](results/simulated_photos/).
+Also available:
+- FreeCAD/STEP: [`cad/freecad/output/suit_tail_gojira.step`](cad/freecad/output/suit_tail_gojira.step).
+- Spring schedule: [docs/tables/gojira_springs.md](docs/tables/gojira_springs.md).
+- Strength (all SF ≥ 3): [docs/tables/gojira_strength.md](docs/tables/gojira_strength.md).
 
-| Standing still | Bending over |
-|---|---|
-| ![](results/simulated_photos/1_standing__dn55_s0.png) | ![](results/simulated_photos/2_bending_over__dn55_s0.png) |
-| Physics render: ![](results/pose_renders/1_standing.png) | Physics render: ![](results/pose_renders/2_bending_over.png) |
+### CAD assembly: the real printed parts
 
-| Turning (45°) | Jerk to the left (30° in 0.25 s) |
-|---|---|
-| ![](results/simulated_photos/3_turning__dn55_s0.png) | ![](results/simulated_photos/4_jerk_left__dn55_s0.png) |
-| Physics render: ![](results/pose_renders/3_turning.png) | Physics render: ![](results/pose_renders/4_jerk_left.png) |
+![Gojira tail CAD assembly with the performer for scale](results/cad_renders_gojira/side_neutral_with_actor.png)
 
-| Jump, 50 ms before landing |
-|---|
-| ![](results/simulated_photos/5_jump_before_landing__dn55_s0.png) |
-| Physics render: ![](results/pose_renders/5_jump_before_landing.png) |
+| Top | Maximum curvature with limit cones | 4-joint prototype |
+|---|---|---|
+| ![](results/cad_renders_gojira/top_neutral.png) | ![](results/cad_renders_gojira/top_max_curvature_limit_cones.png) | ![](results/cad_renders_gojira/iso_test_section_4joint.png) |
+
+| Exploded vertebra | Joint section | Hip mount (55° root) |
+|---|---|---|
+| ![](results/cad_renders_gojira/exploded_vertebra_2.png) | ![](results/cad_renders_gojira/section_joint_1.png) | ![](results/cad_renders_gojira/hip_mount.png) |
+
+### The full tail on a performer in five simulated poses
+
+Every row is the same instant of the as-built simulation, shown three ways:
+1. **Photo:** a Z-Image Turbo image-to-image pass over the physics render (denoise 0.55), which keeps the simulated
+   geometry.
+2. **Physics render:** the smooth skin from the simulated body positions.
+3. **CAD render:** the actual exported STLs articulated with the simulated joint angles.
+
+| Pose | Simulated photo | Physics render | CAD render |
+|---|---|---|---|
+| Standing still | ![](results/simulated_photos/1_standing__dn55_s0.png) | ![](results/pose_renders/1_standing.png) | ![](results/cad_renders_gojira/1_standing.png) |
+| Bending over | ![](results/simulated_photos/2_bending_over__dn55_s0.png) | ![](results/pose_renders/2_bending_over.png) | ![](results/cad_renders_gojira/2_bending_over.png) |
+| Turning (45°) | ![](results/simulated_photos/3_turning__dn55_s0.png) | ![](results/pose_renders/3_turning.png) | ![](results/cad_renders_gojira/3_turning.png) |
+| Jerk to the left | ![](results/simulated_photos/4_jerk_left__dn55_s0.png) | ![](results/pose_renders/4_jerk_left.png) | ![](results/cad_renders_gojira/4_jerk_left.png) |
+| Jump, just before landing | ![](results/simulated_photos/5_jump_before_landing__dn55_s0.png) | ![](results/pose_renders/5_jump_before_landing.png) | ![](results/cad_renders_gojira/5_jump_before_landing.png) |
 
 Plots for the Gojira finalists:
 - [hip snap](results/figures/gojira_hip_snap_30.png)
@@ -62,11 +83,14 @@ Plots for the Gojira finalists:
 - [turn](results/figures/gojira_dramatic_turn_45.png)
 - [walking](results/figures/gojira_walk_1.50Hz.png)
 - [crouch](results/figures/gojira_crouch.png)
-- [recommended design, jump detail](results/figures/gojira_ball_spring_spine_jump.png)
 
-> Sections 1–5 below document the original, straighter 1.4 m tail from the brief. The mechanism, physics findings,
-> CAD and printing notes all carry over. The 1.8 m Gojira variant needs regenerated CAD, with 10 joints and wedge
-> flanges.
+As-built responses:
+- [hip snap](results/figures/gojira_as_built_hip_snap_30.png)
+- [jump](results/figures/gojira_as_built_jump.png)
+- [bend over](results/figures/gojira_as_built_bend_over.png)
+
+> Sections 1–5 below document the original, straighter 1.4 m, 8-joint tail from the brief (STLs in
+> `cad/stl/full/`). The mechanism, physics findings and printing notes all carry over to the Gojira variant above.
 
 ---
 

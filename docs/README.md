@@ -9,6 +9,8 @@ Brief: [brief.md](brief.md) (original design brief). Results overview: [../READM
 | [design.md](design.md) | Mechanical architecture, twist-stable spring geometry, performer fit (5 ft 8 in), strength approach |
 | [printing.md](printing.md) | 1.2 mm nozzle settings, print orientation per part, material choice (PETG vs PLA/TPU vs resin), hardware list, assembly |
 | [test_plan.md](test_plan.md) | 4-joint physical prototype: build, ballast, measurements that calibrate the model |
+| [tables/gojira_parts.md](tables/gojira_parts.md) | **Gojira variant print list** (what to print), sizes and masses |
+| [tables/gojira_springs.md](tables/gojira_springs.md) / [gojira_strength.md](tables/gojira_strength.md) / [gojira_mass_budget.md](tables/gojira_mass_budget.md) | Gojira variant springs, strength and mass |
 | [tables/study.md](tables/study.md) | Every configuration on identical hip inputs (README §27 A–D plus ablations) |
 | [tables/hardware.md](tables/hardware.md) | The *same built tail* with cord preload, friction liner, COM and roll key changed |
 | [tables/springs.md](tables/springs.md) | Spring schedule: rate, preload, installed length per joint |
@@ -26,6 +28,7 @@ Brief: [brief.md](brief.md) (original design brief). Results overview: [../READM
 | `cad/openscad/suit_tail.scad` | Parametric OpenSCAD model (README §20 modules and PART views, plus print-oriented parts) |
 | `cad/freecad/build_tail.py` | Parametric FreeCAD model (`createVertebra(index, parameters)`), writes FCStd + STEP |
 | `cad/freecad/output/` | `suit_tail.FCStd/.step`, `test_section_4joint.FCStd/.step` |
-| `cad/stl/full/`, `cad/stl/test_section/` | Print-ready STLs; `cad/stl/parts.json` = sizes, volumes, masses |
+| `cad/stl/gojira/`, `cad/stl/gojira_test_section/` | **Recommended Gojira tail** print-ready STLs (10 joints) and 4-joint prototype kit |
+| `cad/stl/full/`, `cad/stl/test_section/` | Original 8-joint, 1.4 m tail STLs; `cad/stl/parts*.json` = sizes, volumes, masses |
 | `results/figures/`, `results/animations/`, `results/cad_renders/` | Plots, GIF/MP4 animations, CAD views |
 | `results/data/` | Metrics JSON, per-timestep CSVs (`csv/`), mass budget |

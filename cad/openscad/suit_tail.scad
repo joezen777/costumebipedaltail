@@ -40,17 +40,19 @@ max_roll           = 7;
 // ---- secondary parameters --------------------------------------------------
 skin_root   = 20;   skin_tip = 4;
 root_pitch  = 15;   rest_droop = 1.5;
+rest_droop_list = [];      // per-joint rest bends (deg, + = down); overrides rest_droop (variants)
 ball_ratio  = 0.15; ball_min = 17;  ball_max = 28;
 clear       = 0.4;  liner = 0.5;    stop_pad = 0.8;
 line_w      = 1.3;
 bolt_clear  = 4.5;  nut_af = 7.0;   nut_h = 3.2;   head_d = 7.0;  head_h = 4.0;
 pin_protrude = 3;
-cap_ear_x = 5;      cap_ear_t = 10;     spring_hole = 4.5;  coil_od_ratio = 0.08;
+cap_ear_x = 5;     spring_hole = 4.5;  coil_od_ratio = 0.08;
 root_back_offset = 200;  harness_plate_offset = 120;
 hip_plate_w = 190;  hip_plate_h = 150;  hip_plate_t = 8;
 tip_plug_len = 25;
 function fin_t(i) = (RF(i) > 50 ? 3 : 2) * line_w + 0.1;   // 4.0 / 2.7 mm: three or two 1.3 mm lines
 fin_t_hip = 3 * line_w + 0.1;
+hip_arm_t = 12;
 
 $fn = 72;
 
@@ -82,10 +84,12 @@ function flange_bolt_r(i) = RN(i) + head_d / 2 + 1.0;
 function flange_r(i)      = flange_bolt_r(i) + lobe_r;
 flange_t           = 6;
 function max_bend(i) = max(yawl(i), pitchl(i));
+function droop(i) = (i == 1 || i > N) ? 0 : (len(rest_droop_list) > 0 ? rest_droop_list[i - 1] : rest_droop);
 function DF(i) = max(cap_h(i) * cos(max_bend(i)) + cap_outer_r(i) * sin(max_bend(i)),
-                     cap_lobe_t + head_h + (bolt_pcd_r(i) + lobe_r) * sin(max_bend(i))) + head_h + 2;
+                     cap_lobe_t + head_h + (bolt_pcd_r(i) + lobe_r) * sin(max_bend(i))) + head_h + 2
+                 + flange_r(i) * sin(abs(droop(i)));          // wedge flange tilt
 function seat_depth(i) = RS(i) + wall();
-function coil_od(i)    = min(max(coil_od_ratio * D(i), 5), 10);
+function coil_od(i)    = min(max(coil_od_ratio * D(i), 5), 16);
 function spring_arm(i) = min(max(cap_outer_r(i) + coil_od(i) / 2 + 0.5, 0.8 * RF(i)), D(i) / 2 - 6);
 function span_parent(i) = DF(i) + flange_t + 4;     // parent anchor behind the pivot
 // child anchor: an ear on the socket cap, cap_ear_x PROXIMAL of the pivot (twist-stable geometry)
@@ -116,18 +120,25 @@ module ellip_cone_mx(h, by, bp) {
 
 // ---- ball ------------------------------------------------------------------------
 module ball(i) {
-    R = RB(i); rn = RN(i); df = DF(i); p = pin(i);
+    R = RB(i); rn = RN(i); df = DF(i); p = pin(i); d = droop(i);
+    x1 = cap_h(i) + 3;                      // neck stays on the joint axis through the cap mouth
     difference() {
         union() {
             sphere(r = R, $fn = 96);
-            along_mx(df, rn, rn);
-            translate([-df, 0, 0]) along_mx(flange_t, flange_r(i), flange_r(i));
+            along_mx(x1, rn, rn);
+            // wedge: the neck turns onto the PARENT axis (rest bend d) outside the socket
+            hull() {
+                translate([-x1 + 0.5, 0, 0]) along_mx(0.5, rn, rn);
+                rotate([0, -d, 0]) translate([-df + 0.5, 0, 0]) along_mx(0.5, rn, rn);
+            }
+            rotate([0, -d, 0]) translate([-df, 0, 0]) along_mx(flange_t, flange_r(i), flange_r(i));
         }
         // cord: straight toward the neck, flared on the distal side where the child axis swings
-        along_mx(df + flange_t + 1, bore_r, bore_r);
+        along_mx(x1 + 1, bore_r, bore_r);
+        rotate([0, -d, 0]) along_mx(df + flange_t + 1, bore_r, bore_r);
         along_x(R + 1, bore_r, bore_r + (R + 1) * tan(cord_flare(i)));
         // flange bolts (heads on the neck side)
-        at_lobes() translate([-df - flange_t - 1, 0, flange_bolt_r(i)]) along_x(flange_t + 2, bolt_clear / 2, bolt_clear / 2);
+        rotate([0, -d, 0]) at_lobes() translate([-df - flange_t - 1, 0, flange_bolt_r(i)]) along_x(flange_t + 2, bolt_clear / 2, bolt_clear / 2);
         // roll-key screw: head captured inside the ball, shank out through the dorsal pole
         translate([0, 0, pin_pocket_z(i) - p[3]]) cylinder(d = p[2] + 0.6, h = p[3] + 0.2, $fn = 24);
         translate([0, 0, pin_pocket_z(i)]) cylinder(d = p[0] + 0.3, h = R + 1, $fn = 24);
@@ -179,8 +190,9 @@ module cap(i) {
             }
             // spring ears (dorsal, left, right): child end of the joint's springs
             at_springs() hull() {
-                translate([-cap_ear_t, -ear_w(i) / 2, cap_outer_r(i) - 4]) cube([cap_ear_t, ear_w(i), 1]);
-                translate([-cap_ear_x, 0, spring_arm(i)]) rotate([90, 0, 0]) cylinder(r = cap_ear_t / 2, h = ear_w(i) * 0.6, center = true);
+                translate([-cap_ear_t(i), -ear_w(i) / 2, cap_outer_r(i) - 4]) cube([cap_ear_t(i), ear_w(i), 1]);
+                // rounded end kept inside the cap's flat (print-bed) face: stadium of radius cap_ear_x
+                for (x = [-cap_ear_x, -cap_ear_t(i) + cap_ear_x]) translate([x, 0, spring_arm(i)]) rotate([90, 0, 0]) cylinder(r = cap_ear_x, h = ear_w(i) * 0.6, center = true);
             }
         }
         socket_cavity(i);
@@ -191,6 +203,7 @@ module cap(i) {
     }
 }
 function ear_w(i) = max(12, 0.6 * cap_outer_r(i));
+function cap_ear_t(i) = RB(i) >= 22 ? 16 : 12;   // root caps carry dorsal spring pairs up to ~400 N
 
 // seat = the part of the socket inside the vertebra body (x >= 0)
 module socket_half(i, which = "seat") {
@@ -289,7 +302,7 @@ module fin_windows(i) {
 module vertebra(i) {
     color("SteelBlue") vertebra_frame(i);
     color("LightSteelBlue") cap(i);
-    if (i < N) color("Goldenrod") translate([L, 0, 0]) ball(i + 1);
+    if (i < N) color("Goldenrod") translate([L, 0, 0]) rotate([0, droop(i + 1), 0]) ball(i + 1);
     else color("Goldenrod") translate([body_len(i), 0, 0]) tip_adapter();
 }
 
@@ -312,18 +325,17 @@ module hip_mount() {
                 translate([-harness_plate_offset - hip_plate_t, 0, 0]) rotate([0, -90, 0]) cylinder(r = flange_r(1) + 6, h = 1);
                 root_frame() translate([-pf, 0, 0]) along_mx(8, flange_r(1), flange_r(1));
             }
+            // spring-anchor arms: 12 mm thick, 30 mm deep at the boss (dorsal spring up to ~220 N)
             root_frame() at_springs() hull() {
-                translate([-pf - 12, -fin_t_hip / 2 - 1, 0]) cube([12, fin_t_hip + 2, w + 5]);
-                translate([-pf - 30, -fin_t_hip / 2 - 1, 0]) cube([1, fin_t_hip + 2, 10]);
-            }
-            // web from the arms back to the plate
-            root_frame() at_springs() hull() {
-                translate([-pf - 12, -fin_t_hip / 2 - 1, 0]) cube([4, fin_t_hip + 2, w + 5]);
-                translate([-root_back_offset + harness_plate_offset + 10, -fin_t_hip / 2 - 1, 0]) cube([1, fin_t_hip + 2, 1]);
+                translate([-pf - 12, -hip_arm_t / 2, 0]) cube([12, hip_arm_t, w + 5]);
+                translate([-pf - 30, -hip_arm_t / 2, 0]) cube([30, hip_arm_t, 12]);
             }
         }
-        // anything behind the flange face belongs to the ball
-        root_frame() translate([-pf + 0.01, -100, -100]) cube([100, 200, 200]);
+        // anything past the flange face belongs to the ball (only behind the plate's back face)
+        intersection() {
+            root_frame() translate([-pf + 0.01, -100, -100]) cube([100, 200, 200]);
+            translate([-harness_plate_offset - hip_plate_t - 1000, -500, -500]) cube([1000, 1000, 1000]);
+        }
         // harness bolts (M6 on a 150 x 100 pattern) and a 50 mm webbing slot pair
         for (y = [-75, 75], z = [-50, 50]) translate([-harness_plate_offset + 1, y, z]) rotate([0, -90, 0]) hull() {
             translate([0, -5, 0]) cylinder(d = 6.6, h = hip_plate_t + 2);
@@ -400,7 +412,7 @@ module chain(i, envelope = false) {
     if (i <= N) rotate([0, 0, pose_yaw(i)]) {
         vertebra(i);
         if (envelope) joint_motion_envelope(i);
-        translate([L, 0, 0]) rotate([0, rest_droop, 0]) chain(i + 1, envelope);
+        translate([L, 0, 0]) rotate([0, droop(i + 1), 0]) chain(i + 1, envelope);
     }
 }
 
@@ -433,9 +445,9 @@ module test_section() {
     root_frame() {
         color("Goldenrod") ball(1);
         vertebra_frame(1); cap(1);
-        translate([L, 0, 0]) rotate([0, rest_droop, 0]) { ball(2); vertebra_frame(2); cap(2);
-            translate([L, 0, 0]) rotate([0, rest_droop, 0]) { ball(3); vertebra_frame(3); cap(3);
-                translate([L, 0, 0]) rotate([0, rest_droop, 0]) { ball(4); vertebra_frame(4); cap(4); } } }
+        translate([L, 0, 0]) rotate([0, droop(2), 0]) { ball(2); vertebra_frame(2); cap(2);
+            translate([L, 0, 0]) rotate([0, droop(3), 0]) { ball(3); vertebra_frame(3); cap(3);
+                translate([L, 0, 0]) rotate([0, droop(4), 0]) { ball(4); vertebra_frame(4); cap(4); } } }
     }
 }
 
@@ -449,7 +461,7 @@ else if (PART == "hip_mount") hip_mount();
 else if (PART == "motion_envelope") tail_assembly(envelope = true);
 else if (PART == "section") difference() {
     union() { color("Goldenrod") ball(INDEX); vertebra_frame(INDEX); cap(INDEX);
-              if (INDEX < N) translate([L, 0, 0]) color("Goldenrod") ball(INDEX + 1); }
+              if (INDEX < N) translate([L, 0, 0]) rotate([0, droop(INDEX + 1), 0]) color("Goldenrod") ball(INDEX + 1); }
     translate([-300, 0, -300]) cube([600, 300, 600]);
 }
 else if (PART == "test_section") test_section();

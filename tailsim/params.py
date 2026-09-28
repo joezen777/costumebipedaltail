@@ -214,7 +214,8 @@ class TailParams:
             skin_root=self.skin_root * 1000, skin_tip=self.skin_tip * 1000,
             cord_diameter=self.cord_diameter * 1000, cord_preload=self.cord_preload,
             max_yaw=list(map(float, self.yaw_limit_list())), pitch_ratio=self.pitch_ratio, max_roll=self.max_roll,
-            root_pitch=self.root_pitch_deg, rest_droop=self.rest_droop_deg,
+            root_pitch=self.root_pitch_deg + float(self.droop_list()[0]), rest_droop=self.rest_droop_deg,
+            rest_droop_list=[float(x) for x in self.droop_list()] if self.rest_droop_list is not None else [],
             ball_ratio=self.ball_radius_ratio, ball_min=self.ball_radius_min * 1000, ball_max=self.ball_radius_max * 1000,
             root_back_offset=self.root_back_offset * 1000)
 

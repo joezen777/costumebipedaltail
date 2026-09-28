@@ -107,11 +107,21 @@ def ellip_cone_mx(h, by, bp):
 def createBall(i, p):
     R, rn, df, ft = g.RB(p, i), g.RN(p, i), g.DF(p, i), g.flange_t(p)
     pin = g.pin_spec(p, i)
-    body = fuse([Part.makeSphere(R), cyl_x(rn, -df, 0), cyl_x(g.flange_r(p, i), -df - ft, -df)])
-    tools = [cyl_x(g.bore_r(p), -df - ft - 1, 0.1),
+    d = g.droop(p, i)
+    x1 = g.cap_h(p, i) + 3            # neck stays on the joint axis through the cap mouth
+
+    def par(s):                       # into the parent-axis frame (wedge flange)
+        s = s.copy()
+        s.rotate(V(0, 0, 0), Y, -d)
+        return s
+    parts = [Part.makeSphere(R), cyl_x(rn, -x1, 0), par(cyl_x(g.flange_r(p, i), -df - ft, -df)), par(cyl_x(rn, -df, -x1))]
+    if abs(d) > 0.01:
+        parts += [Part.makeSphere(rn, V(-x1, 0, 0)), par(Part.makeSphere(rn, V(-x1, 0, 0)))]
+    body = fuse(parts)
+    tools = [cyl_x(g.bore_r(p), -x1 - 1, 0.1), par(cyl_x(g.bore_r(p), -df - ft - 1, 0.1)),
              cone_x(g.bore_r(p), g.bore_r(p) + (R + 1) * math.tan(math.radians(g.cord_flare(p, i))), 0, R + 1)]
     fb = g.flange_bolt_r(p, i)
-    tools += at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, ft + 2, V(-df - ft - 1, 0, fb), X))
+    tools += [par(t) for t in at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, ft + 2, V(-df - ft - 1, 0, fb), X))]
     zp = g.pin_pocket_z(p, i)
     tools.append(Part.makeCylinder(pin[2] / 2 + 0.3, pin[3] + 0.2, V(0, 0, zp - pin[3]), Z))
     tools.append(Part.makeCylinder(pin[0] / 2 + 0.15, R + 1, V(0, 0, zp), Z))
@@ -139,10 +149,9 @@ def roll_slot(i, p, x_lo, x_hi):
 def createCap(i, p):
     h, ro, pcd, lr, t = g.cap_h(p, i), g.cap_outer_r(p, i), g.bolt_pcd_r(p, i), g.lobe_r(p), g.cap_lobe_t(p)
     lobes = at_lobes(lambda: Part.makeCylinder(lr, t, V(-t, 0, pcd), X).fuse(Part.makeBox(t, 2 * lr, pcd - ro + 3, V(-t, -lr, ro - 3))))
-    w, et, ex = g.spring_arm(p, i), g.cap_ear_t(p), p.cap_ear_x
+    w, et, ex = g.spring_arm(p, i), g.cap_ear_t(p, i), p.cap_ear_x
     ew = g.ear_w(p, i)
-    ears = at_springs(lambda: Part.makeBox(et, ew, w - ro + 4, V(-et, -ew / 2, ro - 4)).fuse(
-        Part.makeCylinder(et / 2, ew, V(-ex, ew / 2, w), V(0, -1, 0))))
+    ears = at_springs(lambda: Part.makeBox(et, ew, w - ro + 4 + ex, V(-et, -ew / 2, ro - 4)))
     body = fuse([cyl_x(ro, -h, 0)] + lobes + ears)
     tools = [socket_cavity(i, p), ellip_cone_mx(h + 2, g.beta_y(p, i), g.beta_p(p, i)), roll_slot(i, p, -h - 1, 0.01)]
     tools += at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, t + 2, V(-t - 1, 0, pcd), X))
@@ -249,10 +258,13 @@ def createHipMount(p):
     # boss: a cylinder on the tail axis from the ball-1 flange forward through the plate
     reach = (p.root_back_offset - p.harness_plate_offset) / math.cos(math.radians(p.root_pitch)) + 20
     local = [cyl_x(g.flange_r(p, 1) + 4, -reach, -pf)]
+    arm_t = 12.0                      # dorsal spring up to ~220 N: 12 mm thick, 30 mm deep at the boss
     for a in (0, 90, -90):
-        arm = Part.makeBox(12, fin_t + 2, w + 5, V(-pf - 12, -fin_t / 2 - 1, 0))
-        web = Part.makeBox(reach - pf - 12, fin_t + 2, 0.5 * w, V(-reach, -fin_t / 2 - 1, 0))
-        local += [rot_x(arm, a), rot_x(web, a)]
+        arm = Part.makeBox(12, arm_t, w + 5, V(-pf - 12, -arm_t / 2, 0))
+        foot = Part.makeBox(30, arm_t, 12, V(-pf - 30, -arm_t / 2, 0))
+        local += [rot_x(arm, a), rot_x(foot, a)]
+    # steep roots: bridge the boss straight forward to the plate as well
+    bridge = Part.makeCylinder(g.flange_r(p, 1) + 4, p.root_back_offset - p.harness_plate_offset, P.multVec(V(-pf - 4, 0, 0)), V(1, 0, 0))
     tail_side = Part.makeBox(100, 200, 200, V(-pf + 0.01, -100, -100))
     local_tools = [tail_side, cyl_x(g.bore_r(p), -pf - 80, 0), cyl_x(9, -pf - 36, -pf - 22),
                    Part.makeBox(14, 18, 60, V(-pf - 36, -9, -60))]
@@ -266,8 +278,10 @@ def createHipMount(p):
     tail_part = place(fuse(local))
     # keep only what lies behind the harness plate's front face
     keep = Part.makeBox(400, 400, 400, V(-p.harness_plate_offset - 400, -200, -200))
-    body = fuse([plate, tail_part.common(keep)])
+    body = fuse([plate, tail_part.common(keep), bridge.common(keep)])
+    behind = Part.makeBox(1000, 1000, 1000, V(-p.harness_plate_offset - p.hip_plate_t - 1000, -500, -500))
     tools = [place(s) for s in local_tools]
+    tools[0] = tools[0].common(behind)          # flange-side clearance cut must not touch the plate
     for y in (-75, 75):
         for zz in (-50, 50):
             tools.append(Part.makeCylinder(3.3, p.hip_plate_t + 2, V(-p.harness_plate_offset + 1, y - 5, zz), V(-1, 0, 0)).fuse(
@@ -302,7 +316,7 @@ def createVertebra(index, parameters, doc, parent, placement):
     L = g.spacing(p)
     if index < p.joint_count:
         add(doc, grp, f"Vertebra{index:02d}_Ball", createBall(index + 1, p),
-            placement.multiply(App.Placement(V(L, 0, 0), App.Rotation())), (0.85, 0.65, 0.13))
+            placement.multiply(App.Placement(V(L, 0, 0), App.Rotation(Y, g.droop(p, index + 1)))), (0.85, 0.65, 0.13))
     else:
         add(doc, grp, f"Vertebra{index:02d}_TipAdapter", createTipAdapter(p),
             placement.multiply(App.Placement(V(g.body_len(p, index), 0, 0), App.Rotation())), (0.85, 0.65, 0.13))
@@ -327,7 +341,7 @@ def build(p, joints=None, name="SuitTail"):
     pl = P
     for i in range(1, joints + 1):
         if i > 1:
-            pl = pl.multiply(App.Placement(V(L, 0, 0), App.Rotation(Y, p.rest_droop)))
+            pl = pl.multiply(App.Placement(V(L, 0, 0), App.Rotation(Y, g.droop(p, i))))
         createVertebra(i, p, doc, top, pl)
         pts.append(pl.Base)
     end = pl.multVec(V(L, 0, 0))
@@ -345,21 +359,31 @@ def build(p, joints=None, name="SuitTail"):
     return doc
 
 
+VARIANT = os.environ.get("TAIL_VARIANT", "")
+
+
+def load_params():
+    if VARIANT:
+        return g.CadParams(**json.loads((ROOT / "cad" / "variants" / f"{VARIANT}.json").read_text()))
+    return g.CadParams()
+
+
 def main():
-    p = g.CadParams()
+    p = load_params()
+    sfx = f"_{VARIANT}" if VARIANT else ""
     report = {"checks_failed": [c for c in g.checks(p) if not c[1]]}
     doc = build(p)
     shapes = [o for o in doc.Objects if o.TypeId == "Part::Feature" and o.Name != "CentralCord"]
     for o in shapes:
         report.setdefault("valid", {})[o.Name] = bool(o.Shape.isValid())
         report.setdefault("volume_cm3", {})[o.Name] = round(o.Shape.Volume / 1000, 2)
-    Part.export(shapes, str(OUT / "suit_tail.step"))
-    doc.saveAs(str(OUT / "suit_tail.FCStd"))
+    Part.export(shapes, str(OUT / f"suit_tail{sfx}.step"))
+    doc.saveAs(str(OUT / f"suit_tail{sfx}.FCStd"))
     App.closeDocument(doc.Name)
     doc4 = build(p, joints=4, name="TestSection4")
-    Part.export([o for o in doc4.Objects if o.TypeId == "Part::Feature" and o.Name != "CentralCord"], str(OUT / "test_section_4joint.step"))
-    doc4.saveAs(str(OUT / "test_section_4joint.FCStd"))
-    (OUT / "build_report.json").write_text(json.dumps(report, indent=1))
+    Part.export([o for o in doc4.Objects if o.TypeId == "Part::Feature" and o.Name != "CentralCord"], str(OUT / f"test_section_4joint{sfx}.step"))
+    doc4.saveAs(str(OUT / f"test_section_4joint{sfx}.FCStd"))
+    (OUT / f"build_report{sfx}.json").write_text(json.dumps(report, indent=1))
     print("BUILD_OK", sum(report["valid"].values()), "/", len(report["valid"]), "valid solids")
 
 
