@@ -1,31 +1,31 @@
 {
  "band_spans_mm": [
   4.9,
-  5.6,
-  5.3,
+  6.0,
+  5.4,
   4.5,
-  4.7,
-  5.5
+  5.8,
+  5.7
  ],
  "00_snap_test_coupon": {
   "single_clean_volume": false,
   "extents_mm": [
-   23.4,
+   23.7,
    20.0,
    8.9
   ],
-  "volume_ml": 0.465,
+  "volume_ml": 0.5,
   "fits_printer": true,
   "error": ""
  },
  "01_hip_mount_plate": {
   "single_clean_volume": true,
   "extents_mm": [
-   16.1,
+   15.9,
    23.8,
-   26.4
+   27.0
   ],
-  "volume_ml": 1.139,
+  "volume_ml": 1.137,
   "fits_printer": true,
   "error": ""
  },
@@ -43,22 +43,22 @@
  "11_vertebra_1": {
   "single_clean_volume": true,
   "extents_mm": [
-   20.1,
+   20.3,
    18.8,
-   19.8
+   20.4
   ],
-  "volume_ml": 0.578,
+  "volume_ml": 0.585,
   "fits_printer": true,
   "error": ""
  },
  "12_vertebra_2": {
   "single_clean_volume": true,
   "extents_mm": [
-   19.6,
+   19.7,
    17.1,
-   18.2
+   18.4
   ],
-  "volume_ml": 0.502,
+  "volume_ml": 0.504,
   "fits_printer": true,
   "error": ""
  },
@@ -67,31 +67,31 @@
   "extents_mm": [
    18.9,
    15.7,
-   16.0
+   15.7
   ],
-  "volume_ml": 0.426,
+  "volume_ml": 0.438,
   "fits_printer": true,
   "error": ""
  },
  "14_vertebra_4": {
   "single_clean_volume": true,
   "extents_mm": [
-   18.8,
+   19.6,
    14.3,
-   14.4
+   16.5
   ],
-  "volume_ml": 0.38,
+  "volume_ml": 0.417,
   "fits_printer": true,
   "error": ""
  },
  "15_vertebra_5": {
   "single_clean_volume": true,
   "extents_mm": [
-   19.1,
-   13.4,
-   14.7
+   19.4,
+   13.9,
+   15.5
   ],
-  "volume_ml": 0.351,
+  "volume_ml": 0.38,
   "fits_printer": true,
   "error": ""
  },
@@ -99,10 +99,10 @@
   "single_clean_volume": true,
   "extents_mm": [
    37.9,
-   12.8,
-   12.8
+   13.3,
+   13.3
   ],
-  "volume_ml": 1.91,
+  "volume_ml": 1.927,
   "fits_printer": true,
   "error": ""
  }

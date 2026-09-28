@@ -77,3 +77,23 @@ def barney_joints(mech_length, n, tip_length, theta_root=5.0, theta_max=60.0, th
     ang = np.degrees(np.arctan2(-(np.diff(pz)), np.diff(px)))
     return dict(root_pitch=float(ang[0]), droop=list(np.r_[0.0, np.diff(ang[:n])]), tip_bend=float(ang[n] - ang[n - 1]),
                 points=np.c_[px, pz], lowest=float(z.min()), tip_height=float(z[-1]), reach=float(x[-1]))
+
+
+def sigmoid_joints(mech_length, n, tip_length, drop=0.45, x0=0.25, width=0.07, h=0.92):
+    """Sigmoid rest profile z = h - drop / (1 + exp(-(x - x0) / width)) (x back from joint 1).
+
+    Nearly level where it leaves the body, steepest at x0, and level again at the end, so the
+    last vertebra and foam tip stick straight out behind. Joint centres at equal arc spacing."""
+    total = mech_length + tip_length
+    x = np.linspace(0, 3.0, 60001)
+    z = h - drop / (1 + np.exp(-(x - x0) / width))
+    z = z + (h - z[0])                       # start exactly at the pivot height
+    s = np.r_[0, np.cumsum(np.hypot(np.diff(x), np.diff(z)))]
+    keep = s <= total + 1e-9
+    x, z, s = x[keep], z[keep], s[keep]
+    stations = [k * mech_length / n for k in range(n + 1)] + [total]
+    px, pz = np.interp(stations, s, x), np.interp(stations, s, z)
+    ang = np.degrees(np.arctan2(-(np.diff(pz)), np.diff(px)))
+    return dict(root_pitch=float(ang[0]), droop=list(np.r_[0.0, np.diff(ang[:n])]), tip_bend=float(ang[n] - ang[n - 1]),
+                chord_headings=[float(a) for a in ang], points=np.c_[px, pz], lowest=float(z.min()),
+                tip_height=float(z[-1]), reach=float(x[-1]))

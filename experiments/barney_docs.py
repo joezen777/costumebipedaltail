@@ -38,6 +38,8 @@ def main():
 - **Length:** half the previous tail's length.
 - **Shape:** a Barney-like tail, roughly an x³ profile. It sticks out a little at the back, goes down, then points
   back again.
+- **Follow-up:** the end should stick out more, like a reverse sigmoid: start up, go down, then flatten out. The
+  first S-curve ended ~35° nose-down, like a hill, because it only levelled off in the non-bending foam tip.
 - **Mounting:** on a pharmacy lower-lumbar support belt, attached directly or hanging down from it.
 - **Mechanics:** as approved in the Gojira variant (ball-and-socket chain, spring spine with cap-ear anchors, felt
   liners, cord, wedge-flange rest curve).
@@ -49,11 +51,11 @@ def main():
 |---|---|
 | Length | **0.90 m**: 0.75 m articulated (6 joints × 125 mm) + 0.15 m foam tip (half the 1.8 m Gojira tail) |
 | Envelope | 190 mm at the root → 100 mm at vertebra 6 → 60 mm rounded foam tip (linear taper: fat, Barney-like) |
-| Rest shape | S-curve: heading eases 5° → 60° → 5° below horizontal along the tail, i.e. out, down, then pointing back. Root pitch {var['root_pitch']:.1f}°, wedge-flange rest bends {bends} |
+| Rest shape | **Reverse sigmoid** z = h − 0.35 m / (1 + e^−(x − 0.28 m)/0.05 m): leaves the back nearly level (root pitch {var['root_pitch']:.1f}°), dips at up to ~58° mid-tail, then flattens so the last vertebra and foam tip stick straight back. Wedge-flange rest bends {bends} |
 | Mount | Plate on the lumbar belt's back panel; the tail pivot **hangs 70 mm below the plate centre** (pivot 30 mm below the pelvis centre). One printed part does both "attach directly" and "hang down" |
 | Belt attachment | Four 5 × 28 mm slots for 25 mm hook-and-loop straps around the belt's back panel, plus top and bottom 50 mm webbing slots. Add a 3 mm EVA pad behind the plate for comfort on the curved lower back |
 | Mechanics | As approved: ball-and-socket + dorsal/left/right extension springs on cap ears + felt liners + 5–10 N cord + roll key |
-| Tuning for the short tail | Spring dead band 6° (softer centring springs; a short tail is livelier). Round cap stop openings (pitch travel = yaw travel) so the tail's own weight can't hammer the stops on a jump landing. Minimum ball radius 20 mm for neck strength |
+| Tuning for the short tail | Spring dead band 6° (softer centring springs; a short tail is livelier). Round cap stop openings (pitch travel = yaw travel) so the tail's own weight can't hammer the stops on a jump landing. Minimum ball radius 22 mm for neck strength |
 
 ## Simulated behaviour
 
@@ -76,7 +78,7 @@ Data: `results/data/barney.json`.
 2. **Round stop openings.** On a 25 cm jump landing (~2.4 g) the short, stubby tail bottomed out on its pitch stops
    at every joint, putting 11–23 N·m through the ball necks. Matching pitch travel to yaw travel cut the stop torque
    from 23 to 7 N·m.
-3. **Minimum ball radius 17 → 20 mm.** This brings the two tip necks from SF ≈ 2 to ≥ 3 against the simulated loads.
+3. **Minimum ball radius 17 → 22 mm.** This brings every neck to SF ≥ 3.5 against the simulated loads; the sharper reverse-sigmoid bends load joint 5 hardest.
 
 The comparison of mechanisms on the hover profile (rigid gate hinges, elastic tube, stop-held chains; see
 [gojira.md](gojira.md)) still applies. The spring-spine ball chain is the only one that is both compliant and

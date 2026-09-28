@@ -14,13 +14,14 @@ from pathlib import Path
 from tailsim import motions, viz
 from tailsim.metrics import evaluate
 from tailsim.params import TailParams
-from tailsim.shape import barney_joints
+from tailsim.shape import barney_joints, sigmoid_joints
 from tailsim.sim import TailSim
 
 ROOT = Path(__file__).resolve().parents[1]
 N, MECH, TIP = 6, 0.75, 0.15
 ROOT_DZ, PLATE_Z = -0.03, 0.04          # pivot 30 mm below / plate centre 40 mm above the pelvis centre
-SHAPE = barney_joints(MECH, N, TIP, theta_root=5.0, theta_max=60.0, theta_end=5.0, h=0.55 * 1.727 + ROOT_DZ)
+# sigmoid rest profile: out nearly level, dip, then the end sticks straight back (client revision 2)
+SHAPE = sigmoid_joints(MECH, N, TIP, drop=0.35, x0=0.28, width=0.05, h=0.55 * 1.727 + ROOT_DZ)
 LIMITS = [8, 11, 14, 18, 22, 26]
 
 
@@ -29,7 +30,7 @@ def barney(**kw):
                 rest_droop_list=[float(x) for x in SHAPE["droop"]], yaw_limits=LIMITS,
                 root_diameter=0.190, last_mech_diameter=0.100, tip_diameter=0.060, taper_exponent=1.0,
                 skin_root=0.020, skin_tip=0.010, mass_total=1.3, foam_tip_mass=0.06, tip_bend_stiffness=1.5,
-                root_dz=ROOT_DZ, plate_z=PLATE_Z, deadband_deg=6.0, pitch_ratio=1.0, ball_radius_min=0.020, label="Barney tail (design masses)")
+                root_dz=ROOT_DZ, plate_z=PLATE_Z, deadband_deg=6.0, pitch_ratio=1.0, ball_radius_min=0.022, label="Barney tail (design masses)")
     base.update(kw)
     return TailParams(**base)
 

@@ -6,7 +6,7 @@ A working miniature of the approved mechanism, printed on the Anycubic Photon Mo
   flex slits.
 - **Cord:** twine threads through the centre bore, standing in for the braided cord.
 - **Springs:** orthodontic (dental brace) elastics hook over mushroom pegs.
-- **Rest curve:** the S-curve is built into the kinked necks, as the full-size wedge flanges build it in.
+- **Rest curve:** the reverse-sigmoid rest curve is built into the kinked necks, as the full-size wedge flanges build it in.
 
 ![assembled preview](preview.png)
 
@@ -14,15 +14,15 @@ A working miniature of the approved mechanism, printed on the Anycubic Photon Mo
 
 | File | Size (mm) | Resin (ml) |
 |---|---|---|
-| `00_snap_test_coupon.stl` | 23.4x20.0x8.9 | 0.465 |
-| `01_hip_mount_plate.stl` | 16.1x23.8x26.4 | 1.139 |
+| `00_snap_test_coupon.stl` | 23.7x20.0x8.9 | 0.5 |
+| `01_hip_mount_plate.stl` | 15.9x23.8x27.0 | 1.137 |
 | `99_display_stand.stl` | 147.5x36.0x135.7 | 30.114 |
-| `11_vertebra_1.stl` | 20.1x18.8x19.8 | 0.578 |
-| `12_vertebra_2.stl` | 19.6x17.1x18.2 | 0.502 |
-| `13_vertebra_3.stl` | 18.9x15.7x16.0 | 0.426 |
-| `14_vertebra_4.stl` | 18.8x14.3x14.4 | 0.38 |
-| `15_vertebra_5.stl` | 19.1x13.4x14.7 | 0.351 |
-| `16_vertebra_6.stl` | 37.9x12.8x12.8 | 1.91 |
+| `11_vertebra_1.stl` | 20.3x18.8x20.4 | 0.585 |
+| `12_vertebra_2.stl` | 19.7x17.1x18.4 | 0.504 |
+| `13_vertebra_3.stl` | 18.9x15.7x15.7 | 0.438 |
+| `14_vertebra_4.stl` | 19.6x14.3x16.5 | 0.417 |
+| `15_vertebra_5.stl` | 19.4x13.9x15.5 | 0.38 |
+| `16_vertebra_6.stl` | 37.9x13.3x13.3 | 1.927 |
 
 - `00_snap_test_coupon`: a socket and ball for the largest and smallest joint. **Print it first** to check the snap.
 - `01_hip_mount_plate`: the lumbar-belt plate with the joint-1 ball and its four pegs. Its tab pushes into the stand
@@ -52,7 +52,7 @@ A working miniature of the approved mechanism, printed on the Anycubic Photon Mo
 3. **Fit the elastics.** Each joint takes four orthodontic elastics (dorsal, ventral, left, right): **24 in total,
    plus spares**.
    - Each band hooks over a peg on the parent vertebra and the matching peg on the child's socket ear.
-   - Peg-to-peg spans per joint (mm): J1 4.9, J2 5.6, J3 5.3, J4 4.5, J5 4.7, J6 5.5.
+   - Peg-to-peg spans per joint (mm): J1 4.9, J2 6.0, J3 5.4, J4 4.5, J5 5.8, J6 5.7.
    - **1/8" (3.2 mm) medium-force orthodontic elastics** stretch to that length with light tension. Use 3/16" light
      elastics if 1/8" pull the joints stiff.
    - All four bands on a joint must be the same size, so the tail sits in its designed S-curve.

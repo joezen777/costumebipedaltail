@@ -20,9 +20,9 @@ URL = "http://127.0.0.1:8188"
 
 BASE = ("Behind-the-scenes photograph on a film studio soundstage: a performer wearing a full-body friendly "
         "cartoon dinosaur costume, soft rounded shapes, green plush-like skin with a pale belly, small rounded dorsal "
-        "bumps. A short, very thick tapered dinosaur tail attached at the lower back on a lumbar support belt: it sticks "
-        "straight out behind briefly, curves smoothly down, then points backward again, ending in a rounded tip around "
-        "knee height, clear of the floor. Practical costume, 35mm film still, soft studio key light, realistic, detailed. ")
+        "bumps. A short, very thick tapered dinosaur tail attached at the lower back on a lumbar support belt, shaped like a "
+        "reverse sigmoid: it starts level out from the lower back, curves smoothly down, then flattens out so its "
+        "rounded end sticks straight out behind at knee height, clear of the floor. Practical costume, 35mm film still, soft studio key light, realistic, detailed. ")
 POSES = {
     "1_standing": "The dinosaur stands still and upright, arms held forward, tail at rest behind it.",
     "2_bending_over": "The dinosaur bends forward deeply at the hips, torso leaning down, the short tail lifted up behind it as a counterbalance.",

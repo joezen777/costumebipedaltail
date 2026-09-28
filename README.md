@@ -3,7 +3,7 @@
 A completely passive (no motors, electronics or pneumatics) creature-suit tail for a **5 ft 8 in (1.727 m)**
 performer. The client revision asked for:
 - **half the length** of the earlier tail;
-- a **Barney-like S-curve**: out from the back, down, then pointing back again;
+- a **Barney-like reverse-sigmoid curve**: starts up, goes down, then flattens so the end sticks straight back;
 - a mount on a **pharmacy lower-lumbar support belt**;
 - the **mechanics approved in the Gojira variant** kept.
 
@@ -23,8 +23,8 @@ parts are for an Ender 3 V2 / Sprite Pro with a **1.2 mm nozzle** (no part large
 
 - **Length:** 0.90 m, a 6-joint × 125 mm ball-and-socket chain plus a 0.15 m rounded foam tip.
 - **Proportions:** 190 mm thick at the root, 100 mm at vertebra 6, 60 mm at the tip.
-- **Rest shape:** the S-curve is printed into wedge flanges on the balls. The heading eases 5° → 60° → 5° below
-  horizontal: out, down, then pointing back.
+- **Rest shape:** a reverse sigmoid, printed into wedge flanges on the balls. It leaves the back nearly level (6°),
+  dips at up to 58° mid-tail, then the last vertebra and foam tip run level, sticking straight back.
 - **Mount:** a plate strapped to the lumbar belt's back panel, with the tail root hanging 70 mm below it. One part
   covers both "attach directly" and "hang down".
 - **Mechanics** (as approved):
@@ -37,30 +37,32 @@ Simulated, with the masses measured from the exported parts:
 
 | Test (as built) | Result |
 |---|---|
-| Rest (standing) | tail ends pointing back, skin **33 cm** above the floor |
-| 30° hip snap | lag 40°, overshoot 17°, 1 swing-back, settles in 0.9 s |
-| Jerk left (30° in 0.25 s) | lag 48°, overshoot 21° |
-| 45° dramatic turn | overshoot 34° |
-| Walking 1.5 / 2.0 steps/s | tip/hip 2.31 / 2.50 |
-| Crouch (−150 mm, 10°) | min clearance 28 cm |
-| Side step 300 mm | min clearance 32 cm |
-| Bending over 45° | tail lifts; hip moment 6.7 N·m |
-| Jump (25 cm) | no floor contact; hip moment 13.5 N·m |
-| Peak moment on the lumbar belt (any test) | 14 N·m |
+| Rest (standing) | tail ends pointing back, skin **52 cm** above the floor |
+| 30° hip snap | lag 34°, overshoot 10°, 1 swing-back, settles in 1.2 s |
+| Jerk left (30° in 0.25 s) | lag 40°, overshoot 8° |
+| 45° dramatic turn | overshoot 31° |
+| Walking 1.5 / 2.0 steps/s | tip/hip 1.94 / 1.77 |
+| Crouch (−150 mm, 10°) | min clearance 47 cm |
+| Side step 300 mm | min clearance 50 cm |
+| Bending over 45° | tail lifts; hip moment 7.0 N·m |
+| Jump (25 cm) | no floor contact; hip moment 13.3 N·m |
+| Peak moment on the lumbar belt (any test) | 13 N·m |
 
-The short tail sways more when walking (tip ≈ 2.3–2.5× the hip) than the long one did. It sits close to the hips
-and has little inertia, which reads as a bouncy, friendly tail.
+Levelling the end out (reverse sigmoid) also calmed the tail: walking sway dropped from ~2.4× to ~1.9× the hip,
+and the snap overshoot from 17° to 10°. The end rides about half a metre off the floor.
 
-Three changes made the short tail work, all found in simulation ([docs/barney.md](docs/barney.md)):
-- **Softer centring springs:** the tail overshot the hips by 31° at first.
+Four changes made the short tail work, all found in simulation ([docs/barney.md](docs/barney.md)):
+- **Reverse-sigmoid rest curve:** the first S-curve ended ~35° nose-down, like a hill, because it only flattened
+  inside the foam tip, which can't bend. Now the last vertebra and tip are level and stick straight back.
+- **Softer centring springs:** the tail first overshot the hips by 31°.
 - **Round cap stop openings:** jump landings were hammering the pitch stops (23 → 7 N·m).
-- **Bigger minimum ball (20 mm):** brings the tip necks to SF ≥ 3.
+- **Bigger minimum ball (22 mm):** brings every neck to SF ≥ 3.5.
 
 ![Hip snap response](results/figures/barney_hip_snap_30.png)
 
 ## 2. What to print (full size)
 
-**[`cad/stl/barney/`](cad/stl/barney/): 26 print-ready STLs, 1.77 kg of PETG.**
+**[`cad/stl/barney/`](cad/stl/barney/): 26 print-ready STLs, 1.80 kg of PETG.**
 - One hip mount, 6 vertebra bodies, 6 caps, 12 ball halves (with the rest-curve wedges; keep them in joint order)
   and the tip adapter.
 - Sizes and masses: [docs/tables/barney_parts.md](docs/tables/barney_parts.md).
@@ -78,7 +80,7 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 
 | Item | Qty | Use | ~Cost |
 |---|---|---|---|
-| PETG filament 1.75 mm | 2 × 1 kg | 1.77 kg of parts + purge | $40 |
+| PETG filament 1.75 mm | 2 × 1 kg | 1.80 kg of parts + purge | $40 |
 | 1.2 mm nozzle for the Sprite Pro | 1 | | $10 |
 | M4 × 16 socket-head cap screws | 48 | 4 per cap + 4 per ball flange, 6 joints | $6 |
 | M4 nylock nuts | 48 | press into the printed hex pockets | $4 |
@@ -110,7 +112,7 @@ long.
 - **Joints:** each vertebra **clicks** into the next with a slotted snap-fit ball and socket.
 - **Cord:** **twine** (0.8–1 mm) threads through the centre, like the cord.
 - **Springs:** **orthodontic elastics** (1/8" medium) hook over mushroom pegs, 4 per joint (24 total).
-- **Rest curve:** the S-curve is built into the necks.
+- **Rest curve:** the reverse-sigmoid curve is built into the necks.
 - **Also included:** the lumbar-belt plate with a tab, a display stand, and a snap test coupon to print first.
 
 Print settings, assembly and the kit shopping list are in that folder's
