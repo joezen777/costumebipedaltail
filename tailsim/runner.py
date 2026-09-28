@@ -9,9 +9,17 @@ from .params import TailParams
 from .sim import TailSim
 
 
+def stability(p: TailParams):
+    """Lowest small-motion frequencies about the rest pose (negative = unstable)."""
+    from .linear import linear_modes
+    sim = TailSim(p)
+    f = linear_modes(sim)[0]
+    return dict(lowest_mode_hz=float(f[0]), modes_hz=[round(float(x), 3) for x in f[:6]])
+
+
 def run_tests(p: TailParams, tests=None, keep=False):
     tests = tests or motions.standard_tests()
-    out, raw = {}, {}
+    out, raw = {"linear": stability(p)}, {}
     for mo in tests:
         r = TailSim(p).run(mo)
         out[mo.name] = evaluate(r)

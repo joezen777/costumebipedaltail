@@ -178,6 +178,19 @@ class TailSim:
                     s["k"] *= float(np.clip(Kpt[i] / max(Kp[i], 1e-6), 0.3, 3.0))
         self.K_target = (Kyt, Kpt)
         self.K_eff = self.stiffness_at_rest(rest)
+        # guard: the coupled yaw/pitch/roll system must be statically stable
+        from .linear import linear_modes
+        self.stiffen_steps = 0
+        while self.stiffen_steps < 12:
+            f = linear_modes(self, rest)[0]
+            if f[0] > p.min_mode_hz:
+                break
+            for s in self.spring:
+                if s["side"] in "LR":
+                    s["k"] *= 1.25
+                    s["T0"] = p.lateral_preload_margin * s["k"] * s["arm"] * yl[s["joint"]]
+            self.stiffen_steps += 1
+        self.lowest_mode_hz = float(linear_modes(self, rest)[0][0])
 
     def spring_table(self):
         return [{kk: (float(v) if not isinstance(v, str) else v) for kk, v in s.items() if kk not in ("tid", "aid")}

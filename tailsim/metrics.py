@@ -140,6 +140,8 @@ def score(results: dict) -> tuple[float, dict]:
         d = results["dramatic_turn_45"]
         terms["turn_overshoot"] = band(d["maximum_tip_overshoot"], 6, 18, 3)
         terms["turn_stop_torque"] = band(d["peak_stop_torque"], 0, 15, 5)
+    if "linear" in results:
+        terms["unstable_twist"] = band(results["linear"]["lowest_mode_hz"], 0.1, 99, 0.05)
     walks = [v for k, v in results.items() if k.startswith("walk") and not k.endswith("literal")]
     for w in walks:
         terms[f"walk_whip_{len(terms)}"] = band(w["whip_ratio"], 0.8, 2.2, 0.5)

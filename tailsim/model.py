@@ -84,7 +84,7 @@ def build_xml(p: TailParams) -> str:
     lat, dor = p.spring_arms()
     yaw_lim = p.yaw_limit_list()
     pitch_lim = p.pitch_limit_list()
-    a = p.spring_anchor_span
+    a_par, a = p.spring_spans()
     R1 = root_rotation(p)
     q1 = _quat_from_matrix(R1)
     pivot1_in_hip = np.array([-p.root_back_offset, 0, 0])
@@ -95,7 +95,7 @@ def build_xml(p: TailParams) -> str:
     sites_hip = [f'<site name="cord_0" pos="{_fmt(pivot1_in_hip + R1 @ np.array([-0.06, 0, 0]))}" size="0.004"/>']
     # spring anchors of joint 1 on the hip block (expressed via root rotation)
     for side, off in (("L", (0, lat[0], 0)), ("R", (0, -lat[0], 0)), ("D", (0, 0, dor[0]))):
-        pos = pivot1_in_hip + R1 @ np.array([-a, off[1], off[2]])
+        pos = pivot1_in_hip + R1 @ np.array([-a_par[0], off[1], off[2]])
         sites_hip.append(f'<site name="sp_1_{side}_p" pos="{_fmt(pos)}" size="0.003"/>')
 
     body_xml = []
@@ -123,7 +123,7 @@ def build_xml(p: TailParams) -> str:
         if i + 1 < n:
             Rn = _rot_y(math.radians(p.rest_droop_deg))
             for side, off in (("L", (0, lat[i+1], 0)), ("R", (0, -lat[i+1], 0)), ("D", (0, 0, dor[i+1]))):
-                ppos = np.array([L, 0, 0]) + Rn @ np.array([-a, off[1], off[2]])
+                ppos = np.array([L, 0, 0]) + Rn @ np.array([-a_par[i+1], off[1], off[2]])
                 s.append(f'<site name="sp_{i+2}_{side}_p" pos="{_fmt(ppos)}" size="0.003"/>')
         body_xml.append(s)
 

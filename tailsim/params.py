@@ -41,7 +41,7 @@ class TailParams:
     # --- performer and mounting -------------------------------------------
     actor_height: float = 1.727            # 5 ft 8 in
     pelvis_height_ratio: float = 0.55      # sacrum height / stature
-    root_back_offset: float = 0.17         # pelvis centre -> joint 1 pivot
+    root_back_offset: float = 0.20         # pelvis centre -> joint 1 pivot
     root_pitch_deg: float = 15.0           # tail root points down behind the actor
     rest_droop_deg: float = 1.5            # additional rest pitch per joint
 
@@ -54,7 +54,7 @@ class TailParams:
     tip_diameter: float = 0.040
     taper_exponent: float = 1.3
     skin_root: float = 0.020               # foam skin thickness at root
-    skin_tip: float = 0.008
+    skin_tip: float = 0.004
 
     # --- joint limits (README 7-8) ----------------------------------------
     yaw_limits: list | None = None         # per joint, degrees; None -> reference
@@ -67,16 +67,17 @@ class TailParams:
 
     # --- masses (README 10) -----------------------------------------------
     masses: list | None = None             # None -> reference / resampled
+    diameters_override: list | None = None # explicit envelope diameters (m), e.g. a test section
     mass_total: float = 2.000              # used when resampling to other N
     mass_taper: float = 1.16               # exponent of mass(u) when resampled
     foam_tip_mass: float = 0.075
-    com_offset: float = 0.0                # COM below the pivot axis (README 9)
+    com_offset: float = 0.015              # COM below the pivot axis (README 9)
 
     # --- ball/socket and friction (README 5, 11) ---------------------------
     ball_radius_ratio: float = 0.15        # R_ball = ratio * D, clamped
-    ball_radius_min: float = 0.015
+    ball_radius_min: float = 0.017
     ball_radius_max: float = 0.028
-    friction: str = "LOW"
+    friction: str = "MEDIUM"
     mu: float | None = None                # overrides friction level
     visc: float | None = None
     friction_radius_factor: float = 1.0    # effective friction radius / R_ball
@@ -84,17 +85,17 @@ class TailParams:
     # --- central cord (README 6) ------------------------------------------
     cord_enabled: bool = True
     cord_diameter: float = 0.006
-    cord_preload: float = 20.0             # N
+    cord_preload: float = 10.0             # N
     cord_stiffness: float = 2000.0         # N/m, cord in series with tip spring
     cord_damping: float = 20.0             # N*s/m
 
     # --- spring spine: passive restoring springs (see docs/physics.md) ------
     springs_enabled: bool = True
-    yaw_local_hz: float = 0.9              # per-joint yaw "local" frequency
+    yaw_local_hz: float = 0.7              # per-joint yaw "local" frequency
     pitch_local_hz: float = 1.3
     lateral_preload_margin: float = 0.6    # lateral preload / (k * arm * yaw limit)
-    deadband_deg: float = 2.0              # max friction dead band the springs must overcome
-    spring_anchor_span: float = 0.030      # anchor distance either side of pivot
+    deadband_deg: float = 3.5              # max friction dead band the springs must overcome
+    min_mode_hz: float = 0.1               # stiffen lateral springs until the lowest mode exceeds this
     spring_damping: float = 0.0
 
     # --- foam tip ----------------------------------------------------------
@@ -130,6 +131,8 @@ class TailParams:
 
     def diameters(self) -> np.ndarray:
         """Envelope (skin) diameter of each vertebra, README section 4."""
+        if self.diameters_override is not None:
+            return np.asarray(self.diameters_override, float)
         u = self.u()
         return self.last_mech_diameter + (self.root_diameter - self.last_mech_diameter) * (1 - u) ** self.taper_exponent
 
@@ -172,16 +175,37 @@ class TailParams:
         visc = lvl["visc"] if self.visc is None else self.visc
         return mu, visc
 
-    def spring_arms(self) -> tuple[np.ndarray, np.ndarray]:
-        """Radial offsets (lateral, dorsal) of the spring anchors per joint.
+    def cad(self):
+        """The matching printable-geometry spec (cad/geometry.py, millimetres)."""
+        from cad.geometry import CadParams
+        return CadParams(
+            joint_count=self.n, mech_length=self.mech_length * 1000,
+            tail_length=(self.mech_length + self.foam_tip_length) * 1000,
+            root_diameter=self.root_diameter * 1000, last_mech_diameter=self.last_mech_diameter * 1000,
+            tip_diameter=self.tip_diameter * 1000, taper_exponent=self.taper_exponent,
+            skin_root=self.skin_root * 1000, skin_tip=self.skin_tip * 1000,
+            cord_diameter=self.cord_diameter * 1000, cord_preload=self.cord_preload,
+            max_yaw=list(map(float, self.yaw_limit_list())), pitch_ratio=self.pitch_ratio, max_roll=self.max_roll,
+            root_pitch=self.root_pitch_deg, rest_droop=self.rest_droop_deg,
+            ball_ratio=self.ball_radius_ratio, ball_min=self.ball_radius_min * 1000, ball_max=self.ball_radius_max * 1000,
+            root_back_offset=self.root_back_offset * 1000)
 
-        The springs must clear the bolted socket cap (radius ~ R_ball + 8 mm)
-        and fit inside the vertebra frame (radius - 3 mm).
-        """
-        r_frame = self.frame_diameters() / 2
-        r_ball = self.ball_radii()
-        lat = np.minimum(np.maximum(r_ball + 0.008, 0.80 * r_frame), r_frame - 0.003)
+    def spring_arms(self) -> tuple[np.ndarray, np.ndarray]:
+        """Radial offsets (lateral, dorsal) of the spring lines of action per
+        joint, taken from the printable geometry: they clear the bolted socket
+        cap and sit inside the vertebra frame (cad/geometry.py: spring_arm)."""
+        from cad import geometry as g
+        c = self.cad()
+        lat = np.array([g.spring_arm(c, i) for i in range(1, self.n + 1)]) / 1000
         return lat, lat.copy()
+
+    def spring_spans(self) -> tuple[np.ndarray, float]:
+        """Parent anchor distance behind each pivot, and the signed x of the child
+        anchor in the child frame (negative = proximal of the pivot, on the cap)."""
+        from cad import geometry as g
+        c = self.cad()
+        par = np.array([g.spring_span_parent(c, i) for i in range(1, self.n + 1)]) / 1000
+        return par, g.spring_span_child(c) / 1000
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2)
@@ -190,7 +214,7 @@ class TailParams:
         return replace(self, **kw)
 
 
-def configuration_set(base: TailParams | None = None, com: float = 0.015, preload: float = 20.0) -> dict:
+def configuration_set(base: TailParams | None = None, com: float = 0.015, preload: float = 10.0) -> dict:
     """README section 27 configurations A-D plus reference ablations."""
     base = base or TailParams()
     return {

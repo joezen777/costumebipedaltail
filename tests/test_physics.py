@@ -37,7 +37,7 @@ def total_energy(sim):
     m, d = sim.model, sim.data
     mujoco.mj_forward(m, d)
     ke = 0.5 * d.qvel @ (sim.M_full() @ d.qvel)
-    pe = -sum(m.body_mass[b] * (m.opt.gravity @ d.xipos[b]) for b in range(1, m.nbody))
+    pe = -sum(m.body_mass[b] * (m.opt.gravity @ d.xipos[b]) for b in range(2, m.nbody))   # tail bodies (hip is ground)
     tip = sum(0.5 * m.jnt_stiffness[m.dof_jntid[k]] * d.qpos[m.jnt_qposadr[m.dof_jntid[k]]] ** 2 for k in sim.info.tip_dofs)
     return ke + pe + spring_energy(sim) + tip
 
@@ -49,6 +49,16 @@ def _fullM(self):
 
 
 TailSim.M_full = _fullM
+
+
+def settled_conservative(**kw):
+    """Settle to static equilibrium with temporary damping, then remove all
+    dissipation so the linearisation point is a true equilibrium."""
+    p = conservative(**kw)
+    sim = TailSim(p.variant(visc=0.5, tip_bend_damping=0.05, settle_time=4.0))
+    sim.model.dof_damping[:] = 0.0
+    sim.data.qvel[:] = 0.0
+    return p, sim
 
 
 class TestStatics(unittest.TestCase):
@@ -82,28 +92,31 @@ class TestStatics(unittest.TestCase):
 
 class TestDynamics(unittest.TestCase):
     def test_energy_conserved_without_friction(self):
-        p = conservative(yaw_limits=[60] * 8)
-        sim = TailSim(p, settle=False)
+        """Without friction/damping the only energy sink is the soft joint-limit
+        constraint: dE must equal the constraint work (springs, cord, gravity and
+        the foam tip are conservative)."""
+        p, sim = settled_conservative(yaw_limits=[60] * 8, max_roll=40, pitch_ratio=1.0)
+        # rigid ground: heavy pelvis block so nothing leaks into the hip servo
+        sim.model.body_mass[1] *= 1e4
+        sim.model.body_inertia[1] *= 1e4
         d = sim.data
-        d.qvel[sim.info.yaw_dofs] = 0.6        # rad/s kick in every joint
+        d.qvel[sim.info.yaw_dofs] = 0.3
+        mujoco.mj_forward(sim.model, d)
+        ke0 = 0.5 * d.qvel @ (sim.M_full() @ d.qvel)
         E0 = total_energy(sim)
         z = np.zeros(6)
-        Es = []
+        Wc = 0.0
+        worst = 0.0
         for s in range(int(2.0 / p.dt)):
             sim._step(z, z, z, s)
+            Wc += d.qvel @ d.qfrc_constraint * p.dt
             if s % 200 == 0:
-                Es.append(total_energy(sim))
-        # compare against the initial kinetic energy of the kick
-        sim2 = TailSim(p, settle=False)
-        sim2.data.qvel[sim2.info.yaw_dofs] = 0.6
-        mujoco.mj_forward(sim2.model, sim2.data)
-        ke0 = 0.5 * sim2.data.qvel @ (sim2.M_full() @ sim2.data.qvel)
-        self.assertLess(max(abs(e - E0) for e in Es), 0.05 * ke0)
+                worst = max(worst, abs(total_energy(sim) - E0 - Wc))
+        self.assertLess(worst, 0.01 * ke0)
 
     def test_linear_mode_frequency_matches_time_domain(self):
         """Coupled small-motion modes (springs + gravity) predict the free oscillation."""
-        p = conservative(yaw_limits=[60] * 8, com_offset=0.03, max_roll=40, yaw_local_hz=1.3)
-        sim = TailSim(p, settle=False)
+        p, sim = settled_conservative(yaw_limits=[60] * 8, com_offset=0.03, max_roll=40, yaw_local_hz=1.3)
         f, w2, V, names, M, K = linear_modes(sim)
         self.assertGreater(f[0], 0, "reference test configuration must be statically stable")
         m, info = sim.model, sim.info
@@ -112,13 +125,13 @@ class TestDynamics(unittest.TestCase):
         q0 = sim.data.qpos.copy()
         stable = [j for j in range(len(f)) if f[j] > 0.1][:2]
         for j in stable:
-            sim = TailSim(p, settle=False)
+            _, sim = settled_conservative(yaw_limits=[60] * 8, com_offset=0.03, max_roll=40, yaw_local_hz=1.3)
             mode = V[:, j] / np.abs(V[:, j]).max()
             sim.data.qpos[qadr] = q0[qadr] + np.radians(0.3) * mode
             w = M @ mode
             z = np.zeros(6)
             ys = []
-            for s in range(int(16.0 / p.dt)):
+            for s in range(int(40.0 / p.dt)):
                 sim._step(z, z, z, s)
                 if s % 10 == 0:
                     ys.append(w @ (sim.data.qpos[qadr] - q0[qadr]))

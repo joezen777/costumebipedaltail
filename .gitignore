@@ -42,3 +42,5 @@ freecad/windup_build_status.txt
 scratch/
 cad/build/
 *.stl.tmp
+cad/stl/*.tmp
+results/sweep/*.json.tmp
