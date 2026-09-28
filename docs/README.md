@@ -1,6 +1,6 @@
 # Passive suitmation tail: documentation index
 
-Brief: `../README.md`. Environment rules: `../AGENTS.md`.
+Brief: [brief.md](brief.md) (original design brief). Results overview: [../README.md](../README.md). Environment rules: `../AGENTS.md`.
 
 | Document | Contents |
 |---|---|
