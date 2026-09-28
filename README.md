@@ -48,6 +48,87 @@ Also available:
 - Spring schedule: [docs/tables/gojira_springs.md](docs/tables/gojira_springs.md).
 - Strength (all SF ≥ 3): [docs/tables/gojira_strength.md](docs/tables/gojira_strength.md).
 
+### Shopping list (Gojira tail, 10 joints)
+
+Quantities are for the full tail. The 4-joint prototype needs roughly the joint 1–4 share plus the ballast items.
+Prices are rough commodity estimates in USD. Buy about 10 % spare hardware, since small screws disappear backstage.
+
+**Printing**
+
+| Item | Qty | Notes | ~Cost |
+|---|---|---|---|
+| PETG filament, 1.75 mm | 3 × 1 kg | 2.6 kg of parts ([print list](docs/tables/gojira_parts.md)) + supports/purges | $60 |
+| 1.2 mm hardened or brass nozzle for the Sprite Pro | 1 | Settings in [docs/printing.md](docs/printing.md) | $10 |
+| TPU 95A filament (optional) | 250 g | Stop pads instead of felt | $10 |
+
+**Fasteners** (steel, socket-head)
+
+| Item | Qty | Use | ~Cost |
+|---|---|---|---|
+| M4 × 16 socket-head cap screw | 80 | 4 per cap + 4 per ball flange, 10 joints | $10 |
+| M4 nylock nut | 80 | Press into the printed hex pockets | $6 |
+| M4 × 12 socket-head cap screw | 4 | Roll-key pins, joints 1–4 (head captured in the ball) | $1 |
+| M3 × 8 socket-head cap screw | 10 | Roll-key pins joints 5–10 (6) + tip adapter to vertebra 10 (4) | $2 |
+| M6 bolt + washer + nylock (length to suit your harness plate) | 4 | Hip mount to the harness, 150 × 100 mm pattern | $4 |
+
+**Springs** (full schedule per joint: [docs/tables/gojira_springs.md](docs/tables/gojira_springs.md))
+
+50 extension springs in total (30 positions, 20 of them doubled up). The installed length is short, 32–40 mm between
+hook holes. Buy assortments in these three bands and set each spring's rest tension with a short loop of the
+cord/wire on one hook; the prototype tests then calibrate it.
+
+| Band | Qty | Positions | Target per spring |
+|---|---|---|---|
+| Heavy | 8 | Dorsal pairs, joints 1–4 | OD ≤ 15 mm (J1) … 11 mm (J4), ~11–18 N/mm, 90–120 N at rest, must survive 230 N |
+| Medium | 14 | Dorsal pairs J5–J8 (8), single laterals J1–J3 (6) | OD 7–10 mm, ~6–9 N/mm, 35–75 N at rest, up to ~135 N |
+| Light | 28 | Lateral pairs J4–J9 (24), J9 dorsal (1), J10 laterals + dorsal (3) | OD 5.5–10 mm, ~4–11 N/mm, 15–40 N at rest, up to ~115 N |
+| + compression spring | 1 | Cord preload at the tip adapter | Ø ≤ 13 mm, ~2 N/mm, ~20 mm free length |
+
+Spring assortments run about $40–80 in total.
+
+**Cord, liners, pads**
+
+| Item | Qty | Use | ~Cost |
+|---|---|---|---|
+| 6 mm braided polyester cord (or paracord) | 2.5 m | Central cord, hip-mount knot to tip spring | $5 |
+| Cord lock + 2 washers (M6/M8) | 1 set | Tip end of the cord, over the compression spring | $3 |
+| Self-adhesive felt, 0.5 mm (or PTFE tape 0.25 mm) | ~0.1 m² | Socket seat liners (felt = the tuned friction) | $6 |
+| Self-adhesive felt or rubber, 0.8 mm | small sheet | Cap-mouth stop pads | $4 |
+| 1.75 mm filament offcuts | 20 × 10 mm | Ball-half alignment dowels | – |
+| CA glue or 2-part epoxy | 1 | Ball halves (optional) and foam | $8 |
+
+**Skin and foam tip**
+
+| Item | Qty | Use | ~Cost |
+|---|---|---|---|
+| Upholstery foam sheet, ~20 mm (plus a 10 mm sheet for the thin end) | ~1 m × 2 m | Skin over the frame rings and fins (20 mm at the root tapering to 4 mm) | $30–50 |
+| Upholstery or EVA foam block | 300 × 80 × 80 mm | 0.3 m flexible foam tip on the tip-adapter spike | $10 |
+| 4-way stretch spandex | ~1.5 m × 1.5 m | Outer skin | $15 |
+| Contact cement / spray adhesive | 1 can | Foam to frame, spandex to foam | $12 |
+| Latex or silicone paint, dorsal plates (EVA or foam) | to taste | Kaiju finish | varies |
+
+**Harness** (not printed)
+
+A rigid hip plate or backpack frame with a padded waist belt that accepts the 4 × M6 pattern (or two 50 mm webbing
+straps through the plate slots). It must carry ~35 N and up to ~25 N·m at the pelvis. Don't bolt it to costume
+foam. A used hiking-pack frame or a plywood/aluminium hip plate works; ~$20–60.
+
+**4-joint prototype only**
+
+| Item | Qty | Use | ~Cost |
+|---|---|---|---|
+| M8 threaded rod | 400 mm | Ballast rod through the ballast plate | $4 |
+| M8 nuts + large washers | 4 nuts, washers to **~625 g**, centred ~290 mm past joint 5 | Stands in for vertebrae 5–10 ([docs/test_plan.md](docs/test_plan.md)) | $10 |
+| Luggage/hanging scale | 1 | Breakaway-torque and stiffness tests | $10 |
+
+**Tools**
+- Drill bits 3.4 mm and 4.5 mm, to size the printed holes.
+- 2.5 / 3 / 5 mm hex keys and a 7 mm nut driver.
+- Pliers, for the spring hooks.
+- Scissors or knife, for the foam.
+
+**Rough total:** ~$250–350 for the full tail, excluding the harness and paint.
+
 ### CAD assembly: the real printed parts
 
 ![Gojira tail CAD assembly with the performer for scale](results/cad_renders_gojira/side_neutral_with_actor.png)
