@@ -1,3 +1,5 @@
+> **Superseded** by the client's Barney revision ([barney.md](barney.md)). The Gojira CAD, STLs and renders were removed; the mechanism comparison below is kept because the approved mechanics came from it.
+
 # Gojira profile ("x² + 1"): which tail is cheapest and simplest?
 
 **Target shape.**

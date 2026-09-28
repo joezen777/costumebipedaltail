@@ -42,6 +42,8 @@ class TailParams:
     actor_height: float = 1.727            # 5 ft 8 in
     pelvis_height_ratio: float = 0.55      # sacrum height / stature
     root_back_offset: float = 0.20         # pelvis centre -> joint 1 pivot
+    root_dz: float = 0.0                   # joint 1 pivot height relative to the pelvis centre (m)
+    plate_z: float = 0.0                   # mounting-plate centre height relative to the pelvis centre (m)
     root_pitch_deg: float = 15.0           # tail root points down behind the actor
     rest_droop_deg: float = 1.5            # additional rest pitch per joint
     rest_droop_list: list | None = None    # per-joint rest droop (deg); [0] adds to the root pitch
@@ -217,7 +219,7 @@ class TailParams:
             root_pitch=self.root_pitch_deg + float(self.droop_list()[0]), rest_droop=self.rest_droop_deg,
             rest_droop_list=[float(x) for x in self.droop_list()] if self.rest_droop_list is not None else [],
             ball_ratio=self.ball_radius_ratio, ball_min=self.ball_radius_min * 1000, ball_max=self.ball_radius_max * 1000,
-            root_back_offset=self.root_back_offset * 1000)
+            root_back_offset=self.root_back_offset * 1000, root_dz=self.root_dz * 1000, plate_z=self.plate_z * 1000)
 
     def spring_arms(self) -> tuple[np.ndarray, np.ndarray]:
         """Radial offsets (lateral, dorsal) of the spring lines of action per

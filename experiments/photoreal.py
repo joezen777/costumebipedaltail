@@ -18,17 +18,17 @@ SRC = ROOT / "results" / "pose_renders"
 OUT = ROOT / "results" / "simulated_photos"
 URL = "http://127.0.0.1:8188"
 
-BASE = ("Behind-the-scenes photograph on a film studio soundstage: a stunt performer wearing a full-body "
-        "Godzilla-style kaiju rubber suit, charcoal green pebbled latex skin, pale dorsal plates down the back. "
-        "A long thick tapered reptilian tail attached at the lower back sweeps down in a smooth curve, glides a "
-        "few centimetres above the grey concrete floor without touching it, and the thin tail tip curls slightly "
-        "upward. Practical creature effects, 35mm film still, soft studio key light, realistic, detailed. ")
+BASE = ("Behind-the-scenes photograph on a film studio soundstage: a performer wearing a full-body friendly "
+        "cartoon dinosaur costume, soft rounded shapes, green plush-like skin with a pale belly, small rounded dorsal "
+        "bumps. A short, very thick tapered dinosaur tail attached at the lower back on a lumbar support belt: it sticks "
+        "straight out behind briefly, curves smoothly down, then points backward again, ending in a rounded tip around "
+        "knee height, clear of the floor. Practical costume, 35mm film still, soft studio key light, realistic, detailed. ")
 POSES = {
-    "1_standing": "The creature stands still and upright, arms held forward, tail at rest behind it.",
-    "2_bending_over": "The creature bends forward deeply at the hips, torso leaning down, the tail lifted high behind it as a counterbalance.",
-    "3_turning": "The creature turns its hips sharply toward its left; the heavy tail lags behind, still pointing the old direction, swinging around.",
-    "4_jerk_left": "The creature jerks its hips abruptly to the left; the long tail whips behind, lagging and curving sideways.",
-    "5_jump_before_landing": "The creature is mid-air at the end of a jump, feet a few centimetres above the floor just before landing, tail raised off the floor behind it.",
+    "1_standing": "The dinosaur stands still and upright, arms held forward, tail at rest behind it.",
+    "2_bending_over": "The dinosaur bends forward deeply at the hips, torso leaning down, the short tail lifted up behind it as a counterbalance.",
+    "3_turning": "The dinosaur turns its hips sharply toward its left; the thick tail lags behind, still pointing the old direction, swinging around.",
+    "4_jerk_left": "The dinosaur jerks its hips abruptly to the left; the short tail swings behind, lagging and curving sideways.",
+    "5_jump_before_landing": "The dinosaur is mid-air at the end of a jump, feet a few centimetres above the floor just before landing, tail bouncing behind it.",
 }
 
 

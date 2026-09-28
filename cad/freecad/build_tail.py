@@ -243,7 +243,9 @@ def root_placement(p):
                    ex.y, ey.y, ez.y, 0,
                    ex.z, ey.z, ez.z, 0,
                    0, 0, 0, 1)
-    return App.Placement(m)
+    pl = App.Placement(m)
+    pl.Base = V(-p.root_back_offset, 0, p.root_dz)
+    return pl
 
 
 def createHipMount(p):
@@ -254,7 +256,7 @@ def createHipMount(p):
     w = g.spring_arm(p, 1)
     fin_t = 3 * p.line_w + 0.1
     plate = Part.makeBox(p.hip_plate_t, p.hip_plate_w, p.hip_plate_h,
-                         V(-p.harness_plate_offset - p.hip_plate_t, -p.hip_plate_w / 2, -p.hip_plate_h / 2))
+                         V(-p.harness_plate_offset - p.hip_plate_t, -p.hip_plate_w / 2, p.plate_z - p.hip_plate_h / 2))
     # boss: a cylinder on the tail axis from the ball-1 flange forward through the plate
     reach = (p.root_back_offset - p.harness_plate_offset) / math.cos(math.radians(p.root_pitch)) + 20
     local = [cyl_x(g.flange_r(p, 1) + 4, -reach, -pf)]
@@ -282,13 +284,12 @@ def createHipMount(p):
     behind = Part.makeBox(1000, 1000, 1000, V(-p.harness_plate_offset - p.hip_plate_t - 1000, -500, -500))
     tools = [place(s) for s in local_tools]
     tools[0] = tools[0].common(behind)          # flange-side clearance cut must not touch the plate
-    for y in (-75, 75):
-        for zz in (-50, 50):
-            tools.append(Part.makeCylinder(3.3, p.hip_plate_t + 2, V(-p.harness_plate_offset + 1, y - 5, zz), V(-1, 0, 0)).fuse(
-                Part.makeCylinder(3.3, p.hip_plate_t + 2, V(-p.harness_plate_offset + 1, y + 5, zz), V(-1, 0, 0))).fuse(
-                Part.makeBox(p.hip_plate_t + 2, 10, 6.6, V(-p.harness_plate_offset - p.hip_plate_t - 1, y - 5, zz - 3.3))))
-    for y in (-60, 60):
-        tools.append(Part.makeBox(p.hip_plate_t + 2, 52, 4, V(-p.harness_plate_offset - p.hip_plate_t - 1, y - 26, -p.hip_plate_h / 2 + 8)))
+    for y in (-78, 78):
+        for zz in (-45, 45):
+            tools.append(Part.makeBox(p.hip_plate_t + 2, 5, 28, V(-p.harness_plate_offset - p.hip_plate_t - 1, y - 2.5, p.plate_z + zz - 14)))
+    for sgn in (-1, 1):
+        tools.append(Part.makeBox(p.hip_plate_t + 2, 52, 5, V(-p.harness_plate_offset - p.hip_plate_t - 1, -26,
+                                                              p.plate_z + sgn * (p.hip_plate_h / 2 - 10) - 2.5)))
     return cut(body, tools)
 
 

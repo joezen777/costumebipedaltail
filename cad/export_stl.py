@@ -91,12 +91,32 @@ def scad_file():
     return ROOT / "openscad" / (f"suit_tail_{VARIANT}.scad" if VARIANT else "suit_tail.scad")
 
 
+def off_to_stl(off, path):
+    """OpenSCAD's STL writer triangulates coarsely and can leave hairline cracks; its OFF output
+    keeps the exact polygons, so export OFF and triangulate/write binary STL here."""
+    import trimesh
+    m = trimesh.load(off, process=True)
+    m.export(path)
+    off.unlink()
+
+
 def clean_mesh(path):
     """Drop CGAL slivers (zero-area faces / zero-volume fragments) so every STL is one clean volume."""
     import trimesh
     m = trimesh.load(path, process=True)
+    parts = m.split(only_watertight=False)
+    if m.is_volume and len(parts) == 1:
+        return True                              # already one clean volume: leave it untouched
+    solid = [p for p in parts if abs(p.volume) > 1e-3]
+    if len(solid) == 1 and solid[0].is_volume:
+        solid[0].export(path)                    # drop zero-volume sheets glued on by the mesher
+        return True
+    m.merge_vertices(digits_vertex=4)            # float32 STL round-off can split coincident vertices
     m.update_faces(m.nondegenerate_faces())
     m.remove_unreferenced_vertices()
+    if not m.is_watertight:
+        m.fill_holes()                           # close hairline cracks left by collapsed slivers
+    trimesh.repair.fix_normals(m)
     bodies = [b for b in m.split(only_watertight=False) if abs(b.volume) > 1e-3]
     if len(bodies) != 1 or not bodies[0].is_volume:
         return False
@@ -109,11 +129,12 @@ def render(name, part, idx, force=False):
     if path.exists() and not force:
         return name, path, "cached"
     path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = ["openscad", "-o", str(path), "-D", f'PART="{part}"', "-D", f"INDEX={idx}", str(scad_file())]
+    off = path.with_suffix(".off")
+    cmd = ["openscad", "-o", str(off), "-D", f'PART="{part}"', "-D", f"INDEX={idx}", str(scad_file())]
     r = subprocess.run(cmd, capture_output=True, text=True)
-    if r.returncode or not path.exists():
+    if r.returncode or not off.exists():
         return name, path, "FAILED: " + r.stderr[-400:]
-    to_binary_stl(path)
+    off_to_stl(off, path)
     if not clean_mesh(path):
         return name, path, "ok (NOT a single clean volume - check)"
     return name, path, "ok"
@@ -125,6 +146,7 @@ def main():
     ap.add_argument("--only", default="")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--variant", default="")
+    ap.add_argument("--no-kit", action="store_true", help="skip the 4-joint test-section kit folder")
     a = ap.parse_args()
     global VARIANT
     VARIANT = a.variant
@@ -151,6 +173,8 @@ def main():
     old = json.loads(pj.read_text()) if pj.exists() else {}
     old.update(report)
     pj.write_text(json.dumps(old, indent=1))
+    if a.no_kit:
+        return
     # 4-joint test-section kit
     ts = OUT / (f"{VARIANT}_test_section" if VARIANT else "test_section")
     ts.mkdir(exist_ok=True)

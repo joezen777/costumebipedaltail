@@ -1,38 +1,109 @@
-[
- {
-  "file": "replica_mechanism_1to8.stl",
-  "bodies": 1,
-  "watertight": true,
+{
+ "band_spans_mm": [
+  4.9,
+  5.6,
+  5.3,
+  4.5,
+  4.7,
+  5.5
+ ],
+ "00_snap_test_coupon": {
+  "single_clean_volume": false,
   "extents_mm": [
-   195.0,
-   23.8,
-   114.3
+   23.4,
+   20.0,
+   8.9
   ],
-  "volume_ml": 5.76,
-  "fits_printer": true
+  "volume_ml": 0.465,
+  "fits_printer": true,
+  "error": ""
  },
- {
-  "file": "replica_skinned_1to8.stl",
-  "bodies": 1,
-  "watertight": true,
+ "01_hip_mount_plate": {
+  "single_clean_volume": true,
   "extents_mm": [
-   202.9,
+   16.1,
    23.8,
-   120.0
+   26.4
   ],
-  "volume_ml": 40.18,
-  "fits_printer": true
+  "volume_ml": 1.139,
+  "fits_printer": true,
+  "error": ""
  },
- {
-  "file": "replica_stand_1to8.stl",
-  "bodies": 1,
-  "watertight": true,
+ "99_display_stand": {
+  "single_clean_volume": true,
   "extents_mm": [
-   193.8,
-   37.5,
-   129.4
+   147.5,
+   36.0,
+   135.7
   ],
-  "volume_ml": 47.07,
-  "fits_printer": true
+  "volume_ml": 30.114,
+  "fits_printer": true,
+  "error": ""
+ },
+ "11_vertebra_1": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   20.1,
+   18.8,
+   19.8
+  ],
+  "volume_ml": 0.578,
+  "fits_printer": true,
+  "error": ""
+ },
+ "12_vertebra_2": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   19.6,
+   17.1,
+   18.2
+  ],
+  "volume_ml": 0.502,
+  "fits_printer": true,
+  "error": ""
+ },
+ "13_vertebra_3": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   18.9,
+   15.7,
+   16.0
+  ],
+  "volume_ml": 0.426,
+  "fits_printer": true,
+  "error": ""
+ },
+ "14_vertebra_4": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   18.8,
+   14.3,
+   14.4
+  ],
+  "volume_ml": 0.38,
+  "fits_printer": true,
+  "error": ""
+ },
+ "15_vertebra_5": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   19.1,
+   13.4,
+   14.7
+  ],
+  "volume_ml": 0.351,
+  "fits_printer": true,
+  "error": ""
+ },
+ "16_vertebra_6": {
+  "single_clean_volume": true,
+  "extents_mm": [
+   37.9,
+   12.8,
+   12.8
+  ],
+  "volume_ml": 1.91,
+  "fits_printer": true,
+  "error": ""
  }
-]
+}

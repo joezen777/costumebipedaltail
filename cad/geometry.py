@@ -61,6 +61,8 @@ class CadParams:
     coil_od_ratio: float = 0.08         # max spring coil OD / envelope diameter
     # hip mount
     root_back_offset: float = 200.0     # pelvis centre -> joint 1 centre
+    root_dz: float = 0.0                # joint 1 centre height relative to the pelvis centre (mm)
+    plate_z: float = 0.0                # mounting-plate centre height relative to the pelvis centre (mm)
     harness_plate_offset: float = 120.0 # pelvis centre -> back of hip plate
     hip_plate_w: float = 190.0
     hip_plate_h: float = 150.0

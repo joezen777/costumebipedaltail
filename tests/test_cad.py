@@ -18,11 +18,11 @@ class TestCad(unittest.TestCase):
     def test_openscad_matches_python_spec(self):
         self._compare(SCAD, g.CadParams())
 
-    def test_gojira_variant_matches_python_spec(self):
-        pj = ROOT / "cad" / "variants" / "gojira.json"
+    def test_barney_variant_matches_python_spec(self):
+        pj = ROOT / "cad" / "variants" / "barney.json"
         p = g.CadParams(**json.loads(pj.read_text()))
         self.assertEqual([c for c in g.checks(p) if not c[1]], [])
-        self._compare(ROOT / "cad" / "openscad" / "suit_tail_gojira.scad", p)
+        self._compare(ROOT / "cad" / "openscad" / "suit_tail_barney.scad", p)
 
     def _compare(self, scad, p):
         import tempfile
@@ -39,7 +39,7 @@ class TestCad(unittest.TestCase):
                 self.assertAlmostEqual(v, s[k], places=3, msg=f"joint {s['i']} {k}")
 
     def test_exported_parts_fit_printer_and_sit_on_bed(self):
-        files = [ROOT / "cad" / "stl" / n for n in ("parts.json", "parts_gojira.json")]
+        files = [ROOT / "cad" / "stl" / n for n in ("parts_barney.json",)]
         if not any(f.exists() for f in files):
             self.skipTest("run cad/export_stl.py first")
         for pj in files:

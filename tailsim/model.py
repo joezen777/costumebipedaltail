@@ -91,7 +91,7 @@ def build_xml(p: TailParams) -> str:
     a_par, a = p.spring_spans()
     R1 = root_rotation(p)
     q1 = _quat_from_matrix(R1)
-    pivot1_in_hip = np.array([-p.root_back_offset, 0, 0])
+    pivot1_in_hip = np.array([-p.root_back_offset, 0, p.root_dz])
     stop = f'solreflimit="{p.stop_timeconst} {p.stop_dampratio}"'
     roll_attr = 'limited="false"' if p.roll_unrestricted else f'limited="true" range="{-p.max_roll} {p.max_roll}"'
 

@@ -1,3 +1,5 @@
+> **Barney tail:** the complete tail is only 6 joints, so it is its own prototype. Run the measurements below on the full tail (the ballast rod is not needed). The 4-joint section and predictions below are from the original 8-joint design.
+
 # 4-joint physical test section (README section 21)
 
 **Build:** hip mount + vertebrae 1–4 (with caps, balls 1–4 and their springs) + `test_ballast_plate` on

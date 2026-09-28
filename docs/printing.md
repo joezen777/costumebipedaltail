@@ -1,8 +1,15 @@
 # Printing, materials and assembly
 
-Everything here is for the proof-of-concept (POC) build. STL files in `cad/stl/full/` (full tail) and
-`cad/stl/test_section/` (4-joint prototype) are **already in print orientation**. The flat face is on z = 0.
-Part sizes, volumes and estimated masses are in `cad/stl/parts.json`.
+Everything here is for the Barney tail build. The print-ready STLs are in `cad/stl/barney/` (26 parts,
+already in print orientation, flat face on z = 0); sizes and masses are in `docs/tables/barney_parts.md`. The 1:8
+resin kit has its own guide in `cad/stl/replica_1to8_resin/README.md`.
+
+Barney-specific notes:
+- **Hip mount:** the root boss leaves the plate only 11° from horizontal, so it prints plate-down with **no
+  supports**.
+- **Belt attachment:** thread 25 mm hook-and-loop straps through the four corner slots and around the lumbar belt's
+  back panel; the top and bottom 50 mm slots take an optional extra webbing strap.
+- **Ball halves:** each carries its joint's rest-bend wedge (up to ±20°), so keep them in joint order.
 
 ## Printer and nozzle: Ender 3 V2 + Sprite Pro, 1.2 mm nozzle
 

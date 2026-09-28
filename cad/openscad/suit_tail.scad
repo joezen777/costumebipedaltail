@@ -48,6 +48,7 @@ bolt_clear  = 4.5;  nut_af = 7.0;   nut_h = 3.2;   head_d = 7.0;  head_h = 4.0;
 pin_protrude = 3;
 cap_ear_x = 5;     spring_hole = 4.5;  coil_od_ratio = 0.08;
 root_back_offset = 200;  harness_plate_offset = 120;
+root_dz = 0;   plate_z = 0;      // pivot / mounting-plate centre heights relative to the pelvis centre
 hip_plate_w = 190;  hip_plate_h = 150;  hip_plate_t = 8;
 tip_plug_len = 25;
 function fin_t(i) = (RF(i) > 50 ? 3 : 2) * line_w + 0.1;   // 4.0 / 2.7 mm: three or two 1.3 mm lines
@@ -310,7 +311,7 @@ module vertebra(i) {
 // Frame: pelvis frame, origin at the pelvis centre, +X forward, +Z up.
 // Joint 1 frame = translate([-root_back_offset,0,0]) * rotation below.
 // net: +X -> (-cos rp, 0, -sin rp) backward & down; +Z -> (-sin rp, 0, cos rp) dorsal; +Y -> -Y
-module root_frame() { translate([-root_back_offset, 0, 0]) rotate([0, 180 - root_pitch, 0]) rotate([180, 0, 0]) children(); }
+module root_frame() { translate([-root_back_offset, 0, root_dz]) rotate([0, 180 - root_pitch, 0]) rotate([180, 0, 0]) children(); }
 
 module hip_mount() {
     df = DF(1); pf = df + flange_t;
@@ -318,11 +319,11 @@ module hip_mount() {
     difference() {
         union() {
             // harness plate (vertical, faces backward)
-            translate([-harness_plate_offset - hip_plate_t, -hip_plate_w / 2, -hip_plate_h / 2])
+            translate([-harness_plate_offset - hip_plate_t, -hip_plate_w / 2, plate_z - hip_plate_h / 2])
                 cube([hip_plate_t, hip_plate_w, hip_plate_h]);
             // boss from the plate to the ball-1 flange, plus spring anchor arms
             hull() {
-                translate([-harness_plate_offset - hip_plate_t, 0, 0]) rotate([0, -90, 0]) cylinder(r = flange_r(1) + 6, h = 1);
+                translate([-harness_plate_offset - hip_plate_t, 0, root_dz]) rotate([0, -90, 0]) cylinder(r = flange_r(1) + 6, h = 1);
                 root_frame() translate([-pf, 0, 0]) along_mx(8, flange_r(1), flange_r(1));
             }
             // spring-anchor arms: 12 mm thick, 30 mm deep at the boss (dorsal spring up to ~220 N)
@@ -336,12 +337,10 @@ module hip_mount() {
             root_frame() translate([-pf + 0.01, -100, -100]) cube([100, 200, 200]);
             translate([-harness_plate_offset - hip_plate_t - 1000, -500, -500]) cube([1000, 1000, 1000]);
         }
-        // harness bolts (M6 on a 150 x 100 pattern) and a 50 mm webbing slot pair
-        for (y = [-75, 75], z = [-50, 50]) translate([-harness_plate_offset + 1, y, z]) rotate([0, -90, 0]) hull() {
-            translate([0, -5, 0]) cylinder(d = 6.6, h = hip_plate_t + 2);
-            translate([0, 5, 0]) cylinder(d = 6.6, h = hip_plate_t + 2);
-        }
-        for (y = [-60, 60]) translate([-harness_plate_offset - hip_plate_t - 1, y - 26, -hip_plate_h / 2 + 8]) cube([hip_plate_t + 2, 52, 4]);
+        // lumbar-support-belt attachment: four 25 mm strap slots (hook-and-loop straps wrap the belt's
+        // back panel) and top/bottom 50 mm webbing slots
+        for (y = [-78, 78], z = [-45, 45]) translate([-harness_plate_offset - hip_plate_t - 1, y - 2.5, plate_z + z - 14]) cube([hip_plate_t + 2, 5, 28]);
+        for (z = [-1, 1]) translate([-harness_plate_offset - hip_plate_t - 1, -26, plate_z + z * (hip_plate_h / 2 - 10) - 2.5]) cube([hip_plate_t + 2, 52, 5]);
         // cord anchor: bore from the flange face into a knot pocket behind the plate
         root_frame() {
             along_mx(pf + 80, bore_r, bore_r);

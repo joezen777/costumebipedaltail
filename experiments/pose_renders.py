@@ -1,7 +1,7 @@
 """Physics-accurate pose renders of the full tail on a suit performer (MuJoCo, EGL).
 
 Tail shape at each instant comes from the simulation of the recommended design on the
-Gojira profile (experiments/gojira_final.py -> scratch/gojira_raw.pkl). The performer is a
+Barney tail (experiments/barney.py -> scratch/barney_raw.pkl). The performer is a
 posed mannequin (not simulated) placed from the simulated pelvis pose.
 
     MUJOCO_GL=egl PYTHONPATH=. python experiments/pose_renders.py
@@ -97,6 +97,8 @@ def performer(pelvis, ypr_deg, pose):
     g = []
     g.append(f'<geom type="ellipsoid" pos="{_fmt(L([0, 0, 0.02]))}" size="0.17 0.21 0.16" '
              f'quat="{_fmt(quat(R))}" rgba="{SUIT}"/>')
+    # lumbar support belt the tail mount straps to
+    g.append(f'<geom type="ellipsoid" pos="{_fmt(L([0.0, 0, 0.05]))}" size="0.185 0.235 0.075" quat="{_fmt(quat(R))}" rgba="0.72 0.62 0.45 1"/>')
     chest = L([0.02, 0, 0.42])
     g.append(f'<geom type="ellipsoid" pos="{_fmt(L([0.0, 0, 0.26]))}" size="0.18 0.23 0.30" quat="{_fmt(quat(R))}" rgba="{SUIT}"/>')
     neck = L([0.06, 0, 0.60])
@@ -129,9 +131,8 @@ def performer(pelvis, ypr_deg, pose):
             g.append(capsule(hand, claw, 0.018, "0.85 0.82 0.70 1"))
     # dorsal plates down the back (Gojira silhouette)
     for k, (z, s) in enumerate([(0.62, 0.07), (0.50, 0.09), (0.36, 0.10), (0.22, 0.09), (0.08, 0.07)]):
-        c = L([-0.19 - s / 2, 0, z + 0.01])
-        g.append(f'<geom type="ellipsoid" pos="{_fmt(c)}" size="{s/1.6:.3f} 0.012 {s*0.75:.3f}" quat="{_fmt(quat(R @ rot(0, -0.5)))}" '
-                 f'rgba="0.78 0.76 0.70 1"/>')
+        c = L([-0.19, 0, z + 0.01])                 # small rounded Barney-style bumps
+        g.append(f'<geom type="sphere" pos="{_fmt(c)}" size="{0.35 * s:.3f}" rgba="0.62 0.70 0.45 1"/>')
     return g
 
 
@@ -146,7 +147,7 @@ def scene_xml(frame, D, tip_d, pose, cam):
     ypr = frame["pelvis_ypr"]
     pts = frame["bodies"]
     R = rot(*[math.radians(x) for x in ypr])
-    root_blend = pelvis + R @ np.array([-0.13, 0, -0.02])
+    root_blend = pelvis + R @ np.array([-0.13, 0, -0.04])
     points = np.vstack([root_blend, pts])
     radii = np.r_[0.11, D / 2, tip_d / 2]
     V, F = tube_mesh(points, radii)
@@ -154,7 +155,7 @@ def scene_xml(frame, D, tip_d, pose, cam):
     faces = " ".join(" ".join(str(i) for i in f) for f in F)
     # dorsal plates along the first half of the tail
     plates = []
-    for k in range(0, 6):
+    for k in range(0, min(4, len(pts) - 2)):
         a, b = pts[k], pts[k + 1]
         mid = 0.5 * (a + b)
         d = (b - a) / np.linalg.norm(b - a)
@@ -162,8 +163,7 @@ def scene_xml(frame, D, tip_d, pose, cam):
         upv = np.cross(side, d)
         top = mid + upv * (D[k] / 2 * 0.9 + (0.03 - 0.004 * k))
         Rp = np.column_stack([d, side, upv])
-        plates.append(f'<geom type="ellipsoid" pos="{_fmt(top)}" size="{0.05 - 0.006 * k:.3f} 0.010 {0.04 - 0.005 * k:.3f}" '
-                      f'quat="{_fmt(quat(Rp))}" rgba="0.78 0.76 0.70 1"/>')
+        plates.append(f'<geom type="sphere" pos="{_fmt(top - upv * 0.015)}" size="{0.022 - 0.003 * k:.3f}" rgba="0.62 0.70 0.45 1"/>')
     body = performer(pelvis, ypr, pose)
     cx, cy, cz, tx, ty, tz = cam
     return f"""
@@ -228,9 +228,9 @@ CAMS = {  # eye (x,y,z) and target, world metres; performer faces +x, tail towar
 
 
 def main():
-    from experiments.gojira_final import FINALISTS
-    raw = pickle.load(open(ROOT / "scratch" / "gojira_raw.pkl", "rb"))[DESIGN]
-    p = FINALISTS[DESIGN]
+    from experiments.barney import configs
+    raw = pickle.load(open(ROOT / "scratch" / "barney_raw.pkl", "rb"))[DESIGN]
+    p = configs()[DESIGN]
     D = p.diameters()
     OUT.mkdir(parents=True, exist_ok=True)
     info = {}
