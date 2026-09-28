@@ -91,6 +91,19 @@ def scad_file():
     return ROOT / "openscad" / (f"suit_tail_{VARIANT}.scad" if VARIANT else "suit_tail.scad")
 
 
+def clean_mesh(path):
+    """Drop CGAL slivers (zero-area faces / zero-volume fragments) so every STL is one clean volume."""
+    import trimesh
+    m = trimesh.load(path, process=True)
+    m.update_faces(m.nondegenerate_faces())
+    m.remove_unreferenced_vertices()
+    bodies = [b for b in m.split(only_watertight=False) if abs(b.volume) > 1e-3]
+    if len(bodies) != 1 or not bodies[0].is_volume:
+        return False
+    bodies[0].export(path)
+    return True
+
+
 def render(name, part, idx, force=False):
     path = full_dir() / f"{name}.stl"
     if path.exists() and not force:
@@ -101,6 +114,8 @@ def render(name, part, idx, force=False):
     if r.returncode or not path.exists():
         return name, path, "FAILED: " + r.stderr[-400:]
     to_binary_stl(path)
+    if not clean_mesh(path):
+        return name, path, "ok (NOT a single clean volume - check)"
     return name, path, "ok"
 
 

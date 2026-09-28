@@ -1,0 +1,38 @@
+[
+ {
+  "file": "replica_mechanism_1to8.stl",
+  "bodies": 1,
+  "watertight": true,
+  "extents_mm": [
+   195.0,
+   23.8,
+   114.3
+  ],
+  "volume_ml": 5.76,
+  "fits_printer": true
+ },
+ {
+  "file": "replica_skinned_1to8.stl",
+  "bodies": 1,
+  "watertight": true,
+  "extents_mm": [
+   202.9,
+   23.8,
+   120.0
+  ],
+  "volume_ml": 40.18,
+  "fits_printer": true
+ },
+ {
+  "file": "replica_stand_1to8.stl",
+  "bodies": 1,
+  "watertight": true,
+  "extents_mm": [
+   193.8,
+   37.5,
+   129.4
+  ],
+  "volume_ml": 47.07,
+  "fits_printer": true
+ }
+]

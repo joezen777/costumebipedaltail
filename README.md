@@ -43,6 +43,9 @@ The cheaper candidates each fail a requirement:
   [docs/tables/gojira_parts.md](docs/tables/gojira_parts.md).
 - [`cad/stl/gojira_test_section/`](cad/stl/gojira_test_section/): the 4-joint prototype kit.
 
+- [`cad/stl/replica_1to8_resin/`](cad/stl/replica_1to8_resin/): a **1:8 scale resin display replica**
+  (mechanism or skinned, one piece each, plus a stand) for the Photon Mono 5s.
+
 Also available:
 - FreeCAD/STEP: [`cad/freecad/output/suit_tail_gojira.step`](cad/freecad/output/suit_tail_gojira.step).
 - Spring schedule: [docs/tables/gojira_springs.md](docs/tables/gojira_springs.md).

@@ -230,7 +230,7 @@ def createTipAdapter(p):
     L = g.tip_plug_len(p)
     body = fuse([cyl_x(r, 0, 6), cyl_x(10.5, 0, L), cone_x(7, 2, L, L + 45)] +
                 [cone_x(8 - 1.2 * k, 5 - 1.2 * k, L + 8 + 9 * k, L + 13 + 9 * k) for k in range(4)])
-    tools = [cyl_x(g.bore_r(p), -1, 80), cyl_x(7, 6, L + 2)]
+    tools = [cyl_x(g.bore_r(p), -1, 7), cyl_x(7, 6, L - 3), Part.makeBox(L - 13, 12, 10, V(8, 0, -5))]
     tools += at_lobes(lambda: Part.makeCylinder(1.6, 8, V(-1, 0, spine_r(n, p) + 2), X))
     return cut(body, tools)
 

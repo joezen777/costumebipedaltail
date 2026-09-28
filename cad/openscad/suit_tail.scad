@@ -369,8 +369,9 @@ module tip_adapter() {
             translate([tip_plug_len, 0, 0]) along_x(45, 7, 2);        // foam spike
             for (k = [0 : 3]) translate([tip_plug_len + 8 + 9 * k, 0, 0]) along_x(5, 8 - 1.2 * k, 5 - 1.2 * k);  // barbs
         }
-        translate([-1, 0, 0]) along_x(80, bore_r, bore_r);
-        translate([6, 0, 0]) along_x(tip_plug_len - 4, 7, 7);        // Ø14 compression-spring pocket
+        translate([-1, 0, 0]) along_x(8, bore_r, bore_r);                  // cord enters the pocket only
+        translate([6, 0, 0]) along_x(tip_plug_len - 9, 7, 7);        // Ø14 compression-spring pocket, 3 mm floor
+        translate([8, 0, -5]) cube([tip_plug_len - 13, 12, 10]);      // side window: fit spring, tie the knot
         at_lobes() translate([-1, 0, spine_r(N) + 2]) along_x(8, 1.6, 1.6); // M3 screws into the flange
     }
 }

@@ -29,6 +29,7 @@ Brief: [brief.md](brief.md) (original design brief). Results overview: [../READM
 | `cad/freecad/build_tail.py` | Parametric FreeCAD model (`createVertebra(index, parameters)`), writes FCStd + STEP |
 | `cad/freecad/output/` | `suit_tail.FCStd/.step`, `test_section_4joint.FCStd/.step` |
 | `cad/stl/gojira/`, `cad/stl/gojira_test_section/` | **Recommended Gojira tail** print-ready STLs (10 joints) and 4-joint prototype kit |
+| `cad/stl/replica_1to8_resin/` | 1:8 scale one-piece resin display replicas (mechanism / skinned) + stand; `cad/export_replica.py` |
 | `cad/stl/full/`, `cad/stl/test_section/` | Original 8-joint, 1.4 m tail STLs; `cad/stl/parts*.json` = sizes, volumes, masses |
 | `results/figures/`, `results/animations/`, `results/cad_renders/` | Plots, GIF/MP4 animations, CAD views |
 | `results/data/` | Metrics JSON, per-timestep CSVs (`csv/`), mass budget |
