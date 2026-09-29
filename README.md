@@ -77,8 +77,7 @@ Four changes made the short tail work, all found in simulation ([docs/barney.md]
   [docs/test_plan.md](docs/test_plan.md).
 
 CAD: [`cad/openscad/suit_tail_barney.scad`](cad/openscad/suit_tail_barney.scad) (a generated variant of the
-parametric [`suit_tail.scad`](cad/openscad/suit_tail.scad)); FreeCAD/STEP in [`cad/freecad/output/`](cad/freecad/output/). The FreeCAD/STEP hip mount and vertebra frames
-predate the self-supporting redesign, so the STLs are authoritative.
+parametric [`suit_tail.scad`](cad/openscad/suit_tail.scad)); FreeCAD/STEP in [`cad/freecad/output/`](cad/freecad/output/).
 
 ### Shopping list (full-size tail)
 

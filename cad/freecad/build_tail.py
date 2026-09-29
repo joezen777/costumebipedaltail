@@ -101,6 +101,46 @@ def ellip_cone_mx(h, by, bp):
     return c.transformGeometry(m)
 
 
+def hull_solid(pts):
+    """Convex hull of points as a solid (the OpenSCAD hull() equivalent)."""
+    import numpy as np
+    from scipy.spatial import ConvexHull
+    a = np.array([[q.x, q.y, q.z] for q in pts])
+    h = ConvexHull(a)
+    faces = []
+    for simplex, eq in zip(h.simplices, h.equations):
+        t = [a[k] for k in simplex]
+        if np.dot(np.cross(t[1] - t[0], t[2] - t[0]), eq[:3]) < 0:
+            t = [t[0], t[2], t[1]]
+        v = [V(*q) for q in t]
+        faces.append(Part.Face(Part.makePolygon(v + [v[0]])))
+    sol = Part.Solid(Part.Shell(faces)).removeSplitter()
+    if sol.Volume < 0:
+        sol.reverse()
+    return sol
+
+
+def box_pts(x0, x1, y0, y1, z0, z1):
+    return [V(x, y, z) for x in (x0, x1) for y in (y0, y1) for z in (z0, z1)]
+
+
+def circle_pts_x(r, x, c=(0.0, 0.0), n=72):
+    """Points of a circle of radius r in the plane x = const, centred at (y, z) = c."""
+    return [V(x, c[0] + r * math.cos(2 * math.pi * k / n), c[1] + r * math.sin(2 * math.pi * k / n)) for k in range(n)]
+
+
+def prism_x_yz(poly_yz, x0, length):
+    """Prism along X from a polygon given in the (y, z) plane."""
+    v = [V(x0, y, z) for y, z in poly_yz]
+    return Part.Face(Part.makePolygon(v + [v[0]])).extrude(V(length, 0, 0))
+
+
+def prism_z_xy(poly_xy, z0, length):
+    """Prism along Z from a polygon given in the (x, y) plane."""
+    v = [V(x, y, z0) for x, y in poly_xy]
+    return Part.Face(Part.makePolygon(v + [v[0]])).extrude(V(0, 0, length))
+
+
 # ------------------------------------------------------------------- parts
 
 
@@ -185,6 +225,37 @@ def spine_r(i, p):
     return g.bore_r(p) + g.wall(p, 4)
 
 
+def skin_ring_skirt(i, p):
+    """Single-line wall from the bed (distal end) up to the skin ring's bottom rim, 45 deg flare to the rim's full
+    width, pointed arches open from the bed between the fins, notches at the spring anchors (as suit_tail.scad)."""
+    bl, rf, n = g.body_len(p, i), g.RF(p, i), p.joint_count
+    skirt_t = p.line_w + 0.1
+    x0 = 0.5 * bl + 2 * p.line_w + 0.2 + 8
+    r_o = rf - 8
+    r_i = r_o - skirt_t
+    rim_w = 3 * p.line_w
+    flare = rim_w - skirt_t
+    h = bl - x0
+    band = flare + 2
+    arc = 2 * math.pi * r_o / 4 - g.fin_t(p, i) - 12
+    na = max(1, math.ceil(arc / 45))
+    W = min((arc - (na - 1) * 4) / na, 2 * (h - band))
+    hv = h - band - W / 2
+    shell = cyl_x(r_o, x0 - 0.01, bl).cut(cyl_x(r_i, x0 - 1, bl + 1))
+    fl = cyl_x(r_o, x0 - 0.01, x0 + flare).cut(cone_x(r_o - rim_w, r_i, x0 - 0.02, x0 + flare + 0.01))
+    wall = fuse([shell, fl])
+    tools = []
+    if hv >= 0:
+        arch = [(bl + 1, -W / 2), (bl - hv, -W / 2), (bl - hv - W / 2, 0), (bl - hv, W / 2), (bl + 1, W / 2)]
+        for q in range(4):
+            for k in range(na):
+                tools.append(rot_x(prism_z_xy(arch, r_o - 10, 20), q * 90 + (k + 0.5) * 90 / na))
+    if i < n:
+        notch = [(bl + 1, -7), (bl - 11, -7), (bl - 18, 0), (bl - 11, 7), (bl + 1, 7)]
+        tools += at_springs(lambda: prism_z_xy(notch, r_o - 10, 20))
+    return cut(wall, tools)
+
+
 def createFrame(i, p):
     bl, sd, rf, ho = g.body_len(p, i), g.seat_depth(p, i), g.RF(p, i), g.cap_outer_r(p, i)
     pcd, lr, n = g.bolt_pcd_r(p, i), g.lobe_r(p), p.joint_count
@@ -196,8 +267,12 @@ def createFrame(i, p):
     drop = pcd + lr - ho + 3
     parts += at_lobes(lambda: Part.makeCylinder(lr, 7, V(0, 0, pcd), X).fuse(
         Part.makeLoft([Part.Wire(Part.makeCircle(lr, V(7, 0, pcd), X)), Part.Wire(Part.makeCircle(1, V(7 + drop, 0, ho - 3), X))], True)))
-    for a in (0, 90, 180, 270):
-        parts.append(rot_x(Part.makeBox(bl - x_f0, fin_t, rf, V(x_f0, -fin_t / 2, 0)), a))
+    # fins, with the diamond windows cut from the fins only (so they never notch the housing cone)
+    fins = fuse([rot_x(Part.makeBox(bl - x_f0, fin_t, rf, V(x_f0, -fin_t / 2, 0)), a) for a in (0, 90, 180, 270)])
+    parts.append(cut(fins, [rot_x(w, a) for a in (0, 90, 180, 270) for w in fin_windows(i, p)]))
+    # 45 deg cone under the socket housing, down to the spine (no flat ceiling between the fins)
+    parts.append(cone_x(ho, spine_r(i, p), sd - 0.01, sd + ho - spine_r(i, p)))
+    parts.append(skin_ring_skirt(i, p))
     xm = x_f0 + 0.5 * (bl - x_f0)
     t = 2 * p.line_w + 0.2
     ring = cyl_x(rf, xm, xm + t).cut(cyl_x(rf - 3 * p.line_w, xm - 1, xm + t + 1))
@@ -210,8 +285,6 @@ def createFrame(i, p):
             Part.makeBox(20, 40, 400, V(bl - 20, -20, 0))))
     body = fuse(parts + [ring, skirt, base])
     tools = [socket_cavity(i, p), roll_slot(i, p, -0.01, sd), cyl_x(g.bore_r(p), -1, bl + 1)]
-    for a in (0, 90, 180, 270):
-        tools += [rot_x(w, a) for w in fin_windows(i, p)]
     tools += at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, 12, V(-1, 0, pcd), X).fuse(hex_prism_x(p.nut_af, 7 - p.nut_h - 0.3, 20, pcd)))
     if i < n:
         w2 = g.spring_arm(p, i + 1)
@@ -248,48 +321,79 @@ def root_placement(p):
     return pl
 
 
+HOLE_R = 11.0                      # plate lightening hexes: 19 mm across flats, >= 6 mm webs
+
+
+def hip_holes(p):
+    """Hex lightening-hole centres (y, z) on the harness plate, same rule as suit_tail.scad hip_hole_ok()."""
+    m, bz, lz, w = 6 + HOLE_R, p.root_dz, p.root_dz + 6, g.spring_arm(p, 1)
+    fin_t = 3 * p.line_w + 0.1
+    out = []
+    for r in range(-8, 9):
+        for c in range(-8, 9):
+            y = c * 25 + (0 if r % 2 == 0 else 12.5)
+            z = p.plate_z + r * 25 * math.sin(math.radians(60))
+            ok = (abs(y) <= p.hip_plate_w / 2 - 8 - HOLE_R and abs(z - p.plate_z) <= p.hip_plate_h / 2 - 8 - HOLE_R
+                  and math.hypot(y, z - bz) >= g.flange_r(p, 1) + 6 + m
+                  and not (abs(y) < fin_t / 2 + m and bz < z < bz + w + 5 + m)
+                  and not (abs(z - lz) < fin_t / 2 + 4 + m and abs(y) < w + 5 + m)
+                  and not (abs(abs(y) - 78) < 2.5 + m and (abs(z - (p.plate_z - 45)) < 14 + m or abs(z - (p.plate_z + 45)) < 14 + m))
+                  and not (abs(y) < 26 + m and abs(z - (p.plate_z + p.hip_plate_h / 2 - 10)) < 2.5 + m))
+            if ok:
+                out.append((y, z))
+    return out
+
+
 def createHipMount(p):
-    """Harness plate + boss + spring anchor arms, built in the pelvis frame."""
+    """Harness plate + boss + spring anchor arms with webs, built in the pelvis frame (mirrors suit_tail.scad)."""
     P = root_placement(p)
-    df, ft = g.DF(p, 1), g.flange_t(p)
-    pf = df + ft
+    pf = g.DF(p, 1) + g.flange_t(p)
     w = g.spring_arm(p, 1)
     fin_t = 3 * p.line_w + 0.1
-    plate = Part.makeBox(p.hip_plate_t, p.hip_plate_w, p.hip_plate_h,
-                         V(-p.harness_plate_offset - p.hip_plate_t, -p.hip_plate_w / 2, p.plate_z - p.hip_plate_h / 2))
-    # boss: a cylinder on the tail axis from the ball-1 flange forward through the plate
-    reach = (p.root_back_offset - p.harness_plate_offset) / math.cos(math.radians(p.root_pitch)) + 20
-    local = [cyl_x(g.flange_r(p, 1) + 4, -reach, -pf)]
     arm_t = 12.0                      # dorsal spring up to ~220 N: 12 mm thick, 30 mm deep at the boss
+    pb = -p.harness_plate_offset - p.hip_plate_t
+
+    def to_pelvis(pts, a=0.0):
+        R = App.Rotation(X, a)
+        return [P.multVec(R.multVec(q)) for q in pts]
+
+    def arm_pts(t, dx=0.0):
+        return (box_pts(-pf - 12 + dx, -pf + dx, -t / 2, t / 2, 0, w + 5) +
+                box_pts(-pf - 30 + dx, -pf + dx, -t / 2, t / 2, 0, 12))
+
+    plate = Part.makeBox(p.hip_plate_t, p.hip_plate_w, p.hip_plate_h, V(pb, -p.hip_plate_w / 2, p.plate_z - p.hip_plate_h / 2))
+    # boss: hull from a disc on the plate's FRONT face (so it stands on the print bed) to the ball-1 flange
+    fr = g.flange_r(p, 1)
+    boss = hull_solid([q for x in (-p.harness_plate_offset - 1, -p.harness_plate_offset)
+                       for q in circle_pts_x(fr + 6, x, (0.0, p.root_dz))] +
+                      to_pelvis(circle_pts_x(fr, -pf) + circle_pts_x(fr, -pf - 8)))
+    solids = [plate, boss]
     for a in (0, 90, -90):
-        arm = Part.makeBox(12, arm_t, w + 5, V(-pf - 12, -arm_t / 2, 0))
-        foot = Part.makeBox(30, arm_t, 12, V(-pf - 30, -arm_t / 2, 0))
-        local += [rot_x(arm, a), rot_x(foot, a)]
-    # steep roots: bridge the boss straight forward to the plate as well
-    bridge = Part.makeCylinder(g.flange_r(p, 1) + 4, p.root_back_offset - p.harness_plate_offset, P.multVec(V(-pf - 4, 0, 0)), V(1, 0, 0))
-    tail_side = Part.makeBox(100, 200, 200, V(-pf + 0.01, -100, -100))
-    local_tools = [tail_side, cyl_x(g.bore_r(p), -pf - 80, 0), cyl_x(9, -pf - 36, -pf - 22),
-                   Part.makeBox(14, 18, 60, V(-pf - 36, -9, -60))]
-    local_tools += at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, 12, V(-pf - 11, 0, g.flange_bolt_r(p, 1)), X).fuse(
-        hex_prism_x(p.nut_af, -pf - 26, 20, g.flange_bolt_r(p, 1))))
-    local_tools += at_springs(lambda: Part.makeCylinder(p.spring_hole / 2, 20, V(-g.spring_span_parent(p, 1), 10, w), V(0, -1, 0)))
+        arm = to_pelvis(arm_pts(arm_t), a)
+        thin = to_pelvis(arm_pts(fin_t), a)
+        solids.append(hull_solid(arm))
+        solids.append(hull_solid(arm + to_pelvis(arm_pts(fin_t, -(arm_t - fin_t) / 2), a)))          # 45 deg flare
+        solids.append(hull_solid(thin + [V(pb + 1 + 0.001 * (q.x - pb), q.y, q.z) for q in thin]))   # web to the plate
+    body = fuse(solids)
 
     def place(s):
         return s.transformGeometry(P.toMatrix())
 
-    tail_part = place(fuse(local))
-    # keep only what lies behind the harness plate's front face
-    keep = Part.makeBox(400, 400, 400, V(-p.harness_plate_offset - 400, -200, -200))
-    body = fuse([plate, tail_part.common(keep), bridge.common(keep)])
-    behind = Part.makeBox(1000, 1000, 1000, V(-p.harness_plate_offset - p.hip_plate_t - 1000, -500, -500))
-    tools = [place(s) for s in local_tools]
-    tools[0] = tools[0].common(behind)          # flange-side clearance cut must not touch the plate
+    behind = Part.makeBox(1000, 1000, 1000, V(pb - 1000, -500, -500))
+    tools = [place(Part.makeBox(100, 200, 200, V(-pf + 0.01, -100, -100))).common(behind)]
+    tools.append(place(cyl_x(g.bore_r(p), -pf - 120, 0)))
+    kz = p.root_dz + (p.root_back_offset - p.harness_plate_offset) * math.tan(math.radians(p.root_pitch))
+    tools.append(Part.makeCone(9, g.bore_r(p), 9 - g.bore_r(p), V(-p.harness_plate_offset + 0.01, 0, kz), V(-1, 0, 0)))   # knot seat
+    tools += [place(s) for s in at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, 12, V(-pf - 11, 0, g.flange_bolt_r(p, 1)), X).fuse(
+        hex_prism_x(p.nut_af, -pf - 26, 20, g.flange_bolt_r(p, 1))))]
+    tools += [place(s) for s in at_springs(lambda: Part.makeCylinder(p.spring_hole / 2, 20, V(-g.spring_span_parent(p, 1), 10, w), V(0, -1, 0)))]
     for y in (-78, 78):
         for zz in (-45, 45):
-            tools.append(Part.makeBox(p.hip_plate_t + 2, 5, 28, V(-p.harness_plate_offset - p.hip_plate_t - 1, y - 2.5, p.plate_z + zz - 14)))
-    for sgn in (-1, 1):
-        tools.append(Part.makeBox(p.hip_plate_t + 2, 52, 5, V(-p.harness_plate_offset - p.hip_plate_t - 1, -26,
-                                                              p.plate_z + sgn * (p.hip_plate_h / 2 - 10) - 2.5)))
+            tools.append(Part.makeBox(p.hip_plate_t + 2, 5, 28, V(pb - 1, y - 2.5, p.plate_z + zz - 14)))
+    tools.append(Part.makeBox(p.hip_plate_t + 2, 52, 5, V(pb - 1, -26, p.plate_z + p.hip_plate_h / 2 - 10 - 2.5)))
+    hexagon = [(HOLE_R * math.cos(math.radians(60 * k)), HOLE_R * math.sin(math.radians(60 * k))) for k in range(6)]
+    for y, z in hip_holes(p):
+        tools.append(prism_x_yz([(y + a, z + b) for a, b in hexagon], pb - 1, p.hip_plate_t + 2))
     return cut(body, tools)
 
 

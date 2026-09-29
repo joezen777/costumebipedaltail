@@ -68,7 +68,7 @@ self-centring.
 |---|---|
 | Print-ready STLs (26 parts, 1.92 kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
 | OpenSCAD (generated variant of the parametric model) | `cad/openscad/suit_tail_barney.scad` |
-| FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` (**behind the STLs:** the hip mount and vertebra frames predate the self-supporting redesign; the STLs are authoritative) |
+| FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` |
 | Springs / strength / mass | [tables/barney_springs.md](tables/barney_springs.md), [tables/barney_strength.md](tables/barney_strength.md), [tables/barney_mass_budget.md](tables/barney_mass_budget.md) |
 | 1:8 snap-together resin kit | `cad/stl/replica_1to8_resin/` (README there) |
 | 1:8 protogen figurine with the adjustable-height plate slot | `cad/stl/figurine_1to8_resin/` (README there) |
