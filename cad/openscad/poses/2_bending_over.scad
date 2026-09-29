@@ -3,7 +3,7 @@ include <../render_views_barney.scad>
 STL = "/home/joezen777/costumebipedaltail/cad/stl/barney/";
 VIEW = "pose";
 POSE_YAW = [0.000, 0.000, 0.000, 0.000, 0.000, 0.000];
-POSE_PITCH = [2.070, 5.300, 7.161, 6.129, 1.903, 0.840];
+POSE_PITCH = [2.068, 5.313, 7.180, 6.199, 1.922, 0.853];
 POSE_ROLL = [0.000, 0.000, 0.000, 0.000, 0.000, 0.000];
 PELVIS_POS = [-0.000, 0.000, -100.000];
 PELVIS_YPR = [0.000, 45.000, 0.000];
