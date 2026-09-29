@@ -10,7 +10,7 @@ dimensional spec) and the physics results in `results/`. `docs/physics.md` expla
  harness plate ── hip mount ──(ball 1)── V1 ──(ball 2)── V2 ── … ── V8 ── tip adapter ── 200 mm foam tip
                    │  arms                 │ fins              │ fins
                    └── 3 springs ──► cap-1 ears    └── 3 springs ──► cap-2 ears   …
- central 6 mm cord: stopper knot in a Ø22 mm pocket on the hip mount's front face → through every ball centre → tip compression spring
+ central 6 mm cord: stopper knot in a Ø26 mm knot chamber inside the hip-mount boss (loose end down a rope tunnel) → through every ball centre → tip compression spring
 ```
 
 - **8 ball-and-socket joints** at 150 mm pitch: 1200 mm articulated, plus a 200 mm flexible foam tip = 1400 mm.

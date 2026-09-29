@@ -368,7 +368,10 @@ module onto_plate() { pb = -harness_plate_offset - hip_plate_t; translate([pb + 
 
 // plate lightening: honeycomb of hexagonal holes (flat-to-flat, uniform webs), clear of the edges, boss, webs
 // and strap slots
-knot_r = 11;  knot_depth = 10;                    // cord knot pocket in the plate's front face: 22 mm x 10 mm + 45 deg roof
+// cord knot chamber, bored up into the boss from the plate's front (belt) face: 26 mm wide for 13 mm (the knot),
+// then 22 mm wide through the flange-nut zone (3.3 mm walls), then a 45 deg roof to a point ~39 mm deep
+knot_r1 = 13;  knot_d1 = 13;  knot_r2 = 11;  knot_d2 = 28;
+tunnel_w = 10;  tunnel_h = 5;                      // arched tunnel for the loose rope end: 10 mm wide, 5 mm sides + 45 deg peak
 hole_R = 12.7;                                     // hex circumradius (22 mm across flats)
 hole_pitch = 28;                                   // 28 - 22 = 6 mm web between every pair of neighbours
 hole_y0 = hole_pitch / 2;  hole_z0 = -5.5;         // grid phase that fits the most holes (17) symmetrically
@@ -417,16 +420,23 @@ module hip_mount() {
         translate([pb - 1, -26, plate_z + hip_plate_h / 2 - 10 - 2.5]) cube([hip_plate_t + 2, 52, 5]);
         // plate lightening holes (vertical through-holes in print orientation)
         for (h = HIP_HOLES) translate([pb - 1, h[0], h[1]]) rotate([0, 90, 0]) cylinder(r = hole_R, h = hip_plate_t + 2, $fn = 6);   // flats face the neighbours
-        // cord anchor: bore from the flange face out through the plate's front face into a knot pocket
-        // (a figure-eight / double-overhand stopper in 6 mm cord is ~15-18 mm across), fully recessed so the
-        // belt panel covers it; straight sides then a 45 deg roof down to the bore (prints without support)
+        // cord anchor: bore from the flange face out into a knot chamber opening on the plate's front face.
+        // A figure-eight / double-overhand stopper in 6 mm cord (~15-18 mm) sits inside the boss, and the loose
+        // end runs down an arched tunnel to the bottom edge. Every roof is 45 deg, so it prints face-down unsupported.
+        kz = root_dz + (root_back_offset - harness_plate_offset) * tan(root_pitch);
         root_frame() along_mx(pf + 120, bore_r, bore_r);
-        translate([-harness_plate_offset + 0.01, 0, root_dz + (root_back_offset - harness_plate_offset) * tan(root_pitch)])
-            rotate([0, -90, 0]) {
-                cylinder(r = knot_r, h = knot_depth + 0.01);
-                // full 45 deg cone to a point: the 6 deg-tilted bore pierces it, leaving no flat ledge
-                translate([0, 0, knot_depth]) cylinder(r1 = knot_r, r2 = 0, h = knot_r);
-            }
+        translate([-harness_plate_offset + 0.01, 0, kz]) rotate([0, -90, 0]) {
+            cylinder(r = knot_r1, h = knot_d1 + 0.01);
+            translate([0, 0, knot_d1]) cylinder(r1 = knot_r1, r2 = knot_r2, h = knot_r1 - knot_r2 + 0.01);
+            translate([0, 0, knot_d1 + knot_r1 - knot_r2]) cylinder(r = knot_r2, h = knot_d2 - knot_d1 - (knot_r1 - knot_r2) + 0.01);
+            // 45 deg cone to a point: the 6 deg-tilted bore pierces it, leaving no flat ledge
+            translate([0, 0, knot_d2]) cylinder(r1 = knot_r2, r2 = 0, h = knot_r2);
+        }
+        // arched tunnel from the chamber down to the bottom edge (open to the belt face, which closes it when worn)
+        translate([0, 0, root_dz - flange_r(1) - 20]) linear_extrude(height = kz - (root_dz - flange_r(1) - 20))
+            polygon([[-harness_plate_offset + 0.01, -tunnel_w / 2], [-harness_plate_offset - tunnel_h, -tunnel_w / 2],
+                     [-harness_plate_offset - tunnel_h - tunnel_w / 2, 0],
+                     [-harness_plate_offset - tunnel_h, tunnel_w / 2], [-harness_plate_offset + 0.01, tunnel_w / 2]]);
         // ball-1 flange bolts with nut pockets
         root_frame() at_lobes() translate([-pf + 1, 0, flange_bolt_r(1)]) {
             along_mx(12, bolt_clear / 2, bolt_clear / 2);

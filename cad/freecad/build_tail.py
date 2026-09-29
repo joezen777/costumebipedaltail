@@ -321,7 +321,8 @@ def root_placement(p):
     return pl
 
 
-KNOT_R, KNOT_DEPTH = 11.0, 10.0    # cord knot pocket in the plate's front face
+KNOT_R1, KNOT_D1, KNOT_R2, KNOT_D2 = 13.0, 13.0, 11.0, 28.0   # knot chamber (see suit_tail.scad)
+TUNNEL_W, TUNNEL_H = 10.0, 5.0     # arched rope tunnel: width, straight sides (then a 45 deg peak)
 HOLE_R = 12.7                      # plate lightening hexes: 22 mm across flats
 HOLE_PITCH = 28.0                  # honeycomb pitch: 6 mm web between every pair of neighbours
 HOLE_Y0, HOLE_Z0 = HOLE_PITCH / 2, -5.5   # grid phase that fits the most holes (17) symmetrically
@@ -386,10 +387,19 @@ def createHipMount(p):
     tools = [place(Part.makeBox(100, 200, 200, V(-pf + 0.01, -100, -100))).common(behind)]
     tools.append(place(cyl_x(g.bore_r(p), -pf - 120, 0)))
     kz = p.root_dz + (p.root_back_offset - p.harness_plate_offset) * math.tan(math.radians(p.root_pitch))
-    # knot pocket: 22 mm x 10 mm deep from the front face, then a 45 deg roof down to the bore
-    kx = -p.harness_plate_offset + 0.01
-    tools.append(Part.makeCylinder(KNOT_R, KNOT_DEPTH + 0.01, V(kx, 0, kz), V(-1, 0, 0)))
-    tools.append(Part.makeCone(KNOT_R, 0, KNOT_R, V(kx - KNOT_DEPTH, 0, kz), V(-1, 0, 0)))   # to a point: the tilted bore pierces it
+    # knot chamber up into the boss from the front face: 26 mm, 45 deg step to 22 mm, 45 deg roof to a point
+    kx, D = -p.harness_plate_offset + 0.01, V(-1, 0, 0)
+    step = KNOT_R1 - KNOT_R2
+    tools.append(Part.makeCylinder(KNOT_R1, KNOT_D1 + 0.01, V(kx, 0, kz), D))
+    tools.append(Part.makeCone(KNOT_R1, KNOT_R2, step + 0.01, V(kx - KNOT_D1, 0, kz), D))
+    tools.append(Part.makeCylinder(KNOT_R2, KNOT_D2 - KNOT_D1 - step + 0.01, V(kx - KNOT_D1 - step, 0, kz), D))
+    tools.append(Part.makeCone(KNOT_R2, 0, KNOT_R2, V(kx - KNOT_D2, 0, kz), D))
+    # arched tunnel from the chamber down to the bottom edge, open to the belt face
+    z0 = p.root_dz - g.flange_r(p, 1) - 20
+    fx = -p.harness_plate_offset
+    arch = [V(fx + 0.01, -TUNNEL_W / 2, z0), V(fx - TUNNEL_H, -TUNNEL_W / 2, z0), V(fx - TUNNEL_H - TUNNEL_W / 2, 0, z0),
+            V(fx - TUNNEL_H, TUNNEL_W / 2, z0), V(fx + 0.01, TUNNEL_W / 2, z0)]
+    tools.append(Part.Face(Part.makePolygon(arch + [arch[0]])).extrude(V(0, 0, kz - z0)))
     tools += [place(s) for s in at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, 12, V(-pf - 11, 0, g.flange_bolt_r(p, 1)), X).fuse(
         hex_prism_x(p.nut_af, -pf - 26, 20, g.flange_bolt_r(p, 1))))]
     tools += [place(s) for s in at_springs(lambda: Part.makeCylinder(p.spring_hole / 2, 20, V(-g.spring_span_parent(p, 1), 10, w), V(0, -1, 0)))]

@@ -12,9 +12,15 @@ Barney-specific notes:
     arm.
   - **Plate:** a honeycomb of hex lightening holes (22 mm across flats, a uniform 6 mm web) are cut clear of the boss, webs and
     strap slots.
-  - **Cord knot:** the cord now passes straight out through the plate into a **knot pocket** on the front (belt)
-    face: Ø22 mm, 10 mm deep, with a 45° roof down to the cord bore. A figure-eight or double-overhand stopper
-    knot sits fully recessed there, and the old knot window is gone.
+  - **Cord knot:** the cord ends in a **knot chamber** bored about 39 mm up into the boss from the front (belt)
+    face.
+    - **Size:** Ø26 mm for the first 13 mm, then a 45° step to Ø22 mm through the flange-nut zone (3.3 mm walls),
+      then a 45° roof into the cord bore.
+    - **Knot:** a figure-eight or double-overhand stopper knot sits inside the boss.
+    - **Loose end:** it runs down a 10 mm pointed-arch **rope tunnel** to the bottom edge of the lobe. The tunnel
+      is open to the belt face, and the belt panel closes it when worn.
+    - **Printing:** every roof is 45°, so it prints face-down with no supports. It replaces the old knot window.
+    - **Picture:** `results/cad_renders_barney/hip_mount_knot_chamber.png`.
 - **Belt attachment:** thread 25 mm hook-and-loop straps through the four corner slots and around the lumbar belt's
   back panel; the top 50 mm slot takes an optional extra webbing strap. (There used to be a bottom one too, but it
   sat under the boss where no strap could pass, so it was removed.)
@@ -141,7 +147,7 @@ the same benefit at no risk. That is the default.
 | M3 × 8 screws | 4 | Tip adapter to vertebra 8 |
 | M6 bolts / 50 mm webbing | 4 / 1 slot | Hip mount to the harness (150 × 100 mm pattern) |
 | Extension springs | 3 per joint (24) | Dorsal + left + right; see `docs/tables/springs.md` |
-| 6 mm braided polyester cord | ~1.6 m | Central cord, knotted in the knot pocket on the hip mount's front face |
+| 6 mm braided polyester cord | ~1.6 m | Central cord, knotted in the knot chamber of the hip mount (loose end down the rope tunnel) |
 | Compression spring Ø ≤ 13 mm, ~2 N/mm, 20 mm long | 1 | Cord preload at the tip adapter (compress ~5 mm for 10 N) |
 | PTFE tape 0.25 mm or 0.5 mm self-adhesive felt | — | Seat liner (the friction level the physics was tuned for is MEDIUM ≈ felt, μ ≈ 0.25) |
 | Adhesive felt/rubber 0.8 mm | — | Cap-mouth stop pad |
@@ -158,7 +164,8 @@ the same benefit at no risk. That is the default.
 5. Hook the three springs of each joint: parent fin hole (or hip-mount arm) → cap ear of the child.
    Dorsal = the stiff, strongly preloaded one.
 6. Thread the cord from the tip adapter through every bore and out of the hip mount's front (belt-side) face. Tie a
-   figure-eight or double-overhand stopper knot there and pull it back into the knot pocket. At the tip,
+   figure-eight or double-overhand stopper knot, pull it up into the knot chamber, and tuck the loose end down the
+   rope tunnel. At the tip,
    add washer + compression spring + washer + cord lock, and compress the spring to the preload
    (10 N ≈ 5 mm at 2 N/mm).
 7. Slide on the foam skin (upholstery foam, 20 mm at the root tapering to 4 mm) and glue it to the rings and fin
