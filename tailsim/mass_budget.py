@@ -1,6 +1,6 @@
 """Moving-mass budget per vertebra from the exported CAD (cad/stl/parts.json).
 
-segment i = body_i + cap_i + ball_(i+1) halves (or tip adapter) + hardware
+segment i = body_i + cap_i (two printed halves) + ball_(i+1) halves (or tip adapter) + hardware
             + springs of joint i+1 anchored on it (half of each) + foam/skin.
 """
 from __future__ import annotations
@@ -34,7 +34,8 @@ def budget(cad=None, spring_table=None, parts_json=ROOT / "cad" / "stl" / "parts
     L = g.spacing(cad) / 1000
     rows = []
     for i in range(1, n + 1):
-        printed = parts[f"body_{i}"]["mass_g"] + parts[f"cap_{i}"]["mass_g"]
+        cap = (parts[f"cap_{i}_a"]["mass_g"] + parts[f"cap_{i}_b"]["mass_g"]) if f"cap_{i}_a" in parts else parts[f"cap_{i}"]["mass_g"]
+        printed = parts[f"body_{i}"]["mass_g"] + cap
         if i < n:
             printed += parts[f"ball_{i+1}_left"]["mass_g"] + parts[f"ball_{i+1}_right"]["mass_g"]
         else:

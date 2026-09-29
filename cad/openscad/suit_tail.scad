@@ -204,6 +204,18 @@ module cap(i) {
     }
 }
 function ear_w(i) = max(12, 0.6 * cap_outer_r(i));
+
+// The cap is printed as TWO HALVES split on a plane through the joint axis, cap_split degrees (about X) from
+// dorsal. A one-piece cap can never be fitted: its mouth is smaller than both the ball and the ball's flange,
+// and even half a ball is a full diameter wide. Each half slides onto the assembled ball and neck from the side
+// and bolts to the body with two of the four cap bolts. Half "a" = lobes 45/135 + one lateral ear; half "b" =
+// lobes 225/315 + the other lateral ear, the dorsal ear and the roll-key slot. (cad/geometry.py CAP_SPLIT_DEG)
+cap_split = 22.5;
+module cap_half(i, side = "a")
+    intersection() {
+        cap(i);
+        rotate([cap_split, 0, 0]) translate([-500, side == "a" ? -1000 : 0, -500]) cube([1000, 1000, 1000]);
+    }
 function cap_ear_t(i) = RB(i) >= 22 ? 16 : 12;   // root caps carry dorsal spring pairs up to ~400 N
 
 // seat = the part of the socket inside the vertebra body (x >= 0)
@@ -561,7 +573,9 @@ else if (PART == "foam_tip") foam_tip_reference();
 // print-oriented single parts
 else if (PART == "print_ball_left") ball_half(INDEX, 1);
 else if (PART == "print_ball_right") ball_half(INDEX, -1);
-else if (PART == "print_cap") translate([0, 0, 0]) rotate([0, 90, 0]) cap(INDEX);            // x=0 face on the bed
+else if (PART == "print_cap") translate([0, 0, 0]) rotate([0, 90, 0]) cap(INDEX);            // x=0 face on the bed (reference only: print the halves)
+else if (PART == "print_cap_a") rotate([0, 90, 0]) cap_half(INDEX, "a");
+else if (PART == "print_cap_b") rotate([0, 90, 0]) cap_half(INDEX, "b");
 else if (PART == "print_body") translate([0, 0, body_len(INDEX)]) rotate([0, 90, 0]) vertebra_frame(INDEX); // distal flange on the bed, socket up
 else if (PART == "print_hip_mount") rotate([0, 90, 0]) translate([harness_plate_offset, 0, 0]) hip_mount();
 else if (PART == "print_tip_adapter") rotate([0, -90, 0]) tip_adapter();

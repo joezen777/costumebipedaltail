@@ -31,7 +31,7 @@ def parts(n):
            ("test_ballast_plate", "print_test_ballast_plate", 1)]
     for i in range(1, n + 1):
         out += [(f"ball_{i}_left", "print_ball_left", i), (f"ball_{i}_right", "print_ball_right", i),
-                (f"cap_{i}", "print_cap", i), (f"body_{i}", "print_body", i)]
+                (f"cap_{i}_a", "print_cap_a", i), (f"cap_{i}_b", "print_cap_b", i), (f"body_{i}", "print_body", i)]
     return out
 
 
@@ -179,7 +179,7 @@ def main():
     ts = OUT / (f"{VARIANT}_test_section" if VARIANT else "test_section")
     ts.mkdir(exist_ok=True)
     kit = ["hip_mount", "test_ballast_plate"] + [f"{k}_{i}{s}" for i in range(1, 5) for k, s in
-                                                 (("ball", "_left"), ("ball", "_right"), ("cap", ""), ("body", ""))]
+                                                 (("ball", "_left"), ("ball", "_right"), ("cap", "_a"), ("cap", "_b"), ("body", ""))]
     for k in kit:
         src = full_dir() / f"{k}.stl"
         if src.exists():

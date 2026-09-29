@@ -429,6 +429,17 @@ def add(doc, group, name, shape, placement, color):
     return o
 
 
+def capHalves(cap):
+    """Split the cap on a plane through the joint axis at g.CAP_SPLIT_DEG from dorsal (as suit_tail.scad
+    cap_half): a one-piece cap can't be fitted over the ball or its flange, so it is printed as two halves."""
+    halves = []
+    for sgn in (-1, 1):                       # A: y' < 0 (lobes 45/135), B: y' > 0 (dorsal ear, roll slot)
+        box = Part.makeBox(1000, 1000, 1000, V(-500, -1000 if sgn < 0 else 0, -500))
+        box.rotate(V(0, 0, 0), X, g.CAP_SPLIT_DEG)
+        halves.append(cap.common(box))
+    return halves
+
+
 def createVertebra(index, parameters, doc, parent, placement):
     """Vertebra `index` = its socket (seat is part of the frame, plus the bolted
     cap), its frame, and the ball of the next joint bolted to its distal flange."""
@@ -436,7 +447,9 @@ def createVertebra(index, parameters, doc, parent, placement):
     grp = doc.addObject("App::DocumentObjectGroup", f"Vertebra{index:02d}")
     parent.addObject(grp)
     add(doc, grp, f"Vertebra{index:02d}_Frame", createFrame(index, p), placement, (0.26, 0.45, 0.70))
-    add(doc, grp, f"Vertebra{index:02d}_Socket", createCap(index, p), placement, (0.70, 0.78, 0.90))
+    cap = createCap(index, p)
+    for side, half in zip("AB", capHalves(cap)):
+        add(doc, grp, f"Vertebra{index:02d}_Cap{side}", half, placement, (0.70, 0.78, 0.90))
     L = g.spacing(p)
     if index < p.joint_count:
         add(doc, grp, f"Vertebra{index:02d}_Ball", createBall(index + 1, p),

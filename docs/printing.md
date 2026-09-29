@@ -1,6 +1,6 @@
 # Printing, materials and assembly
 
-Everything here is for the Barney tail build. The print-ready STLs are in `cad/stl/barney/` (26 parts,
+Everything here is for the Barney tail build. The print-ready STLs are in `cad/stl/barney/` (32 parts; each cap is two halves,
 already in print orientation, flat face on z = 0); sizes and masses are in `docs/tables/barney_parts.md`. The 1:8
 resin kit has its own guide in `cad/stl/replica_1to8_resin/README.md`.
 
@@ -96,7 +96,7 @@ physics was re-run with these masses:
 | Part | Orientation (as exported) | Notes |
 |---|---|---|
 | `body_i` (vertebra frame) | Distal flange on the bed, socket bowl facing up | The bowl prints as an open cup; fins are vertical plates with 45° diamond windows. The bowl floor and the skin ring underside are flat ceilings: **use the supported STL** |
-| `cap_i` | Equator face (bolt lobes, spring ears) on the bed | Inner sphere becomes a 45° relief cone above 45° latitude, so there is no ceiling |
+| `cap_i_a`, `cap_i_b` | Equator face (bolt lobes, spring ears) on the bed, as exported | Two halves split through the axis; the split faces are vertical, so splitting adds no overhang. Inner sphere becomes a 45° relief cone above 45° latitude, so there is no ceiling |
 | `ball_i_left/right` | Clamshell halves, split face on the bed | Layers run **along** the neck, so neck bending loads the layers in-plane (strong). The dorsal hole captures the roll-key screw head. Align with two 1.75 mm filament dowels and glue with CA/epoxy (optional; the socket and flange bolts already trap the halves) |
 | `hip_mount` | Harness-plate face on the bed, boss up | The boss overhangs the plate edge and the arms have sloped undersides: **use the supported STL** |
 | `tip_adapter` | Flange on the bed | Foam spike and barbs are cones |
@@ -156,13 +156,18 @@ the same benefit at no risk. That is the default.
 ## Assembly
 
 1. Drill all holes to size. Press M4 nylocks into the body pockets (cap lobes and distal flange).
-2. Put the roll-key screw in one ball half (head in the pocket, shank out through the dorsal hole). **Set the
-   cap around that half's neck now** (spherical side toward the ball, slot dorsal). The cap's opening is smaller
-   than the ball and its flange, so it can't be fitted once the ball is closed. Then close the second half on the
-   dowels; glue if wanted.
+2. Put the roll-key screw in one ball half (head in the pocket, shank out through the dorsal hole). Close the
+   second half on the dowels; glue if wanted.
 3. Bolt the ball's flange to the previous vertebra's distal flange (joint 1: the hip mount), bolt heads on the neck side.
-4. Line the seat with PTFE tape or felt. Put the ball in the seat with the roll-key screw in the dorsal slot. Slide
-   the cap (already on the neck) up to the body and bolt it with 4 × M4 × 16.
+4. Line the seat with PTFE tape or felt. Put the ball in the seat with the roll-key screw in the dorsal slot.
+   Close the two cap halves around the neck about 5 mm back from the body (half `b`, with the dorsal ear and key
+   slot, on the roll-key side). Slide the closed cap forward so the screw enters the key slot from its open end,
+   then bolt it with 4 × M4 × 16 (2 per half).
+   - **Why two halves:** a one-piece cap's opening is smaller than the ball and its flange, so it can never be
+     fitted. The split runs through the axis 22.5° from dorsal, clear of the ears, bolt lobes and key slot by at
+     least 2.4 mm.
+   - **Why not straight in:** a collision check of every joint's ball, roll-key screw and cap halves confirms this
+     path is clear. Pushing half `b` straight into place would hit the screw.
 5. Hook the three springs of each joint: parent fin hole (or hip-mount arm) → cap ear of the child.
    Dorsal = the stiff, strongly preloaded one.
 6. Thread the cord from the tip adapter through every bore and out of the hip mount's front (belt-side) face. Tie a

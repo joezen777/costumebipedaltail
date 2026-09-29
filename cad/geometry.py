@@ -247,6 +247,22 @@ def fin_t(p, i):
     return (3 if RF(p, i) > 50 else 2) * p.line_w + 0.1
 
 
+# The cap is printed as two halves split on a plane through the joint axis at this angle (about X, from dorsal).
+# A one-piece cap can never be fitted: its mouth is smaller than both the ball and the ball's bolt flange, and
+# the split ball does not help (half a ball is still a full diameter wide). The halves slide onto the assembled
+# ball and neck from the sides and bolt to the body with two of the four cap bolts each.
+CAP_SPLIT_DEG = 22.5
+
+
+def cap_split_margins(p, i):
+    """Tangential clearance (mm) from the cap split line to the nearest spring ear, bolt lobe and roll-key slot."""
+    s = math.sin(math.radians(CAP_SPLIT_DEG))
+    ear = cap_outer_r(p, i) * s - ear_w(p, i) / 2                       # dorsal ear, 22.5 deg away
+    lobe = (cap_outer_r(p, i) - 3) * math.sin(math.radians(45 - CAP_SPLIT_DEG)) - lobe_r(p)   # lobe at 45 deg
+    slot = RS(p, i) * s - slot_width(p, i) / 2                          # dorsal roll-key slot
+    return ear, lobe, slot
+
+
 def ear_w(p, i):
     """Width of the spring ears on the cap (tangential)."""
     return max(12.0, 0.6 * cap_outer_r(p, i))
@@ -341,6 +357,9 @@ def checks(p: CadParams):
         pz = r["pin_pocket_z"] - pin_spec(p, i)[3]
         out.append((f"J{i} roll-key head clears cord bore", pz > bore_r(p) + 1.0, f"head bottom z={pz:.1f}"))
         out.append((f"J{i} neck wall >= 3 lines", r["RN"] - bore_r(p) >= 3 * p.line_w - 1e-9, f"{r['RN']-bore_r(p):.2f} mm"))
+        m = cap_split_margins(p, i)
+        out.append((f"J{i} cap split clears ears, lobes and roll slot by >= 2 mm", min(m) >= 2.0,
+                    "ear %.1f / lobe %.1f / slot %.1f mm" % m))
     return out
 
 

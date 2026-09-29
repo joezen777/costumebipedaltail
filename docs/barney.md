@@ -38,8 +38,8 @@ sized for them.
 | Walking 1.5 / 2.0 steps/s | tip/hip 1.95 / 1.78 |
 | Crouch (−150 mm, 10°) | min clearance 47 cm |
 | Side step 300 mm | min clearance 50 cm |
-| Bending over 45° | tail lifts; hip moment 7.3 N·m |
-| Jump (25 cm) | no floor contact; hip moment 14.1 N·m |
+| Bending over 45° | tail lifts; hip moment 7.4 N·m |
+| Jump (25 cm) | no floor contact; hip moment 14.2 N·m |
 | Peak moment on the lumbar belt (any test) | 14 N·m |
 
 Figures:
@@ -66,7 +66,7 @@ self-centring.
 
 | What | Where |
 |---|---|
-| Print-ready STLs (26 parts, 1.91 kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
+| Print-ready STLs (32 parts, 1.92 kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
 | OpenSCAD (generated variant of the parametric model) | `cad/openscad/suit_tail_barney.scad` |
 | FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` |
 | Springs / strength / mass | [tables/barney_springs.md](tables/barney_springs.md), [tables/barney_strength.md](tables/barney_strength.md), [tables/barney_mass_budget.md](tables/barney_mass_budget.md) |

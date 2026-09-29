@@ -63,9 +63,11 @@ Four changes made the short tail work, all found in simulation ([docs/barney.md]
 
 ## 2. What to print (full size)
 
-**[`cad/stl/barney/`](cad/stl/barney/): 26 print-ready STLs, 1.91 kg of PETG.**
-- One hip mount, 6 vertebra bodies, 6 caps, 12 ball halves (with the rest-curve wedges; keep them in joint order)
-  and the tip adapter.
+**[`cad/stl/barney/`](cad/stl/barney/): 32 print-ready STLs, 1.91 kg of PETG.**
+- One hip mount, 6 vertebra bodies, 6 caps **printed as two halves each** (`cap_N_a` + `cap_N_b`), 12 ball halves
+  (with the rest-curve wedges; keep them in joint order) and the tip adapter.
+- **Caps are split on purpose.** A one-piece cap can't be fitted: its opening is smaller than both the ball and the
+  ball's bolt flange. The two halves close around the neck of the assembled ball instead.
 - Sizes and masses: [docs/tables/barney_parts.md](docs/tables/barney_parts.md).
 - Settings: [docs/printing.md](docs/printing.md). PETG, 1.3 mm lines, 0.6 mm layers (0.4 mm for ball halves),
   100 % infill for ball halves 1–3.
@@ -112,43 +114,48 @@ Tools: 3.4 and 4.5 mm drill bits (to size printed holes), hex keys, 7 mm nut dri
 
 ### Assembly order (full size)
 
-**In one line:** hip mount → ball 1 (cap 1 trapped on its neck) → body 1 → bolt cap 1 → J1 springs → ball 2
-(cap 2 trapped on its neck) → body 2 → bolt cap 2 → J2 springs → … → body 6 → bolt cap 6 → J6 springs →
-tip adapter → cord → foam skin → belt.
+**In one line:** hip mount → ball 1 → body 1 → cap 1 halves → J1 springs → ball 2 → body 2 → cap 2 halves →
+J2 springs → … → ball 6 → body 6 → cap 6 halves → J6 springs → tip adapter → cord → foam skin → belt.
 
-**Put each cap on its ball *before* you close the ball.** A cap's opening is smaller than both its ball and the
-ball's bolt flange. Once the two ball halves are joined, the cap can't go on.
+**Caps come in two halves** (`cap_N_a` + `cap_N_b`). A one-piece cap can't be fitted at all: its opening is
+smaller than both the ball and the ball's bolt flange.
+
+![cap halves closing around ball 1](results/cad_renders_barney/cap_split_assembly.png)
 
 1. **Prep:**
    - Drill the printed holes to size: 4.5 mm for M4, 3.4 mm for M3.
    - Press M4 nylock nuts into every hex pocket: 4 in the hip mount, 8 in each of bodies 1–5 (4 at the socket
      end for the cap, 4 at the distal flange for the next ball), and 4 in body 6 (socket end only).
 2. **Hip mount:** start here, and lay it plate-down on the bench.
-3. **Ball 1 + cap 1:**
+3. **Ball 1:**
    - Put the roll-key screw in one half of ball 1 (M4 × 12, head in the pocket, shank out of the dorsal hole).
-   - Set cap 1 around that half's neck. Its spherical side faces the ball, and its key slot is on the dorsal
-     (roll-key) side.
    - Close the second half onto two 1.75 mm filament dowels, and glue if you want.
 4. **Ball 1 → hip mount:** bolt ball 1's flange to the hip mount's flange with 4 × M4 × 16. The bolt heads go on
    the neck side.
 5. **Body 1:**
    - Line its socket seat with felt or PTFE tape.
    - Set it onto ball 1 with the roll-key screw in the seat's dorsal slot.
-6. **Cap 1 → body 1:** slide cap 1 up the neck onto body 1 and bolt it with 4 × M4 × 16. Ball 1 is now captured.
-   Check that the joint swivels.
+6. **Cap 1 → body 1:**
+   - Close the two cap-1 halves around ball 1's neck **about 5 mm back from the body**, toward the flange. The
+     spherical side faces the ball.
+   - Half `b` (the one with the dorsal ear and the key slot) goes on the roll-key side.
+   - Hold them together, then slide the closed cap forward onto body 1. The roll-key screw slides into the cap's
+     key slot from its open end.
+   - Bolt it with 4 × M4 × 16 (2 per half). Ball 1 is now captured; check that the joint swivels.
+   - Don't try to push a half straight into its final spot: half `b` would hit the roll-key screw.
 7. **J1 springs:**
    - Hook the three springs from the hip-mount arms to cap 1's ears: dorsal (the heavy, strongly preloaded one),
      left and right.
    - The rates are in [docs/tables/barney_springs.md](docs/tables/barney_springs.md).
 8. **Joints 2–6:** repeat steps 3–7, with each new ball bolting to the *previous body's distal flange*:
 
-   | Joint | Cap goes on | Ball bolts to | Body | Springs run from → to |
+   | Joint | Ball bolts to | Body | Cap halves | Springs run from → to |
    |---|---|---|---|---|
-   | J2 | ball 2 neck | body 1 distal flange | body 2 | body 1 fin holes → cap 2 ears |
-   | J3 | ball 3 neck | body 2 distal flange | body 3 | body 2 fin holes → cap 3 ears |
-   | J4 | ball 4 neck | body 3 distal flange | body 4 | body 3 fin holes → cap 4 ears |
-   | J5 | ball 5 neck | body 4 distal flange | body 5 | body 4 fin holes → cap 5 ears |
-   | J6 | ball 6 neck | body 5 distal flange | body 6 | body 5 fin holes → cap 6 ears |
+   | J2 | body 1 distal flange | body 2 | cap_2_a + cap_2_b | body 1 fin holes → cap 2 ears |
+   | J3 | body 2 distal flange | body 3 | cap_3_a + cap_3_b | body 2 fin holes → cap 3 ears |
+   | J4 | body 3 distal flange | body 4 | cap_4_a + cap_4_b | body 3 fin holes → cap 4 ears |
+   | J5 | body 4 distal flange | body 5 | cap_5_a + cap_5_b | body 4 fin holes → cap 5 ears |
+   | J6 | body 5 distal flange | body 6 | cap_6_a + cap_6_b | body 5 fin holes → cap 6 ears |
 
    Ball halves are **not interchangeable** between joints, because each carries its joint's rest-bend wedge. Keep
    them numbered.

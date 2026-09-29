@@ -22,13 +22,19 @@ All STLs in `cad/stl/barney/`, already in print orientation. One of each file; e
 | body_4 | 108x108x78 | 172 |
 | body_5 | 94x94x78 | 151 |
 | body_6 | 80x80x100 | 147 |
-| cap_1 | 100x130x22 | 57 |
-| cap_2 | 93x119x20 | 48 |
-| cap_3 | 84x108x17 | 39 |
-| cap_4 | 78x96x16 | 34 |
-| cap_5 | 72x85x16 | 29 |
-| cap_6 | 68x78x16 | 26 |
+| cap_1_a | 69x78x22 | 27 |
+| cap_1_b | 99x78x22 | 32 |
+| cap_2_a | 65x72x20 | 22 |
+| cap_2_b | 91x72x20 | 27 |
+| cap_3_a | 61x66x17 | 18 |
+| cap_3_b | 84x66x17 | 22 |
+| cap_4_a | 59x59x16 | 16 |
+| cap_4_b | 78x59x16 | 19 |
+| cap_5_a | 59x54x16 | 14 |
+| cap_5_b | 72x54x16 | 16 |
+| cap_6_a | 59x50x16 | 12 |
+| cap_6_b | 68x50x16 | 14 |
 | hip_mount | 174x190x48 | 228 |
 | tip_adapter | 30x30x70 | 14 |
 
-**Total printed PETG: 1.91 kg** (26 files).
+**Total printed PETG: 1.92 kg** (32 files).
