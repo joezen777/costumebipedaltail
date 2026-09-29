@@ -137,31 +137,32 @@ only*, hollowed with 2 mm walls and a drain hole in the split face, for a smooth
 drop test in the 4-joint procedure. PETG balls wet-sanded to 400 grit, with PTFE tape in the seat, give most of
 the same benefit at no risk. That is the default.
 
-## Hardware (per full 8-joint tail)
+## Hardware (Barney tail, 6 joints)
 
 | Item | Qty | Use |
 |---|---|---|
-| M4 × 16 socket-head cap screw + M4 nylock | 32 + 32 | Cap bolts (4 per joint) |
-| M4 × 16 socket-head cap screw + M4 nylock | 28 + 28 | Ball flange → vertebra distal flange / hip mount (4 per joint) |
-| M4 × 12 socket-head (roll key), joints 1–4 | 4 | Head captured inside the ball; protrudes 3 mm into the socket slot |
-| M3 × 8 socket-head (roll key), joints 5–8 | 4 | |
-| M3 × 8 screws | 4 | Tip adapter to vertebra 8 |
-| M6 bolts / 50 mm webbing | 4 / 1 slot | Hip mount to the harness (150 × 100 mm pattern) |
-| Extension springs | 3 per joint (24) | Dorsal + left + right; see `docs/tables/springs.md` |
-| 6 mm braided polyester cord | ~1.6 m | Central cord, knotted in the knot chamber of the hip mount (loose end down the rope tunnel) |
+| M4 × 16 socket-head cap screw + M4 nylock | 24 + 24 | Cap bolts (4 per joint) |
+| M4 × 16 socket-head cap screw + M4 nylock | 24 + 24 | Ball flange → hip mount (J1) / previous body's distal flange (J2–J6), 4 each |
+| M4 × 12 socket-head (roll key), all 6 joints | 6 | Head captured inside the ball; protrudes 3 mm into the socket slot |
+| M3 × 8 screws | 4 | Tip adapter to body 6 |
+| 25 mm hook-and-loop straps / 50 mm webbing | 4 / 1 | Hip-mount plate to the lumbar belt (corner slots / top slot) |
+| Extension springs | 3 per joint (18) | Dorsal + left + right; see `docs/tables/barney_springs.md` |
+| 6 mm braided polyester cord | ~1.5 m | Central cord, knotted in the knot chamber of the hip mount (loose end down the rope tunnel) |
 | Compression spring Ø ≤ 13 mm, ~2 N/mm, 20 mm long | 1 | Cord preload at the tip adapter (compress ~5 mm for 10 N) |
 | PTFE tape 0.25 mm or 0.5 mm self-adhesive felt | — | Seat liner (the friction level the physics was tuned for is MEDIUM ≈ felt, μ ≈ 0.25) |
 | Adhesive felt/rubber 0.8 mm | — | Cap-mouth stop pad |
-| 1.75 mm filament | 16 × 10 mm | Ball-half dowels |
+| 1.75 mm filament | 12 × 10 mm | Ball-half dowels (2 per ball) |
 
 ## Assembly
 
 1. Drill all holes to size. Press M4 nylocks into the body pockets (cap lobes and distal flange).
-2. Put the roll-key screw in one ball half (head in the pocket, shank out through the dorsal hole). Close the
-   second half on the dowels; glue if wanted.
+2. Put the roll-key screw in one ball half (head in the pocket, shank out through the dorsal hole). **Set the
+   cap around that half's neck now** (spherical side toward the ball, slot dorsal). The cap's opening is smaller
+   than the ball and its flange, so it can't be fitted once the ball is closed. Then close the second half on the
+   dowels; glue if wanted.
 3. Bolt the ball's flange to the previous vertebra's distal flange (joint 1: the hip mount), bolt heads on the neck side.
-4. Line the seat with PTFE tape or felt. Put the ball in the seat with the roll-key screw in the dorsal slot. Put
-   the cap over the neck with its slot also dorsal, and bolt it with 4 × M4 × 16.
+4. Line the seat with PTFE tape or felt. Put the ball in the seat with the roll-key screw in the dorsal slot. Slide
+   the cap (already on the neck) up to the body and bolt it with 4 × M4 × 16.
 5. Hook the three springs of each joint: parent fin hole (or hip-mount arm) → cap ear of the child.
    Dorsal = the stiff, strongly preloaded one.
 6. Thread the cord from the tip adapter through every bore and out of the hip mount's front (belt-side) face. Tie a

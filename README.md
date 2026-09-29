@@ -63,7 +63,7 @@ Four changes made the short tail work, all found in simulation ([docs/barney.md]
 
 ## 2. What to print (full size)
 
-**[`cad/stl/barney/`](cad/stl/barney/): 26 print-ready STLs, 1.80 kg of PETG.**
+**[`cad/stl/barney/`](cad/stl/barney/): 26 print-ready STLs, 1.91 kg of PETG.**
 - One hip mount, 6 vertebra bodies, 6 caps, 12 ball halves (with the rest-curve wedges; keep them in joint order)
   and the tip adapter.
 - Sizes and masses: [docs/tables/barney_parts.md](docs/tables/barney_parts.md).
@@ -85,11 +85,11 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 
 | Item | Qty | Use | ~Cost |
 |---|---|---|---|
-| PETG filament 1.75 mm | 2 × 1 kg | 1.80 kg of parts + purge | $40 |
+| PETG filament 1.75 mm | 3 × 1 kg | 1.91 kg of parts + purge and reprints (2 kg leaves under 0.1 kg spare) | $60 |
 | 1.2 mm nozzle for the Sprite Pro | 1 | | $10 |
 | M4 × 16 socket-head cap screws | 48 | 4 per cap + 4 per ball flange, 6 joints | $6 |
 | M4 nylock nuts | 48 | press into the printed hex pockets | $4 |
-| M4 × 12 socket-head (roll keys, joints 1–4) / M3 × 8 (joints 5–6 + 4 for the tip adapter) | 4 / 6 | roll-key pins, tip adapter | $2 |
+| M4 × 12 socket-head (roll keys, all 6 joints) / M3 × 8 (tip adapter) | 6 / 4 | roll-key pins, tip adapter | $2 |
 | **Extension springs** | **18** | 3 per joint; schedule in [docs/tables/barney_springs.md](docs/tables/barney_springs.md) | $20–35 |
 | · heavy (dorsal J1–J2) | 2 | ~5.5–5.9 N/mm, 66–96 N at rest, up to ~145 N, OD ≤ 15 mm | |
 | · medium (dorsal J3–J6) | 4 | ~1.6–3.3 N/mm, 9–41 N at rest, up to ~78 N, OD ≤ 12 mm | |
@@ -108,7 +108,66 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 | 1.75 mm filament offcuts; CA or epoxy | 12 × 10 mm | ball-half dowels; glue | $5 |
 
 Tools: 3.4 and 4.5 mm drill bits (to size printed holes), hex keys, 7 mm nut driver, pliers.
-**Rough total ~$200–250 including the belt.**
+**Rough total ~$220–270 including the belt.**
+
+### Assembly order (full size)
+
+**In one line:** hip mount → ball 1 (cap 1 trapped on its neck) → body 1 → bolt cap 1 → J1 springs → ball 2
+(cap 2 trapped on its neck) → body 2 → bolt cap 2 → J2 springs → … → body 6 → bolt cap 6 → J6 springs →
+tip adapter → cord → foam skin → belt.
+
+**Put each cap on its ball *before* you close the ball.** A cap's opening is smaller than both its ball and the
+ball's bolt flange. Once the two ball halves are joined, the cap can't go on.
+
+1. **Prep:**
+   - Drill the printed holes to size: 4.5 mm for M4, 3.4 mm for M3.
+   - Press M4 nylock nuts into every hex pocket: 4 in the hip mount, 8 in each of bodies 1–5 (4 at the socket
+     end for the cap, 4 at the distal flange for the next ball), and 4 in body 6 (socket end only).
+2. **Hip mount:** start here, and lay it plate-down on the bench.
+3. **Ball 1 + cap 1:**
+   - Put the roll-key screw in one half of ball 1 (M4 × 12, head in the pocket, shank out of the dorsal hole).
+   - Set cap 1 around that half's neck. Its spherical side faces the ball, and its key slot is on the dorsal
+     (roll-key) side.
+   - Close the second half onto two 1.75 mm filament dowels, and glue if you want.
+4. **Ball 1 → hip mount:** bolt ball 1's flange to the hip mount's flange with 4 × M4 × 16. The bolt heads go on
+   the neck side.
+5. **Body 1:**
+   - Line its socket seat with felt or PTFE tape.
+   - Set it onto ball 1 with the roll-key screw in the seat's dorsal slot.
+6. **Cap 1 → body 1:** slide cap 1 up the neck onto body 1 and bolt it with 4 × M4 × 16. Ball 1 is now captured.
+   Check that the joint swivels.
+7. **J1 springs:**
+   - Hook the three springs from the hip-mount arms to cap 1's ears: dorsal (the heavy, strongly preloaded one),
+     left and right.
+   - The rates are in [docs/tables/barney_springs.md](docs/tables/barney_springs.md).
+8. **Joints 2–6:** repeat steps 3–7, with each new ball bolting to the *previous body's distal flange*:
+
+   | Joint | Cap goes on | Ball bolts to | Body | Springs run from → to |
+   |---|---|---|---|---|
+   | J2 | ball 2 neck | body 1 distal flange | body 2 | body 1 fin holes → cap 2 ears |
+   | J3 | ball 3 neck | body 2 distal flange | body 3 | body 2 fin holes → cap 3 ears |
+   | J4 | ball 4 neck | body 3 distal flange | body 4 | body 3 fin holes → cap 4 ears |
+   | J5 | ball 5 neck | body 4 distal flange | body 5 | body 4 fin holes → cap 5 ears |
+   | J6 | ball 6 neck | body 5 distal flange | body 6 | body 5 fin holes → cap 6 ears |
+
+   Ball halves are **not interchangeable** between joints, because each carries its joint's rest-bend wedge. Keep
+   them numbered.
+9. **Tip adapter → body 6:** screw it to body 6's distal flange with 4 × M3 × 8.
+10. **Cord:**
+    - Thread the 6 mm cord from the tip adapter through every bore and out of the hip mount's belt-side face.
+    - Tie a figure-eight or double-overhand stopper knot, pull it up into the knot chamber, and tuck the loose end
+      down the rope tunnel.
+    - At the tip, add washer + compression spring + washer + cord lock. Compress the spring about 5 mm (10 N
+      preload).
+11. **Foam:**
+    - Glue the foam skin to the rings and fin edges (20 mm at the root, 10 mm at the tip).
+    - Glue the foam tip over the tip-adapter spike, and cover everything with the stretch fabric.
+12. **Belt:**
+    - Put the 3 mm EVA pad on the plate's belt side.
+    - Strap the plate to the lumbar belt's back panel through the four corner slots, plus the optional top webbing
+      strap.
+
+The detailed notes (liners, spring preload, printing) are in [docs/printing.md](docs/printing.md#assembly).
 
 ## 3. 1:8 snap-together resin kit (Photon Mono 5s)
 
