@@ -69,6 +69,7 @@ structural walls that stay in the part:
 - **Skin ring:** a single-line (1.4 mm) skirt wall stands on the bed under the ring's bottom rim.
   - At the top it flares at 45° out to the rim's full 3.9 mm width.
   - Pointed arches (vertical sides, 45° peak) open from the bed between the fins, to save plastic.
+  - A 6 mm foot ties each strut's bottom out to the outer base ring.
   - Arched notches leave room at the spring anchors.
 - **Hip mount:** the boss stands on the bed, the arm webs and flares described above, and plate lightening holes.
 - **Fin windows:** now cut from the fins only, so they never notch the new cone.
@@ -83,7 +84,7 @@ structural walls that stay in the part:
 - **Checker:** `cad/add_support_columns.py` reports any remaining overhang (use `--write` to emit break-away
   columns). A test asserts that the bodies and hip mount need none.
 
-**Cost:** the new walls add about 123 g of PETG to the six bodies. The hip mount got about 14 g lighter (243 → 229 g). The as-built
+**Cost:** the new walls add about 126 g of PETG to the six bodies. The hip mount got about 15 g lighter (243 → 228 g). The as-built
 physics was re-run with these masses:
 - **Behaviour:** essentially unchanged. Overshoot is within 0.3°, the whip ratio moved 1.94 → 1.95, and there's
   still no floor contact.

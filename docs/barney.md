@@ -35,7 +35,7 @@ sized for them.
 | 30° hip snap | lag 34°, overshoot 9°, 1 swing-back, settles in 1.2 s |
 | Jerk left (30° in 0.25 s) | lag 40°, overshoot 8° |
 | 45° dramatic turn | overshoot 31° |
-| Walking 1.5 / 2.0 steps/s | tip/hip 1.95 / 1.77 |
+| Walking 1.5 / 2.0 steps/s | tip/hip 1.95 / 1.78 |
 | Crouch (−150 mm, 10°) | min clearance 47 cm |
 | Side step 300 mm | min clearance 50 cm |
 | Bending over 45° | tail lifts; hip moment 7.3 N·m |

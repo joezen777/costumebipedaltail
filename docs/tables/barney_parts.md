@@ -16,11 +16,11 @@ All STLs in `cad/stl/barney/`, already in print orientation. One of each file; e
 | ball_5_right | 69x64x22 | 22 |
 | ball_6_left | 68x58x22 | 21 |
 | ball_6_right | 68x58x22 | 21 |
-| body_1 | 150x150x76 | 240 |
-| body_2 | 136x136x81 | 221 |
+| body_1 | 150x150x76 | 241 |
+| body_2 | 136x136x81 | 222 |
 | body_3 | 122x122x88 | 206 |
 | body_4 | 108x108x78 | 172 |
-| body_5 | 94x94x78 | 150 |
+| body_5 | 94x94x78 | 151 |
 | body_6 | 80x80x100 | 147 |
 | cap_1 | 100x130x22 | 57 |
 | cap_2 | 93x119x20 | 48 |

@@ -243,7 +243,10 @@ def skin_ring_skirt(i, p):
     hv = h - band - W / 2
     shell = cyl_x(r_o, x0 - 0.01, bl).cut(cyl_x(r_i, x0 - 1, bl + 1))
     fl = cyl_x(r_o, x0 - 0.01, x0 + flare).cut(cone_x(r_o - rim_w, r_i, x0 - 0.02, x0 + flare + 0.01))
-    wall = fuse([shell, fl])
+    # foot on the bed tying the strut bottoms out to the base ring (the arches cut it away between struts)
+    ft = g.flange_t(p)
+    foot = cyl_x(rf - 3 * p.line_w + 0.5, bl - ft, bl).cut(cyl_x(r_i, bl - ft - 1, bl + 1))
+    wall = fuse([shell, fl, foot])
     tools = []
     if hv >= 0:
         arch = [(bl + 1, -W / 2), (bl - hv, -W / 2), (bl - hv - W / 2, 0), (bl - hv, W / 2), (bl + 1, W / 2)]

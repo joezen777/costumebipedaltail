@@ -309,6 +309,8 @@ module skin_ring_skirt(i) {
         union() {
             translate([x0 - 0.01, 0, 0]) difference() { along_x(h + 0.01, r_o, r_o); translate([-1, 0, 0]) along_x(h + 2, r_i, r_i); }
             translate([x0 - 0.01, 0, 0]) difference() { along_x(flare, r_o, r_o); translate([-0.01, 0, 0]) along_x(flare + 0.02, r_o - rim_w, r_i); }
+            // foot on the bed tying the strut bottoms out to the base ring (the arches cut it away between struts)
+            translate([bl - flange_t, 0, 0]) difference() { along_x(flange_t, rf - 3 * line_w + 0.5, rf - 3 * line_w + 0.5); translate([-1, 0, 0]) along_x(flange_t + 2, r_i, r_i); }
         }
         if (hv >= 0) for (q = [0 : 3], k = [0 : na - 1]) {
             ang = q * 90 + (k + 0.5) * 90 / na;
