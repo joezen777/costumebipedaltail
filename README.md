@@ -68,7 +68,10 @@ Four changes made the short tail work, all found in simulation ([docs/barney.md]
   and the tip adapter.
 - Sizes and masses: [docs/tables/barney_parts.md](docs/tables/barney_parts.md).
 - Settings: [docs/printing.md](docs/printing.md). PETG, 1.3 mm lines, 0.6 mm layers (0.4 mm for ball halves),
-  100 % infill for ball halves 1–3, no supports.
+  100 % infill for ball halves 1–3.
+- **Supports are built into the STLs:** print from [`cad/stl/barney_supported/`](cad/stl/barney_supported/), which
+  has break-away columns, and turn slicer supports off. It has 19 parts; the other 7 need no support, so print
+  those from `cad/stl/barney/`.
 - The whole tail is only 6 joints, so it doubles as the prototype for the calibration tests in
   [docs/test_plan.md](docs/test_plan.md).
 

@@ -5,8 +5,8 @@ already in print orientation, flat face on z = 0); sizes and masses are in `docs
 resin kit has its own guide in `cad/stl/replica_1to8_resin/README.md`.
 
 Barney-specific notes:
-- **Hip mount:** the root boss leaves the plate only 11° from horizontal, so it prints plate-down with **no
-  supports**.
+- **Hip mount:** prints plate-down. The boss cone overhangs the plate edge and the side arms have sloped
+  undersides, so it **does need support**: use `cad/stl/barney_supported/hip_mount.stl` (23 built-in columns).
 - **Belt attachment:** thread 25 mm hook-and-loop straps through the four corner slots and around the lumbar belt's
   back panel; the top and bottom 50 mm slots take an optional extra webbing strap.
 - **Ball halves:** each carries its joint's rest-bend wedge (up to ±20°), so keep them in joint order.
@@ -34,20 +34,45 @@ Minimum feature sizes used in the design:
 - Ball-to-socket running clearance is 0.4 mm radial, plus a 0.5 mm allowance for the PTFE tape or thin felt seat
   liner. This is sized for the ±0.3 mm dimensional scatter typical of 0.6 mm layers.
 - Nut pockets are M4 hex, 7.0 mm across flats + 0.4 mm. The nylock nut presses in.
-- Every overhang is ≤ 45° by design, except three spots:
-  - The underside of the ball neck (inside the ball halves; not printed as an overhang because the halves lie flat).
-  - Cap mouths on joints 6–8, where the elliptical stop cone reaches 51–59° over a few millimetres. Print these
-    slowly; supports are not needed.
-  - 7 mm hex bridges over the cap-bolt nut pockets.
+- **Overhangs:** an earlier version of this guide said every overhang was ≤ 45°. A measurement of the exported
+  STLs showed that was wrong:
+  - **Vertebra bodies:** 3,000–4,800 mm² of near-flat ceiling each, under the socket-bowl floor between the fins
+    and under the skin ring.
+  - **Hip mount:** about 1,700 mm², under the boss and the arms.
+  - **Ball halves and caps:** only small patches.
 
-## Orientation per part (no supports needed)
+  Print from **`cad/stl/barney_supported/`**, where break-away support columns are built into the STLs (see
+  "Built-in support columns" below). Short spans are still left for Cura to bridge: 7 mm hex bridges over the
+  nut pockets, bolt-hole roofs, and the one-line barb ledges on the tip adapter.
+
+## Built-in support columns (no slicer supports)
+
+`cad/add_support_columns.py` adds break-away columns to copies of the STLs in `cad/stl/barney_supported/`; the
+originals in `cad/stl/barney/` are unchanged. Turn **slicer supports off**. Parts not in that folder need none:
+ball_5 left and right, ball_6_right, and cap_1, cap_4, cap_5, cap_6.
+
+- **Where columns go:**
+  - Under every downward surface steeper than 50° (half a 1.3 mm line of overhang per 0.6 mm layer is 47°) that
+    has at least 5 mm of open space under it.
+  - Columns stand on a 10 mm grid, which leaves about 7 mm PETG bridges between tips.
+- **Column shape:**
+  - Ø4 mm, or Ø5 above 30 mm tall and Ø6 above 45 mm tall.
+  - The top tapers to a Ø2.6 mm tip, two 1.3 mm lines.
+  - Columns on the bed get a Ø8 mm, one-layer foot.
+- **Gaps:**
+  - One 0.6 mm layer of air between the tip and the part, and under columns that stand on the part.
+  - Every finished column is checked to stay at least 0.45 mm from the part everywhere.
+- **Totals:** 216 columns on 19 parts, about 142 ml (about 180 g of PETG, 10 % over the parts).
+- **Removal:** twist or snap each column off, then scrape the contact dots flush.
+
+## Orientation per part
 
 | Part | Orientation (as exported) | Notes |
 |---|---|---|
-| `body_i` (vertebra frame) | Distal flange on the bed, socket bowl facing up | The bowl prints as an open cup; fins are vertical plates with 45° diamond windows; the skin ring has a 45° skirt |
+| `body_i` (vertebra frame) | Distal flange on the bed, socket bowl facing up | The bowl prints as an open cup; fins are vertical plates with 45° diamond windows. The bowl floor and the skin ring underside are flat ceilings: **use the supported STL** |
 | `cap_i` | Equator face (bolt lobes, spring ears) on the bed | Inner sphere becomes a 45° relief cone above 45° latitude, so there is no ceiling |
 | `ball_i_left/right` | Clamshell halves, split face on the bed | Layers run **along** the neck, so neck bending loads the layers in-plane (strong). The dorsal hole captures the roll-key screw head. Align with two 1.75 mm filament dowels and glue with CA/epoxy (optional; the socket and flange bolts already trap the halves) |
-| `hip_mount` | Harness-plate face on the bed, boss up | Arms are vertical plates |
+| `hip_mount` | Harness-plate face on the bed, boss up | The boss overhangs the plate edge and the arms have sloped undersides: **use the supported STL** |
 | `tip_adapter` | Flange on the bed | Foam spike and barbs are cones |
 | `test_ballast_plate` | Flange on the bed | Only for the 4-joint test section |
 
