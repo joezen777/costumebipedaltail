@@ -53,7 +53,7 @@ def main():
 | Envelope | 190 mm at the root → 100 mm at vertebra 6 → 60 mm rounded foam tip (linear taper: fat, Barney-like) |
 | Rest shape | **Reverse sigmoid** z = h − 0.35 m / (1 + e^−(x − 0.28 m)/0.05 m): leaves the back nearly level (root pitch {var['root_pitch']:.1f}°), dips at up to ~58° mid-tail, then flattens so the last vertebra and foam tip stick straight back. Wedge-flange rest bends {bends} |
 | Mount | Plate on the lumbar belt's back panel; the tail pivot **hangs 70 mm below the plate centre** (pivot 30 mm below the pelvis centre). One printed part does both "attach directly" and "hang down" |
-| Belt attachment | Four 5 × 28 mm slots for 25 mm hook-and-loop straps around the belt's back panel, plus top and bottom 50 mm webbing slots. Add a 3 mm EVA pad behind the plate for comfort on the curved lower back |
+| Belt attachment | Four 5 × 28 mm slots for 25 mm hook-and-loop straps around the belt's back panel, plus a top 50 mm webbing slot (the old bottom slot sat under the boss). Hex lightening holes in the plate. Add a 3 mm EVA pad behind the plate for comfort on the curved lower back |
 | Mechanics | As approved: ball-and-socket + dorsal/left/right extension springs on cap ears + felt liners + 5–10 N cord + roll key |
 | Tuning for the short tail | Spring dead band 6° (softer centring springs; a short tail is livelier). Round cap stop openings (pitch travel = yaw travel) so the tail's own weight can't hammer the stops on a jump landing. Minimum ball radius 22 mm for neck strength |
 
@@ -90,9 +90,10 @@ self-centring.
 |---|---|
 | Print-ready STLs (26 parts, {kg:.2f} kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
 | OpenSCAD (generated variant of the parametric model) | `cad/openscad/suit_tail_barney.scad` |
-| FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` |
+| FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` (**behind the STLs:** the hip mount and vertebra frames predate the self-supporting redesign; the STLs are authoritative) |
 | Springs / strength / mass | [tables/barney_springs.md](tables/barney_springs.md), [tables/barney_strength.md](tables/barney_strength.md), [tables/barney_mass_budget.md](tables/barney_mass_budget.md) |
 | 1:8 snap-together resin kit | `cad/stl/replica_1to8_resin/` (README there) |
+| 1:8 protogen figurine with the adjustable-height plate slot | `cad/stl/figurine_1to8_resin/` (README there) |
 | CAD renders, pose renders, photos | `results/cad_renders_barney/`, `results/pose_renders/`, `results/simulated_photos/` |
 
 The whole tail is only 6 joints, so it *is* the prototype. There is no separate 4-joint test section; run the

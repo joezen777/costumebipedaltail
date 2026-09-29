@@ -1,4 +1,8 @@
-"""Add break-away support columns to the life-size FDM STLs (Ender 3 V2 / Sprite Pro, 1.2 mm nozzle, PETG).
+"""Overhang checker / break-away support columns for the life-size FDM STLs (Ender 3 V2 / Sprite Pro, 1.2 mm, PETG).
+
+The vertebra bodies and hip mount are self-supporting by design (docs/printing.md), and this reports zero columns
+for them. It still flags short roofs inside the caps and the tip adapter (spans of 14 mm or less), which Cura
+bridges. So nothing is written unless you pass --write.
 
 Built-in columns replace slicer supports (no tree/grid supports needed in Cura). Every part keeps its exported
 print orientation; the columns are separate shells in the same STL, with a one-layer air gap above (and below,
@@ -12,7 +16,7 @@ Placement, per part:
 - a column is dropped if it would pass within CLEAR of the part.
 
     PYTHONPATH=. ~/.venvs/costumebipedaltail/bin/python cad/add_support_columns.py
-Output: cad/stl/barney_supported/<part>.stl (+ report.json); originals in cad/stl/barney/ are untouched.
+Report only by default; with --write: cad/stl/barney_supported/<part>.stl (+ report.json).
 """
 import json
 import sys
@@ -184,18 +188,23 @@ def support_part(path):
 
 
 def main():
-    OUT.mkdir(parents=True, exist_ok=True)
+    write = "--write" in sys.argv
+    sys.argv = [a for a in sys.argv if a != "--write"]
     report = {}
-    names = sys.argv[1:] or sorted(p.stem for p in SRC.glob("*.stl"))
+    # ball halves print split-face down; their few steep spots are small and self-bridging, so they never get columns
+    names = sys.argv[1:] or sorted(p.stem for p in SRC.glob("*.stl") if not p.stem.startswith("ball_"))
     for name in names:
         out_mesh, cols = support_part(SRC / f"{name}.stl")
         vol = sum(column_mesh(c).volume for c in cols) / 1000 if cols else 0.0
         report[name] = dict(columns=len(cols), column_volume_ml=round(float(vol), 2),
                             tallest_mm=round(max((c["top"] - c["bot"] for c in cols), default=0), 1),
                             on_part=sum(c["bot"] > 0 for c in cols))
-        if cols:
+        if cols and write:
+            OUT.mkdir(parents=True, exist_ok=True)
             out_mesh.export(OUT / f"{name}.stl")
         print(name, report[name], flush=True)
+    if not write:
+        return
     rp = OUT / "report.json"
     old = json.loads(rp.read_text()) if rp.exists() and sys.argv[1:] else {}
     old.update(report)

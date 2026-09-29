@@ -61,20 +61,16 @@ class TestCad(unittest.TestCase):
             self.assertEqual((c["plate_points_in_body"], c["body_points_in_plate"]), (0, 0), f"plate at {lvl}")
         self.assertGreater(r["tipping"]["margin_to_rear_edge_mm"], 10)
 
-    def test_support_columns_clear_the_parts(self):
-        import numpy as np
-        import trimesh
-        sup = ROOT / "cad" / "stl" / "barney_supported"
-        if not (sup / "report.json").exists():
-            self.skipTest("run cad/add_support_columns.py first")
-        for f in sorted(sup.glob("*.stl")):
-            part = trimesh.load(ROOT / "cad" / "stl" / "barney" / f.name)
-            shells = trimesh.load(f).split(only_watertight=False)
-            cols = [c for c in shells if abs(c.volume - part.volume) > 1]
-            self.assertTrue(cols and all(c.is_watertight for c in cols), f.name)
-            d = trimesh.proximity.ProximityQuery(part).signed_distance(np.vstack([c.vertices for c in cols]))
-            self.assertLess(d.max(), -0.4, f"{f.name}: a column touches the part")
-
+    def test_bodies_and_hip_mount_need_no_supports(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "cad"))
+        import add_support_columns as sc
+        names = ["hip_mount"] + [f"body_{i}" for i in range(1, 7)]
+        if not all((sc.SRC / f"{n}.stl").exists() for n in names):
+            self.skipTest("run cad/export_stl.py --variant barney first")
+        for n in names:
+            _, cols = sc.support_part(sc.SRC / f"{n}.stl")
+            self.assertEqual(cols, [], f"{n} has an unsupported overhang")
 
 if __name__ == "__main__":
     unittest.main()

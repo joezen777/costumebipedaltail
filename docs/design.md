@@ -10,7 +10,7 @@ dimensional spec) and the physics results in `results/`. `docs/physics.md` expla
  harness plate ── hip mount ──(ball 1)── V1 ──(ball 2)── V2 ── … ── V8 ── tip adapter ── 200 mm foam tip
                    │  arms                 │ fins              │ fins
                    └── 3 springs ──► cap-1 ears    └── 3 springs ──► cap-2 ears   …
- central 6 mm cord: hip-mount knot pocket → through every ball centre → tip compression spring
+ central 6 mm cord: stopper knot in a countersink on the hip mount's front face → through every ball centre → tip compression spring
 ```
 
 - **8 ball-and-socket joints** at 150 mm pitch: 1200 mm articulated, plus a 200 mm flexible foam tip = 1400 mm.
@@ -58,7 +58,7 @@ and child anchors (distances measured distally from the pivot, so the parent anc
 | Quantity | Value |
 |---|---|
 | Pelvis (sacrum) height | 0.55 × 1727 ≈ 950 mm |
-| Harness plate | 120–128 mm behind the pelvis centre, 190 × 150 mm, M6 slots on a 150 × 100 mm pattern + two 50 mm webbing slots |
+| Harness plate | 120–128 mm behind the pelvis centre, 190 × 150 mm, M6 slots on a 150 × 100 mm pattern + one 50 mm webbing slot, hex lightening holes |
 | Joint 1 centre | 200 mm behind the pelvis centre |
 | Root pitch | tail leaves the hip 15° nose-down, then droops 1.5° per joint |
 | Rest tip height | ≈ 0.4 m above the floor (`results/data/study_metrics.json`, `min_tip_height`) |

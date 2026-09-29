@@ -20,7 +20,7 @@
 | Envelope | 190 mm at the root → 100 mm at vertebra 6 → 60 mm rounded foam tip (linear taper: fat, Barney-like) |
 | Rest shape | **Reverse sigmoid** z = h − 0.35 m / (1 + e^−(x − 0.28 m)/0.05 m): leaves the back nearly level (root pitch 6.2°), dips at up to ~58° mid-tail, then flattens so the last vertebra and foam tip stick straight back. Wedge-flange rest bends +29.2°, +22.7°, -3.7°, -30.6°, -20.9° |
 | Mount | Plate on the lumbar belt's back panel; the tail pivot **hangs 70 mm below the plate centre** (pivot 30 mm below the pelvis centre). One printed part does both "attach directly" and "hang down" |
-| Belt attachment | Four 5 × 28 mm slots for 25 mm hook-and-loop straps around the belt's back panel, plus top and bottom 50 mm webbing slots. Add a 3 mm EVA pad behind the plate for comfort on the curved lower back |
+| Belt attachment | Four 5 × 28 mm slots for 25 mm hook-and-loop straps around the belt's back panel, plus a top 50 mm webbing slot (the old bottom slot sat under the boss). Hex lightening holes in the plate. Add a 3 mm EVA pad behind the plate for comfort on the curved lower back |
 | Mechanics | As approved: ball-and-socket + dorsal/left/right extension springs on cap ears + felt liners + 5–10 N cord + roll key |
 | Tuning for the short tail | Spring dead band 6° (softer centring springs; a short tail is livelier). Round cap stop openings (pitch travel = yaw travel) so the tail's own weight can't hammer the stops on a jump landing. Minimum ball radius 22 mm for neck strength |
 
@@ -32,15 +32,15 @@ sized for them.
 | Test (as built) | Result |
 |---|---|
 | Rest (standing) | tail ends pointing back, skin **52 cm** above the floor |
-| 30° hip snap | lag 34°, overshoot 10°, 1 swing-back, settles in 1.2 s |
+| 30° hip snap | lag 34°, overshoot 9°, 1 swing-back, settles in 1.2 s |
 | Jerk left (30° in 0.25 s) | lag 40°, overshoot 8° |
 | 45° dramatic turn | overshoot 31° |
-| Walking 1.5 / 2.0 steps/s | tip/hip 1.94 / 1.77 |
+| Walking 1.5 / 2.0 steps/s | tip/hip 1.95 / 1.77 |
 | Crouch (−150 mm, 10°) | min clearance 47 cm |
 | Side step 300 mm | min clearance 50 cm |
-| Bending over 45° | tail lifts; hip moment 7.0 N·m |
-| Jump (25 cm) | no floor contact; hip moment 13.3 N·m |
-| Peak moment on the lumbar belt (any test) | 13 N·m |
+| Bending over 45° | tail lifts; hip moment 7.3 N·m |
+| Jump (25 cm) | no floor contact; hip moment 14.1 N·m |
+| Peak moment on the lumbar belt (any test) | 14 N·m |
 
 Figures:
 - `results/figures/barney_*.png`: hip snap, turn, jump, bend over, walking.
@@ -52,7 +52,7 @@ Data: `results/data/barney.json`.
 
 1. **Softer centring springs (dead band 3.5° → 6°).** The half-length tail has fewer, lighter segments, so with the
    Gojira spring rule it overshot the hips by ~31° with two swing-backs. At 6° it overshoots
-   10° with one swing-back.
+   9° with one swing-back.
 2. **Round stop openings.** On a 25 cm jump landing (~2.4 g) the short, stubby tail bottomed out on its pitch stops
    at every joint, putting 11–23 N·m through the ball necks. Matching pitch travel to yaw travel cut the stop torque
    from 23 to 7 N·m.
@@ -66,9 +66,9 @@ self-centring.
 
 | What | Where |
 |---|---|
-| Print-ready STLs (26 parts, 1.80 kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
+| Print-ready STLs (26 parts, 1.92 kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
 | OpenSCAD (generated variant of the parametric model) | `cad/openscad/suit_tail_barney.scad` |
-| FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` |
+| FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` (**behind the STLs:** the hip mount and vertebra frames predate the self-supporting redesign; the STLs are authoritative) |
 | Springs / strength / mass | [tables/barney_springs.md](tables/barney_springs.md), [tables/barney_strength.md](tables/barney_strength.md), [tables/barney_mass_budget.md](tables/barney_mass_budget.md) |
 | 1:8 snap-together resin kit | `cad/stl/replica_1to8_resin/` (README there) |
 | 1:8 protogen figurine with the adjustable-height plate slot | `cad/stl/figurine_1to8_resin/` (README there) |

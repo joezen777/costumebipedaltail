@@ -69,14 +69,16 @@ Four changes made the short tail work, all found in simulation ([docs/barney.md]
 - Sizes and masses: [docs/tables/barney_parts.md](docs/tables/barney_parts.md).
 - Settings: [docs/printing.md](docs/printing.md). PETG, 1.3 mm lines, 0.6 mm layers (0.4 mm for ball halves),
   100 % infill for ball halves 1–3.
-- **Supports are built into the STLs:** print from [`cad/stl/barney_supported/`](cad/stl/barney_supported/), which
-  has break-away columns, and turn slicer supports off. It has 19 parts; the other 7 need no support, so print
-  those from `cad/stl/barney/`.
+- **No slicer supports:** the vertebra bodies and hip mount carry their own overhangs with thin structural walls
+  (a 45° cone, an arched skirt, arm webs). Every part prints from `cad/stl/barney/` with slicer
+  supports off; the few remaining roofs are short bridges. See [docs/printing.md](docs/printing.md).
+  ![self-supporting parts](results/cad_renders_barney/print_orientation_self_supporting.png)
 - The whole tail is only 6 joints, so it doubles as the prototype for the calibration tests in
   [docs/test_plan.md](docs/test_plan.md).
 
 CAD: [`cad/openscad/suit_tail_barney.scad`](cad/openscad/suit_tail_barney.scad) (a generated variant of the
-parametric [`suit_tail.scad`](cad/openscad/suit_tail.scad)); FreeCAD/STEP in [`cad/freecad/output/`](cad/freecad/output/).
+parametric [`suit_tail.scad`](cad/openscad/suit_tail.scad)); FreeCAD/STEP in [`cad/freecad/output/`](cad/freecad/output/). The FreeCAD/STEP hip mount and vertebra frames
+predate the self-supporting redesign, so the STLs are authoritative.
 
 ### Shopping list (full-size tail)
 
@@ -90,16 +92,16 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 | M4 nylock nuts | 48 | press into the printed hex pockets | $4 |
 | M4 × 12 socket-head (roll keys, joints 1–4) / M3 × 8 (joints 5–6 + 4 for the tip adapter) | 4 / 6 | roll-key pins, tip adapter | $2 |
 | **Extension springs** | **18** | 3 per joint; schedule in [docs/tables/barney_springs.md](docs/tables/barney_springs.md) | $20–35 |
-| · heavy (dorsal J1–J2) | 2 | ~5 N/mm, 55–90 N at rest, up to ~135 N, OD ≤ 15 mm | |
-| · medium (dorsal J3–J6) | 4 | ~1–3 N/mm, 6–35 N at rest, up to ~70 N, OD ≤ 12 mm | |
-| · light (lateral pairs, all joints) | 12 | ~0.6–1.1 N/mm, 5–6 N at rest, up to ~17 N, OD 8–15 mm | |
+| · heavy (dorsal J1–J2) | 2 | ~5.5–5.9 N/mm, 66–96 N at rest, up to ~145 N, OD ≤ 15 mm | |
+| · medium (dorsal J3–J6) | 4 | ~1.6–3.3 N/mm, 9–41 N at rest, up to ~78 N, OD ≤ 12 mm | |
+| · light (lateral pairs, all joints) | 12 | ~0.8–1.7 N/mm, 6–13 N at rest, up to ~33 N, OD 8–15 mm | |
 | Compression spring Ø ≤ 13 mm, ~2 N/mm, ~20 mm long | 1 | cord preload at the tip | $2 |
 | 6 mm braided polyester cord | 1.5 m | central cord | $4 |
 | Cord lock + 2 washers | 1 set | tip end of the cord | $3 |
 | Self-adhesive felt 0.5 mm; felt/rubber 0.8 mm | small sheets | seat liners; cap-mouth stop pads | $8 |
 | **Lumbar support belt** (pharmacy lower-back brace, elastic with a rigid or semi-rigid back panel) | 1 | the mount | $20–35 |
 | 25 mm hook-and-loop straps ~40 cm | 4 | through the plate's corner slots, around the belt's back panel | $8 |
-| 50 mm webbing strap ~1 m + buckle (optional) | 1 | through the top/bottom slots for extra hold | $6 |
+| 50 mm webbing strap ~1 m + buckle (optional) | 1 | through the top slot for extra hold | $6 |
 | EVA foam 3 mm | 200 × 160 mm | comfort pad behind the mounting plate | $3 |
 | Upholstery foam (~20 mm and ~10 mm sheets) | ~1 m × 1 m | skin over the frame, 20 → 10 mm thick | $25 |
 | Foam block | 150 × 100 × 100 mm | rounded 150 mm foam tip | $6 |

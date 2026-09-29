@@ -5,10 +5,18 @@ already in print orientation, flat face on z = 0); sizes and masses are in `docs
 resin kit has its own guide in `cad/stl/replica_1to8_resin/README.md`.
 
 Barney-specific notes:
-- **Hip mount:** prints plate-down. The boss cone overhangs the plate edge and the side arms have sloped
-  undersides, so it **does need support**: use `cad/stl/barney_supported/hip_mount.stl` (23 built-in columns).
+- **Hip mount:** prints plate-down and **needs no supports**.
+  - **Boss:** starts on the plate's front face, so the part of it that hangs below the plate edge (a rounded lobe of
+    the plate) sits on the bed.
+  - **Arms:** each spring-anchor arm stands on a thin 3-line web down to the plate, flaring at 45° to the full 12 mm
+    arm.
+  - **Plate:** hex lightening holes (19 mm across flats, at least 6 mm webs) are cut clear of the boss, webs and
+    strap slots.
+  - **Cord knot:** the cord now passes straight out through the plate. Its knot seats in a 45° countersink on the
+    front (belt) face, so the old knot window is gone.
 - **Belt attachment:** thread 25 mm hook-and-loop straps through the four corner slots and around the lumbar belt's
-  back panel; the top and bottom 50 mm slots take an optional extra webbing strap.
+  back panel; the top 50 mm slot takes an optional extra webbing strap. (There used to be a bottom one too, but it
+  sat under the boss where no strap could pass, so it was removed.)
 - **Ball halves:** each carries its joint's rest-bend wedge (up to ±20°), so keep them in joint order.
 
 ## Printer and nozzle: Ender 3 V2 + Sprite Pro, 1.2 mm nozzle
@@ -41,29 +49,39 @@ Minimum feature sizes used in the design:
   - **Hip mount:** about 1,700 mm², under the boss and the arms.
   - **Ball halves and caps:** only small patches.
 
-  Print from **`cad/stl/barney_supported/`**, where break-away support columns are built into the STLs (see
-  "Built-in support columns" below). Short spans are still left for Cura to bridge: 7 mm hex bridges over the
-  nut pockets, bolt-hole roofs, and the one-line barb ledges on the tip adapter.
+  The bodies and hip mount were redesigned to carry those overhangs themselves (see "Self-supporting by design"
+  below). Only short bridges remain.
 
-## Built-in support columns (no slicer supports)
+## Self-supporting by design (no slicer supports)
 
-`cad/add_support_columns.py` adds break-away columns to copies of the STLs in `cad/stl/barney_supported/`; the
-originals in `cad/stl/barney/` are unchanged. Turn **slicer supports off**. Parts not in that folder need none:
-ball_5 left and right, ball_6_right, and cap_1, cap_4, cap_5, cap_6.
+A measurement of the first exported STLs found real flat ceilings on the vertebra bodies (3,000–4,800 mm² each)
+and the hip mount. Instead of break-away supports, the geometry itself now carries every overhang, with thin
+structural walls that stay in the part:
 
-- **Where columns go:**
-  - Under every downward surface steeper than 50° (half a 1.3 mm line of overhang per 0.6 mm layer is 47°) that
-    has at least 5 mm of open space under it.
-  - Columns stand on a 10 mm grid, which leaves about 7 mm PETG bridges between tips.
-- **Column shape:**
-  - Ø4 mm, or Ø5 above 30 mm tall and Ø6 above 45 mm tall.
-  - The top tapers to a Ø2.6 mm tip, two 1.3 mm lines.
-  - Columns on the bed get a Ø8 mm, one-layer foot.
-- **Gaps:**
-  - One 0.6 mm layer of air between the tip and the part, and under columns that stand on the part.
-  - Every finished column is checked to stay at least 0.45 mm from the part everywhere.
-- **Totals:** 216 columns on 19 parts, about 142 ml (about 180 g of PETG, 10 % over the parts).
-- **Removal:** twist or snap each column off, then scrape the contact dots flush.
+- **Socket housing floor:** a solid 45° cone under the housing, running down to the spine tube.
+- **Skin ring:** a single-line (1.4 mm) skirt wall stands on the bed under the ring's bottom rim.
+  - At the top it flares at 45° out to the rim's full 3.9 mm width.
+  - Pointed arches (vertical sides, 45° peak) open from the bed between the fins, to save plastic.
+  - Arched notches leave room at the spring anchors.
+- **Hip mount:** the boss stands on the bed, the arm webs and flares described above, and plate lightening holes.
+- **Fin windows:** now cut from the fins only, so they never notch the new cone.
+
+**Every part prints from `cad/stl/barney/` with slicer supports off.**
+
+- **Ball halves:** need no supports.
+- **Short roofs Cura bridges (with bridge settings on):**
+  - the 3.6 mm pockets in caps 2–3;
+  - the Ø14 mm spring pocket roof and a 5 mm side slot in the tip adapter;
+  - bolt-hole roofs and the 7 mm nut-pocket bridges.
+- **Checker:** `cad/add_support_columns.py` reports any remaining overhang (use `--write` to emit break-away
+  columns). A test asserts that the bodies and hip mount need none.
+
+**Cost:** the new walls add about 123 g of PETG to the six bodies. The hip mount got 7 g lighter. The as-built
+physics was re-run with these masses:
+- **Behaviour:** essentially unchanged. Overshoot is within 0.3°, the whip ratio moved 1.94 → 1.95, and there's
+  still no floor contact.
+- **Loads:** about 5 % higher. The belt peak is 14.1 N·m (was 13.3), and the lowest neck safety factor is 3.4 (J5).
+- **Springs:** the spring schedule rose about 5 % to carry the weight.
 
 ## Orientation per part
 
@@ -120,9 +138,9 @@ the same benefit at no risk. That is the default.
 | M4 × 12 socket-head (roll key), joints 1–4 | 4 | Head captured inside the ball; protrudes 3 mm into the socket slot |
 | M3 × 8 socket-head (roll key), joints 5–8 | 4 | |
 | M3 × 8 screws | 4 | Tip adapter to vertebra 8 |
-| M6 bolts / 50 mm webbing | 4 / 2 slots | Hip mount to the harness (150 × 100 mm pattern) |
+| M6 bolts / 50 mm webbing | 4 / 1 slot | Hip mount to the harness (150 × 100 mm pattern) |
 | Extension springs | 3 per joint (24) | Dorsal + left + right; see `docs/tables/springs.md` |
-| 6 mm braided polyester cord | ~1.6 m | Central cord, knotted in the hip-mount pocket |
+| 6 mm braided polyester cord | ~1.6 m | Central cord, knotted in the countersink on the hip mount's front face |
 | Compression spring Ø ≤ 13 mm, ~2 N/mm, 20 mm long | 1 | Cord preload at the tip adapter (compress ~5 mm for 10 N) |
 | PTFE tape 0.25 mm or 0.5 mm self-adhesive felt | — | Seat liner (the friction level the physics was tuned for is MEDIUM ≈ felt, μ ≈ 0.25) |
 | Adhesive felt/rubber 0.8 mm | — | Cap-mouth stop pad |
@@ -138,7 +156,8 @@ the same benefit at no risk. That is the default.
    the cap over the neck with its slot also dorsal, and bolt it with 4 × M4 × 16.
 5. Hook the three springs of each joint: parent fin hole (or hip-mount arm) → cap ear of the child.
    Dorsal = the stiff, strongly preloaded one.
-6. Thread the cord from the tip adapter through every bore to the hip-mount pocket and knot it there. At the tip,
+6. Thread the cord from the tip adapter through every bore and out of the hip mount's front (belt-side) face. Tie a
+   stopper knot there so it seats in the countersink. At the tip,
    add washer + compression spring + washer + cord lock, and compress the spring to the preload
    (10 N ≈ 5 mm at 2 N/mm).
 7. Slide on the foam skin (upholstery foam, 20 mm at the root tapering to 4 mm) and glue it to the rings and fin

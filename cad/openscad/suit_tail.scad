@@ -236,8 +236,18 @@ module vertebra_frame(i) {
             // distal flange (matches the next ball flange, or the tip adapter)
             translate([bl - flange_t, 0, 0]) along_x(flange_t, rr, rr);
             // four longitudinal fins: dorsal, ventral, left, right - skin former and spring anchors
-            for (a = [0, 90, 180, 270]) rotate([a, 0, 0])
-                translate([x_f0, -fin_t(i) / 2, 0]) cube([bl - x_f0, fin_t(i), rf]);
+            // (diamond lightening windows cut from the fins only, 45 deg edges print without support)
+            difference() {
+                for (a = [0, 90, 180, 270]) rotate([a, 0, 0])
+                    translate([x_f0, -fin_t(i) / 2, 0]) cube([bl - x_f0, fin_t(i), rf]);
+                for (a = [0, 90, 180, 270]) rotate([a, 0, 0]) fin_windows(i);
+            }
+            // 45 deg cone under the socket housing, down to the spine: the housing floor would
+            // otherwise be a flat ceiling between the fins in print orientation (flange down)
+            translate([sd - 0.01, 0, 0]) along_x(ho - spine_r(i), ho, spine_r(i));
+            // skirt wall under the skin ring, standing on the bed (distal end): carries the ring's
+            // bottom rim, with diamond windows between the fins and arched notches at the spring anchors
+            skin_ring_skirt(i);
             // bosses around the parent-side spring holes (tear-out margin)
             if (i < N) at_springs() intersection() {
                 translate([bl - 4, 0, spring_arm(i + 1)]) rotate([90, 0, 0]) cylinder(r = 7, h = fin_t(i) + 4, center = true);
@@ -259,8 +269,6 @@ module vertebra_frame(i) {
                 translate([-1, 0, 0]) along_x(flange_t + 2, rf - 3 * line_w, rf - 3 * line_w);
             }
         }
-        // diamond lightening windows in the fins (45 deg edges print without support)
-        for (a = [0, 90, 180, 270]) rotate([a, 0, 0]) fin_windows(i);
         // socket seat + slot
         socket_cavity(i);
         roll_slot(i, -0.01, sd);
@@ -281,6 +289,39 @@ module vertebra_frame(i) {
             translate([bl - flange_t + 2.5 - 20, 0, flange_bolt_r(i + 1)]) rotate([0, 90, 0]) hexnut_pocket(20);
         }
         if (i == N) at_lobes() translate([bl - flange_t - 1, 0, spine_r(i) + 2]) along_x(flange_t + 2, 1.6, 1.6);
+    }
+}
+
+// single-line cylindrical wall from the distal end (the print bed) up to the skin ring's bottom rim:
+// pointed arches (45 deg peaks) open from the bed between the fins, a band under the rim, and a 45 deg
+// flare at the top from the one-line wall out to the rim's full 3-line width
+skirt_t = line_w + 0.1;
+function ring_rim_x(i) = 0.5 * body_len(i) + 2 * line_w + 0.2 + 8;     // x of the ring's bottom rim
+module skin_ring_skirt(i) {
+    bl = body_len(i); rf = RF(i); x0 = ring_rim_x(i); r_o = rf - 8; r_i = r_o - skirt_t;
+    rim_w = 3 * line_w; flare = rim_w - skirt_t;               // 45 deg: as tall as it is wide
+    h = bl - x0; band = flare + 2;                              // solid band under the rim
+    arc = 2 * PI * r_o / 4 - fin_t(i) - 12;                     // usable arc per quadrant (6 mm from each fin)
+    na = max(1, ceil(arc / 45));
+    W = min((arc - (na - 1) * 4) / na, 2 * (h - band));        // arch width; peak must stay under the band
+    hv = h - band - W / 2;                                      // straight sides below the 45 deg peak
+    difference() {
+        union() {
+            translate([x0 - 0.01, 0, 0]) difference() { along_x(h + 0.01, r_o, r_o); translate([-1, 0, 0]) along_x(h + 2, r_i, r_i); }
+            translate([x0 - 0.01, 0, 0]) difference() { along_x(flare, r_o, r_o); translate([-0.01, 0, 0]) along_x(flare + 0.02, r_o - rim_w, r_i); }
+        }
+        if (hv >= 0) for (q = [0 : 3], k = [0 : na - 1]) {
+            ang = q * 90 + (k + 0.5) * 90 / na;
+            rotate([ang, 0, 0]) translate([0, 0, r_o]) hull() {
+                translate([bl - hv, -W / 2, -10]) cube([hv + 1, W, 20]);
+                translate([bl - hv - W / 2, 0, 0]) cube([0.01, 0.01, 20], center = true);
+            }
+        }
+        // arched notches (vertical sides, 45 deg pointed top) where the springs hook onto the fins
+        if (i < N) at_springs() translate([0, 0, r_o]) hull() {
+            translate([bl - 11, -7, -10]) cube([12, 14, 20]);
+            translate([bl - 18, 0, 0]) cube([0.01, 0.01, 20], center = true);
+        }
     }
 }
 
@@ -313,40 +354,70 @@ module vertebra(i) {
 // net: +X -> (-cos rp, 0, -sin rp) backward & down; +Z -> (-sin rp, 0, cos rp) dorsal; +Y -> -Y
 module root_frame() { translate([-root_back_offset, 0, root_dz]) rotate([0, 180 - root_pitch, 0]) rotate([180, 0, 0]) children(); }
 
+// arm profile in the joint-1 frame (t = thickness): 12 mm at the plate end, w + 5 deep at the flange
+module hip_arm(t) {
+    pf = DF(1) + flange_t; w = spring_arm(1);
+    hull() {
+        translate([-pf - 12, -t / 2, 0]) cube([12, t, w + 5]);
+        translate([-pf - 30, -t / 2, 0]) cube([30, t, 12]);
+    }
+}
+// flatten onto the plate: a sliver 1 mm inside the back face (pelvis x = -harness_plate_offset - hip_plate_t),
+// so the web hull fuses into the plate instead of stopping a hair short of it
+module onto_plate() { pb = -harness_plate_offset - hip_plate_t; translate([pb + 1, 0, 0]) scale([0.001, 1, 1]) translate([-pb, 0, 0]) children(); }
+
+// plate lightening: hexagonal holes on a 25 mm grid, clear of the edges, boss, webs and strap slots
+hole_R = 11;                                       // hex circumradius (19 mm across flats), >= 6 mm webs
+function hip_hole_ok(y, z) = let(m = 6 + hole_R, bz = root_dz, lz = root_dz + 6, w = spring_arm(1))
+    abs(y) <= hip_plate_w / 2 - 8 - hole_R && abs(z - plate_z) <= hip_plate_h / 2 - 8 - hole_R
+    && norm([y, z - bz]) >= flange_r(1) + 6 + m                                          // boss footprint
+    && !(abs(y) < fin_t_hip / 2 + m && z > bz && z < bz + w + 5 + m)                     // dorsal web
+    && !(abs(z - lz) < fin_t_hip / 2 + 4 + m && abs(y) < w + 5 + m)                      // lateral webs
+    && !(abs(abs(y) - 78) < 2.5 + m && ((abs(z - (plate_z - 45)) < 14 + m) || (abs(z - (plate_z + 45)) < 14 + m)))
+    && !(abs(y) < 26 + m && abs(z - (plate_z + hip_plate_h / 2 - 10)) < 2.5 + m);       // top webbing slot
+HIP_HOLES = [for (r = [-8 : 8], c = [-8 : 8]) let(y = c * 25 + (r % 2 == 0 ? 0 : 12.5), z = plate_z + r * 25 * sin(60))
+             if (hip_hole_ok(y, z)) [y, z]];
+
 module hip_mount() {
     df = DF(1); pf = df + flange_t;
     w = spring_arm(1);
+    pb = -harness_plate_offset - hip_plate_t;        // plate back face
     difference() {
         union() {
             // harness plate (vertical, faces backward)
-            translate([-harness_plate_offset - hip_plate_t, -hip_plate_w / 2, plate_z - hip_plate_h / 2])
+            translate([pb, -hip_plate_w / 2, plate_z - hip_plate_h / 2])
                 cube([hip_plate_t, hip_plate_w, hip_plate_h]);
-            // boss from the plate to the ball-1 flange, plus spring anchor arms
+            // boss from the plate's FRONT face to the ball-1 flange, so the part of the boss that hangs below
+            // the plate still sits on the print bed (no floating ledge)
             hull() {
-                translate([-harness_plate_offset - hip_plate_t, 0, root_dz]) rotate([0, -90, 0]) cylinder(r = flange_r(1) + 6, h = 1);
+                translate([-harness_plate_offset - 1, 0, root_dz]) rotate([0, 90, 0]) cylinder(r = flange_r(1) + 6, h = 1);
                 root_frame() translate([-pf, 0, 0]) along_mx(8, flange_r(1), flange_r(1));
             }
             // spring-anchor arms: 12 mm thick, 30 mm deep at the boss (dorsal spring up to ~220 N)
-            root_frame() at_springs() hull() {
-                translate([-pf - 12, -hip_arm_t / 2, 0]) cube([12, hip_arm_t, w + 5]);
-                translate([-pf - 30, -hip_arm_t / 2, 0]) cube([30, hip_arm_t, 12]);
+            root_frame() at_springs() hip_arm(hip_arm_t);
+            for (a = [90, -90, 0]) {
+                // 45 deg flare from the 4 mm web out to the full 12 mm arm
+                root_frame() rotate([a, 0, 0]) hull() { hip_arm(hip_arm_t); translate([-(hip_arm_t - fin_t_hip) / 2, 0, 0]) hip_arm(fin_t_hip); }
+                // thin web from the arm down to the plate
+                hull() { root_frame() rotate([a, 0, 0]) hip_arm(fin_t_hip); onto_plate() root_frame() rotate([a, 0, 0]) hip_arm(fin_t_hip); }
             }
         }
         // anything past the flange face belongs to the ball (only behind the plate's back face)
         intersection() {
             root_frame() translate([-pf + 0.01, -100, -100]) cube([100, 200, 200]);
-            translate([-harness_plate_offset - hip_plate_t - 1000, -500, -500]) cube([1000, 1000, 1000]);
+            translate([pb - 1000, -500, -500]) cube([1000, 1000, 1000]);
         }
         // lumbar-support-belt attachment: four 25 mm strap slots (hook-and-loop straps wrap the belt's
-        // back panel) and top/bottom 50 mm webbing slots
-        for (y = [-78, 78], z = [-45, 45]) translate([-harness_plate_offset - hip_plate_t - 1, y - 2.5, plate_z + z - 14]) cube([hip_plate_t + 2, 5, 28]);
-        for (z = [-1, 1]) translate([-harness_plate_offset - hip_plate_t - 1, -26, plate_z + z * (hip_plate_h / 2 - 10) - 2.5]) cube([hip_plate_t + 2, 52, 5]);
-        // cord anchor: bore from the flange face into a knot pocket behind the plate
-        root_frame() {
-            along_mx(pf + 80, bore_r, bore_r);
-            translate([-pf - 22, 0, 0]) along_mx(14, 9, 9);
-            translate([-pf - 36, -9, -60]) cube([14, 18, 60]);      // ventral window to tie the knot
-        }
+        // back panel) and a top 50 mm webbing slot (a bottom one would sit under the boss)
+        for (y = [-78, 78], z = [-45, 45]) translate([pb - 1, y - 2.5, plate_z + z - 14]) cube([hip_plate_t + 2, 5, 28]);
+        translate([pb - 1, -26, plate_z + hip_plate_h / 2 - 10 - 2.5]) cube([hip_plate_t + 2, 52, 5]);
+        // plate lightening holes (vertical through-holes in print orientation)
+        for (h = HIP_HOLES) translate([pb - 1, h[0], h[1]]) rotate([0, 90, 0]) rotate([0, 0, 30]) cylinder(r = hole_R, h = hip_plate_t + 2, $fn = 6);
+        // cord anchor: bore from the flange face out through the plate's front face, where the knot
+        // seats in a 45 deg countersink (no knot window needed; the belt panel covers it)
+        root_frame() along_mx(pf + 120, bore_r, bore_r);
+        translate([-harness_plate_offset + 0.01, 0, root_dz + (root_back_offset - harness_plate_offset) * tan(root_pitch)])
+            rotate([0, -90, 0]) cylinder(r1 = 9, r2 = bore_r, h = 9 - bore_r);
         // ball-1 flange bolts with nut pockets
         root_frame() at_lobes() translate([-pf + 1, 0, flange_bolt_r(1)]) {
             along_mx(12, bolt_clear / 2, bolt_clear / 2);
