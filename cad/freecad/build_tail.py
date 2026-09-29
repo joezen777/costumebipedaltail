@@ -321,7 +321,10 @@ def root_placement(p):
     return pl
 
 
-HOLE_R = 11.0                      # plate lightening hexes: 19 mm across flats, >= 6 mm webs
+KNOT_R, KNOT_DEPTH = 11.0, 10.0    # cord knot pocket in the plate's front face
+HOLE_R = 12.7                      # plate lightening hexes: 22 mm across flats
+HOLE_PITCH = 28.0                  # honeycomb pitch: 6 mm web between every pair of neighbours
+HOLE_Y0, HOLE_Z0 = HOLE_PITCH / 2, -5.5   # grid phase that fits the most holes (17) symmetrically
 
 
 def hip_holes(p):
@@ -331,8 +334,8 @@ def hip_holes(p):
     out = []
     for r in range(-8, 9):
         for c in range(-8, 9):
-            y = c * 25 + (0 if r % 2 == 0 else 12.5)
-            z = p.plate_z + r * 25 * math.sin(math.radians(60))
+            y = (c + (0 if r % 2 == 0 else 0.5)) * HOLE_PITCH + HOLE_Y0
+            z = p.plate_z + r * HOLE_PITCH * math.sin(math.radians(60)) + HOLE_Z0
             ok = (abs(y) <= p.hip_plate_w / 2 - 8 - HOLE_R and abs(z - p.plate_z) <= p.hip_plate_h / 2 - 8 - HOLE_R
                   and math.hypot(y, z - bz) >= g.flange_r(p, 1) + 6 + m
                   and not (abs(y) < fin_t / 2 + m and bz < z < bz + w + 5 + m)
@@ -383,7 +386,10 @@ def createHipMount(p):
     tools = [place(Part.makeBox(100, 200, 200, V(-pf + 0.01, -100, -100))).common(behind)]
     tools.append(place(cyl_x(g.bore_r(p), -pf - 120, 0)))
     kz = p.root_dz + (p.root_back_offset - p.harness_plate_offset) * math.tan(math.radians(p.root_pitch))
-    tools.append(Part.makeCone(9, g.bore_r(p), 9 - g.bore_r(p), V(-p.harness_plate_offset + 0.01, 0, kz), V(-1, 0, 0)))   # knot seat
+    # knot pocket: 22 mm x 10 mm deep from the front face, then a 45 deg roof down to the bore
+    kx = -p.harness_plate_offset + 0.01
+    tools.append(Part.makeCylinder(KNOT_R, KNOT_DEPTH + 0.01, V(kx, 0, kz), V(-1, 0, 0)))
+    tools.append(Part.makeCone(KNOT_R, 0, KNOT_R, V(kx - KNOT_DEPTH, 0, kz), V(-1, 0, 0)))   # to a point: the tilted bore pierces it
     tools += [place(s) for s in at_lobes(lambda: Part.makeCylinder(p.bolt_clear / 2, 12, V(-pf - 11, 0, g.flange_bolt_r(p, 1)), X).fuse(
         hex_prism_x(p.nut_af, -pf - 26, 20, g.flange_bolt_r(p, 1))))]
     tools += [place(s) for s in at_springs(lambda: Part.makeCylinder(p.spring_hole / 2, 20, V(-g.spring_span_parent(p, 1), 10, w), V(0, -1, 0)))]
@@ -391,7 +397,7 @@ def createHipMount(p):
         for zz in (-45, 45):
             tools.append(Part.makeBox(p.hip_plate_t + 2, 5, 28, V(pb - 1, y - 2.5, p.plate_z + zz - 14)))
     tools.append(Part.makeBox(p.hip_plate_t + 2, 52, 5, V(pb - 1, -26, p.plate_z + p.hip_plate_h / 2 - 10 - 2.5)))
-    hexagon = [(HOLE_R * math.cos(math.radians(60 * k)), HOLE_R * math.sin(math.radians(60 * k))) for k in range(6)]
+    hexagon = [(HOLE_R * math.cos(math.radians(30 + 60 * k)), HOLE_R * math.sin(math.radians(30 + 60 * k))) for k in range(6)]   # flats face the neighbours
     for y, z in hip_holes(p):
         tools.append(prism_x_yz([(y + a, z + b) for a, b in hexagon], pb - 1, p.hip_plate_t + 2))
     return cut(body, tools)

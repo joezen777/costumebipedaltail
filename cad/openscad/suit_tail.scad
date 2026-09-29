@@ -366,8 +366,12 @@ module hip_arm(t) {
 // so the web hull fuses into the plate instead of stopping a hair short of it
 module onto_plate() { pb = -harness_plate_offset - hip_plate_t; translate([pb + 1, 0, 0]) scale([0.001, 1, 1]) translate([-pb, 0, 0]) children(); }
 
-// plate lightening: hexagonal holes on a 25 mm grid, clear of the edges, boss, webs and strap slots
-hole_R = 11;                                       // hex circumradius (19 mm across flats), >= 6 mm webs
+// plate lightening: honeycomb of hexagonal holes (flat-to-flat, uniform webs), clear of the edges, boss, webs
+// and strap slots
+knot_r = 11;  knot_depth = 10;                    // cord knot pocket in the plate's front face: 22 mm x 10 mm + 45 deg roof
+hole_R = 12.7;                                     // hex circumradius (22 mm across flats)
+hole_pitch = 28;                                   // 28 - 22 = 6 mm web between every pair of neighbours
+hole_y0 = hole_pitch / 2;  hole_z0 = -5.5;         // grid phase that fits the most holes (17) symmetrically
 function hip_hole_ok(y, z) = let(m = 6 + hole_R, bz = root_dz, lz = root_dz + 6, w = spring_arm(1))
     abs(y) <= hip_plate_w / 2 - 8 - hole_R && abs(z - plate_z) <= hip_plate_h / 2 - 8 - hole_R
     && norm([y, z - bz]) >= flange_r(1) + 6 + m                                          // boss footprint
@@ -375,7 +379,7 @@ function hip_hole_ok(y, z) = let(m = 6 + hole_R, bz = root_dz, lz = root_dz + 6,
     && !(abs(z - lz) < fin_t_hip / 2 + 4 + m && abs(y) < w + 5 + m)                      // lateral webs
     && !(abs(abs(y) - 78) < 2.5 + m && ((abs(z - (plate_z - 45)) < 14 + m) || (abs(z - (plate_z + 45)) < 14 + m)))
     && !(abs(y) < 26 + m && abs(z - (plate_z + hip_plate_h / 2 - 10)) < 2.5 + m);       // top webbing slot
-HIP_HOLES = [for (r = [-8 : 8], c = [-8 : 8]) let(y = c * 25 + (r % 2 == 0 ? 0 : 12.5), z = plate_z + r * 25 * sin(60))
+HIP_HOLES = [for (r = [-8 : 8], c = [-8 : 8]) let(y = (c + (r % 2 == 0 ? 0 : 0.5)) * hole_pitch + hole_y0, z = plate_z + r * hole_pitch * sin(60) + hole_z0)
              if (hip_hole_ok(y, z)) [y, z]];
 
 module hip_mount() {
@@ -412,12 +416,17 @@ module hip_mount() {
         for (y = [-78, 78], z = [-45, 45]) translate([pb - 1, y - 2.5, plate_z + z - 14]) cube([hip_plate_t + 2, 5, 28]);
         translate([pb - 1, -26, plate_z + hip_plate_h / 2 - 10 - 2.5]) cube([hip_plate_t + 2, 52, 5]);
         // plate lightening holes (vertical through-holes in print orientation)
-        for (h = HIP_HOLES) translate([pb - 1, h[0], h[1]]) rotate([0, 90, 0]) rotate([0, 0, 30]) cylinder(r = hole_R, h = hip_plate_t + 2, $fn = 6);
-        // cord anchor: bore from the flange face out through the plate's front face, where the knot
-        // seats in a 45 deg countersink (no knot window needed; the belt panel covers it)
+        for (h = HIP_HOLES) translate([pb - 1, h[0], h[1]]) rotate([0, 90, 0]) cylinder(r = hole_R, h = hip_plate_t + 2, $fn = 6);   // flats face the neighbours
+        // cord anchor: bore from the flange face out through the plate's front face into a knot pocket
+        // (a figure-eight / double-overhand stopper in 6 mm cord is ~15-18 mm across), fully recessed so the
+        // belt panel covers it; straight sides then a 45 deg roof down to the bore (prints without support)
         root_frame() along_mx(pf + 120, bore_r, bore_r);
         translate([-harness_plate_offset + 0.01, 0, root_dz + (root_back_offset - harness_plate_offset) * tan(root_pitch)])
-            rotate([0, -90, 0]) cylinder(r1 = 9, r2 = bore_r, h = 9 - bore_r);
+            rotate([0, -90, 0]) {
+                cylinder(r = knot_r, h = knot_depth + 0.01);
+                // full 45 deg cone to a point: the 6 deg-tilted bore pierces it, leaving no flat ledge
+                translate([0, 0, knot_depth]) cylinder(r1 = knot_r, r2 = 0, h = knot_r);
+            }
         // ball-1 flange bolts with nut pockets
         root_frame() at_lobes() translate([-pf + 1, 0, flange_bolt_r(1)]) {
             along_mx(12, bolt_clear / 2, bolt_clear / 2);

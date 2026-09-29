@@ -66,7 +66,7 @@ self-centring.
 
 | What | Where |
 |---|---|
-| Print-ready STLs (26 parts, 1.92 kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
+| Print-ready STLs (26 parts, 1.91 kg PETG) | `cad/stl/barney/`; list in [tables/barney_parts.md](tables/barney_parts.md) |
 | OpenSCAD (generated variant of the parametric model) | `cad/openscad/suit_tail_barney.scad` |
 | FreeCAD + STEP | `cad/freecad/output/suit_tail_barney.FCStd`, `.step` |
 | Springs / strength / mass | [tables/barney_springs.md](tables/barney_springs.md), [tables/barney_strength.md](tables/barney_strength.md), [tables/barney_mass_budget.md](tables/barney_mass_budget.md) |
