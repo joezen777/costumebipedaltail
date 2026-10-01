@@ -29,7 +29,7 @@ def main():
         i = s["joint"] + 1
         lim = p.yaw_limit_list()[i - 1] if s["side"] in "LR" else p.pitch_limit_list()[i - 1]
         tmax = s["T0"] + s["k"] * s["arm"] * math.radians(lim)
-        L_inst = g.spring_span_parent(c, i) + g.spring_span_child(c)
+        L_inst = s["L0"] * 1000      # true anchor-to-anchor span at rest (the rest-bend wedges tilt the parent fin)
         par = "2 in parallel" if tmax > 120 else "1"
         rows.append([f"J{i}", {"L": "left", "R": "right", "D": "dorsal"}[s["side"]], f"{s['k']/1000:.2f}", f"{s['T0']:.1f}",
                      f"{tmax:.1f}", f"{s['arm']*1000:.1f}", f"{L_inst:.1f}", f"{g.coil_od(c, i):.1f}", par])
