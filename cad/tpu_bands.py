@@ -1,11 +1,15 @@
-"""Printable TPU strap pairs that stand in for the Barney tail's 18 extension springs.
+"""Printable TPU straps that stand in for the Barney tail's 18 extension springs.
 
-    PYTHONPATH=. python cad/tpu_bands.py                 # nominal material curves
+    PYTHONPATH=. python cad/tpu_bands.py                 # all TPU 95A, 0.4 mm nozzle, nominal material curve
     PYTHONPATH=. python cad/tpu_bands.py --calib cad/tpu_calibration.json   # after the coupon test
+    (--material tpu65a|mix and --nozzle 1.2|0.6|0.4 for other filaments / nozzles)
 
-Each spring becomes a PAIR of identical flat straps, one on each side of the anchor plate (cap ear / fin boss /
-hip-mount arm), held by an M4 bolt through the existing 4.5 mm spring hole at each end. The pull stays on the
-original line of action, the two sides cancel (no roll moment), and each strap carries half of k and T0.
+Outputs single straps, `plate_all_straps.stl` (every strap on one 200 mm plate) and `plate_tight10_spares.stl`.
+Each strap carries a debossed label on a tab at its fin / hip-arm end ("3D", "3L-T" = joint 3 left, top face).
+
+A dorsal spring becomes a PAIR of identical flat straps, one on each side of the anchor plate (cap ear / fin
+boss / hip-mount arm); a lateral spring becomes one strap on the face its line of action leans toward. M4 bolts
+go through the existing 4.5 mm spring holes, so the pull stays on the original line of action.
 
 Sizing. A strap has no initial tension, so the spring's T0/k fixes how far it must already be stretched at the
 rest span P: T0 = F(P), k = dF/dP. For a cross-section A and a gauge length Lg, F = A*sigma(eps) and the two
@@ -33,8 +37,19 @@ from cad import geometry as g  # noqa: E402
 
 OUT = ROOT / "cad" / "stl" / "barney_tpu_bands"
 HOLE = 4.4            # strap eye hole for an M4 bolt (TPU closes up a little when printed; snug on the bolt)
-LAYER = 0.4           # TPU layer height with the 1.2 mm nozzle; strap thicknesses are multiples of this
-W_MIN = 3.0           # narrowest gauge that prints reliably as 2+ lines of 1.2 mm TPU
+# Nozzle profiles: (layer height, narrowest printable gauge = 4 lines, thinnest gauge = 3 layers, thickest).
+# A finer nozzle allows a smaller section, which is what lets the stiff 95A get down to the spring rates.
+NOZZLES = {1.2: dict(layer=0.4, w_min=3.0, t_layers=(3, 12)),
+           0.6: dict(layer=0.3, w_min=2.4, t_layers=(3, 12)),
+           0.4: dict(layer=0.2, w_min=1.8, t_layers=(3, 16))}
+NOZZLE = 0.4
+LAYER = NOZZLES[NOZZLE]["layer"]
+W_MIN = NOZZLES[NOZZLE]["w_min"]
+
+
+def set_nozzle(d):
+    global NOZZLE, LAYER, W_MIN
+    NOZZLE, LAYER, W_MIN = d, NOZZLES[d]["layer"], NOZZLES[d]["w_min"]
 EYE_RATIO = 2.0       # eye section (2 ligaments x eye thickness) / gauge section: keeps the eyes stiff
 CLEAR = 0.8           # running clearance to printed parts (mm)
 PARENT_STEP = {3: 0.4, 6: 1.5}  # strap plane steps in this much from child to parent eye (mm); default 1.0
@@ -154,6 +169,11 @@ class Strap:
     bolt_c: int = 0
     bolt_p: int = 0
     capped: bool = False
+    label: str = ""        # debossed on the tab at the parent (fin / hip-arm) end, e.g. "3D", "3L-T"
+    tab_len: float = 0.0
+    tab_w: float = 0.0
+    tab_t: float = 0.0
+    tight_mm: float = 0.0  # the "_tight10" variant is this much shorter: +10 % preload for trimming the rest pose
 
     @property
     def name(self):
@@ -187,12 +207,13 @@ def solve(mat, F0, k0, P, R):
 
 def section(A, w_max):
     """Pick thickness (layer multiple) and width for area A, staying within w_max."""
-    for n in range(3, 13):
-        t = n * LAYER
+    lo, hi = NOZZLES[NOZZLE]["t_layers"]
+    for n in range(lo, hi + 1):
+        t = round(n * LAYER, 2)
         w = A / t
         if w <= w_max:
             return t, max(w, W_MIN)
-    t = 12 * LAYER
+    t = round(hi * LAYER, 2)
     return t, A / t
 
 
@@ -271,6 +292,10 @@ def design(c, sim_springs, mats, choose):
                              st.pad_c + (st.plate_c - st.plate_p) / 2 - PARENT_STEP.get(i, 1.0)), 1)
         st.bolt_c = bolt_len(st.plate_c + n * (st.pad_c + t))
         st.bolt_p = bolt_len(st.plate_p + n * (st.pad_p + t))
+        st.label = f"{i}{side}" + ("" if side == "D" else ("-T" if face(c, st).startswith("top") else "-B"))
+        st.tab_w, st.tab_t = TAB_W, max(t, TAB_T)
+        st.tab_len = round(text_width(st.label) + 2.0, 1)
+        st.tight_mm = round(max(0.5, 0.10 * st.T0_pair / st.k_pair), 1)
         straps.append(st)
     return straps
 
@@ -285,6 +310,32 @@ def default_choice(straps_95, straps_65):
 
 
 # ----------------------------------------------------------------- meshes
+TEXT_H = 3.0          # cap height of the debossed label (bold; ~0.5 mm strokes print cleanly with a 0.4 mm nozzle)
+TEXT_DEPTH = 0.4
+TAB_W = TEXT_H + 1.6
+TAB_T = 0.8
+
+
+def _text_path(txt):
+    from matplotlib.font_manager import FontProperties
+    from matplotlib.textpath import TextPath
+    size = TEXT_H / 0.73                                # DejaVu cap height is ~0.73 em
+    return TextPath((0, 0), txt, size=size, prop=FontProperties(family="DejaVu Sans", weight="bold"))
+
+
+def text_width(txt):
+    ext = _text_path(txt).get_extents()
+    return ext.x1 - ext.x0
+
+
+def text_section(txt):
+    """Label as a manifold CrossSection centred on the origin, reading along +x."""
+    import manifold3d as m3
+    tp = _text_path(txt)
+    ext = tp.get_extents()
+    polys = [np.asarray(q)[:-1] - [(ext.x0 + ext.x1) / 2, (ext.y0 + ext.y1) / 2] for q in tp.to_polygons() if len(q) > 3]
+    return m3.CrossSection(polys, m3.FillRule.EvenOdd)
+
 def strap_mesh(st, tight=0.0, n=48):
     """Strap in print orientation: outer face on the bed (z = 0), spacer pads up. Child eye at x = 0."""
     import manifold3d as m3
@@ -308,6 +359,14 @@ def strap_mesh(st, tight=0.0, n=48):
                 solid = solid + m3.Manifold.cylinder(pad - ring + 0.01, R - 0.3, R - 0.3, n).translate((x, 0, t - 0.01))
             rr = min(PAD_R, R - 0.6)
             solid = solid + m3.Manifold.cylinder(pad + 0.01, rr, rr, n).translate((x, 0, t - 0.01))
+    if st.label:
+        # short label tab beyond the parent eye (carries no load): the tab end goes on the FIN / hip arm
+        x0 = P + R - 1.0
+        tab = m3.Manifold.extrude(m3.CrossSection.square((st.tab_len + 1.0, st.tab_w), center=True), st.tab_t)
+        solid = solid + tab.translate((x0 + (st.tab_len + 1.0) / 2, 0, 0))
+        txt = st.label + ("+" if tight else "")
+        letters = m3.Manifold.extrude(text_section(txt), TEXT_DEPTH + 1)
+        solid = solid - letters.translate((x0 + 1.0 + st.tab_len / 2, 0, st.tab_t - TEXT_DEPTH))
     for x in (0.0, P):
         solid = solid - m3.Manifold.cylinder(t + max(st.pad_c, st.pad_p) + 2, HOLE / 2, HOLE / 2, 32).translate((x, 0, -1))
     return solid
@@ -347,7 +406,7 @@ def write_table(c, straps, mats, calib):
         for L in (s.bolt_c, s.bolt_p):
             bolts[L] = bolts.get(L, 0) + 1
         where = "pair, both faces" if s.count == 2 else f"1, {face(c, s)} face"
-        rows.append(f"| J{s.joint} {dict(L='left', R='right', D='dorsal')[s.side]} | `{s.material}/{s.name}.stl` | {where} | "
+        rows.append(f"| J{s.joint} {dict(L='left', R='right', D='dorsal')[s.side]} | **{s.label}** | `{s.material}/{s.name}.stl` | {where} | "
                     f"{s.P_print:.1f} | {s.span:.1f} | {s.w:.1f} × {s.t:.1f} | {s.pad_c:.1f} / {s.pad_p:.1f} | "
                     f"{s.T0_pair:.1f} ({s.T0_target:.1f}) | {s.k_pair:.2f} ({s.k_target:.2f}) | "
                     f"{s.T_stop_pair:.0f} ({s.T_stop_spring:.0f}) | {s.eps * 100:.0f} % | {s.breakin_len:.0f} | "
@@ -360,15 +419,19 @@ def write_table(c, straps, mats, calib):
                           for m in mats.values())
     txt = f"""# TPU strap schedule: Barney tail (replaces the 18 extension springs)
 
-Generated by `cad/tpu_bands.py` ({src}). STLs in `cad/stl/barney_tpu_bands/`.
-Print {n65} straps in TPU 65A and {n95} in TPU 95A (a dorsal "pair" = print the file twice).
+Generated by `cad/tpu_bands.py` ({src}), {NOZZLE} mm nozzle, {LAYER} mm layers. STLs in `cad/stl/barney_tpu_bands/`.
+Print {n95} straps in TPU 95A{f" and {n65} in TPU 65A" if n65 else ""}. One-file print: `plate_all_straps.stl`
+(every strap, dorsal pairs included); spares 10 % tighter: `plate_tight10_spares.stl`.
+The label is debossed on a small tab at the **fin / hip-arm (parent) end**: "3D" = joint 3 dorsal (pair, one each
+side of the ear); "3L-T" / "3R-B" = joint 3 left / right lateral, strap on the **top** (dorsal) / **bottom**
+(ventral) face of the ear and fin. A trailing "+" marks a tight spare.
 
 Lengths are pin-centre to pin-centre (mm). Forces are for the whole spring position (both straps of a pair);
 the spring targets are in brackets. "Break-in" is the pin-to-pin length to stretch each strap to, 10 times,
 before installing.
 
-| spring | file | straps | printed length | installed span | gauge w × t | spacer child / parent | T0 at rest, N | k, N/mm | T at stop, N | rest strain | break-in | bolts child / parent |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| spring | tab label | file | straps | printed length | installed span | gauge w × t | spacer child / parent | T0 at rest, N | k, N/mm | T at stop, N | rest strain | break-in | bolts child / parent |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 """ + "\n".join(rows) + f"""
 
 Bolts (M4 socket head + washer each side + nylock): {", ".join(f"{n} × M4×{L}" for L, n in sorted(bolts.items()))}.
@@ -428,25 +491,49 @@ def fit_material(base, data):
     return make(r.x)
 
 
+def plate(items, bed=200.0, gap=4.0):
+    """Pack (manifold, count) items into rows on a bed x bed plate. Returns the plates (lists of placed manifolds)."""
+    flat = [m for m, n in items for _ in range(n)]
+    flat.sort(key=lambda m: -(m.bounding_box()[3] - m.bounding_box()[0]))
+    plates, cur, x, y, row_h = [], [], 0.0, 0.0, 0.0
+    for m in flat:
+        b = m.bounding_box()
+        L, W = b[3] - b[0], b[4] - b[1]
+        if x + L > bed:
+            x, y, row_h = 0.0, y + row_h + gap, 0.0
+        if y + W > bed:
+            plates.append(cur)
+            cur, x, y, row_h = [], 0.0, 0.0, 0.0
+        cur.append(m.translate((x - b[0], y - b[1], -b[2])))
+        x += L + gap
+        row_h = max(row_h, W)
+    plates.append(cur)
+    return plates
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--calib", help="coupon test JSON (see docs/tpu_bands.md)")
-    ap.add_argument("--all", choices=list(MATERIALS), help="force one material for every strap")
+    ap.add_argument("--material", default="tpu95a", choices=list(MATERIALS) + ["mix"],
+                    help="filament for every strap (default 95A); 'mix' = 95A where it fits, else 65A")
+    ap.add_argument("--nozzle", type=float, default=0.4, choices=sorted(NOZZLES))
     ap.add_argument("--no-stl", action="store_true")
     args = ap.parse_args()
+    set_nozzle(args.nozzle)
     c = g.CadParams(**json.loads((ROOT / "cad" / "variants" / "barney.json").read_text()))
     springs = load_springs()
     mats = materials(args.calib)
-    s95 = design(c, springs, mats, lambda i, s: "tpu95a")
-    s65 = design(c, springs, mats, lambda i, s: "tpu65a")
-    pick = {k: args.all for k in default_choice(s95, s65)} if args.all else default_choice(s95, s65)
-    straps = design(c, springs, mats, lambda i, s: pick[(i, s)])
+    if args.material == "mix":
+        s95 = design(c, springs, mats, lambda i, s: "tpu95a")
+        s65 = design(c, springs, mats, lambda i, s: "tpu65a")
+        pick = default_choice(s95, s65)
+        straps = design(c, springs, mats, lambda i, s: pick[(i, s)])
+    else:
+        straps = design(c, springs, mats, lambda i, s: args.material)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "straps.json").write_text(json.dumps(dict(
-        materials={k: asdict(v) for k, v in mats.items()},
-        straps=[dict(asdict(s), name=s.name) for s in straps],
-        alt_all_95a=[dict(asdict(s), name=s.name) for s in s95],
-        alt_all_65a=[dict(asdict(s), name=s.name) for s in s65]), indent=1))
+        nozzle=NOZZLE, layer=LAYER, materials={k: asdict(v) for k, v in mats.items()},
+        straps=[dict(asdict(s), name=s.name) for s in straps]), indent=1))
     for s in straps:
         print(f"{s.name:10s} {s.material} P={s.span:5.1f} print={s.P_print:5.1f} free={s.P_free:5.1f} eps={s.eps:4.2f} "
               f"w={s.w:4.1f} t={s.t:3.1f} R={s.R_eye:3.1f} pads {s.pad_c}/{s.pad_p} k {s.k_pair:4.2f}/{s.k_target:4.2f} "
@@ -455,14 +542,29 @@ def main():
     write_table(c, straps, mats, args.calib)
     if args.no_stl:
         return
+    import shutil
+    for d in ("tpu95a", "tpu65a", "calibration"):
+        shutil.rmtree(OUT / d, ignore_errors=True)
+    for f in OUT.glob("plate_*.stl"):
+        f.unlink()
+    main_items, tight_items = [], []
     for s in straps:
-        to_stl(strap_mesh(s), OUT / s.material / f"{s.name}.stl")
+        m = strap_mesh(s)
+        to_stl(m, OUT / s.material / f"{s.name}.stl")
+        main_items.append((m, s.count))
         if s.side == "D":
-            to_stl(strap_mesh(s, tight=2.0), OUT / s.material / f"{s.name}_tight2mm.stl")
-    if not args.all:          # single-filament fallback for the 95A straps (fit-checked as `--all tpu65a`)
-        for s in s65:
-            if pick[(s.joint, s.side)] != "tpu65a":
-                to_stl(strap_mesh(s), OUT / "tpu65a" / f"alt_{s.name}_if_no_95a.stl")
+            mt = strap_mesh(s, tight=s.tight_mm)
+            to_stl(mt, OUT / s.material / f"{s.name}_tight10.stl")
+            tight_items.append((mt, s.count))
+    for name, items in (("all_straps", main_items), ("tight10_spares", tight_items)):
+        plates = plate(items)
+        for k, pl in enumerate(plates):
+            suffix = "" if len(plates) == 1 else f"_{k + 1}"
+            man = pl[0]
+            for m in pl[1:]:
+                man = man + m
+            to_stl(man, OUT / f"plate_{name}{suffix}.stl")
+            print(f"plate_{name}{suffix}.stl: {len(pl)} straps")
     for mname in MATERIALS:
         to_stl(strap_mesh(coupon(mname)), OUT / "calibration" / f"coupon_{mname}.stl")
     if args.calib:            # calibrated straps change width / eyes / spacers: re-run the fit check

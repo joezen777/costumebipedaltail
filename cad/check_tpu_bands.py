@@ -92,6 +92,15 @@ def strap_envelope(st, child, parent, ax_c, ax_p, sgn, seg=8):
         r = R if k in (0, seg) else w / 2
         discs.append(disc((1 - f) * pc + f * pp, ax, r, 0.0, t))
     slab = [trimesh.convex.convex_hull(np.vstack([discs[k].vertices, discs[k + 1].vertices])) for k in range(seg)]
+    if st.get("tab_len", 0) > 0:
+        # label tab: continues past the parent eye, away from the child, in the parent eye's plane
+        u = pp - pc
+        u = u - np.dot(u, ax_p) * ax_p
+        u /= np.linalg.norm(u)
+        a0, a1 = pp + u * (R - 1.0), pp + u * (R + st["tab_len"])
+        r = st["tab_w"] / 2 * 1.05
+        slab.append(trimesh.convex.convex_hull(np.vstack([disc(a0, ax_p, r, 0.0, st["tab_t"]).vertices,
+                                                          disc(a1, ax_p, r, 0.0, st["tab_t"]).vertices])))
     ring = st.get("ring_c", 0.6)
     pads = [disc(child, ax_c, R, st["plate_c"] / 2 + ring, yc0), disc(child, ax_c, 4.6, st["plate_c"] / 2 + 0.05, yc0),
             disc(parent, ax_p, R, st["plate_p"] / 2 + 0.6, yp0), disc(parent, ax_p, 4.6, st["plate_p"] / 2 + 0.05, yp0)]

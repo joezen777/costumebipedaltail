@@ -1,4 +1,5 @@
-"""Top-view print sheet of the TPU straps (results/cad_renders_barney/tpu_straps_print_sheet.png).
+"""Top-view print sheets: TPU straps (tpu_straps_print_sheet.png) and the felt substitutes + washers
+(tpu_liners_rings_washers.png) in results/cad_renders_barney/.
 
     PYTHONPATH=. python cad/render_tpu_bands.py
 """
@@ -32,6 +33,7 @@ def main():
     straps = json.loads((BANDS / "straps.json").read_text())["straps"]
     fig, ax = plt.subplots(figsize=(11, 8.5), dpi=130)
     colors = {"tpu65a": "#2f7fbf", "tpu95a": "#d1495b"}
+    colors = {k: v for k, v in colors.items() if any(s["material"] == k for s in straps)}
     x, y, row_h = 0.0, 0.0, 0.0
     for s in straps:
         f = BANDS / s["material"] / f"{s['name']}.stl"
@@ -52,10 +54,30 @@ def main():
     ax.set_aspect("equal")
     ax.autoscale()
     ax.axis("off")
-    ax.set_title("Barney tail: TPU straps replacing the 18 extension springs (nominal material curves)")
+    ax.set_title("Barney tail: TPU 95A straps replacing the 18 extension springs (0.4 mm nozzle; label tab = fin end)")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight")
     print(OUT)
+    liners_sheet()
+
+
+def liners_sheet():
+    d = ROOT / "cad" / "stl" / "barney_tpu_liners"
+    out = OUT.with_name("tpu_liners_rings_washers.png")
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5.6), dpi=130)
+    for ax, (f, title) in zip(axs, ((d / "seat_liners" / "seat_liner_J1.stl", "Seat liner J1 (prints flat, 0.5 mm)\n"
+                                     "petals close into true meridians + latitude circles"),
+                                    (d / "mouth_rings" / "mouth_ring_J3.stl", "Cap-mouth bumper ring J3 (1.6 mm)\n"
+                                     "bore = real neck swept to the stop; dorsal notch, ventral slit"),
+                                    (next(d.glob("plate_washers_M4_*.stl")), "M4 tension washers (one sheet)"))):
+        ext = draw(ax, f, 0, 0, "#d1495b")
+        ax.set_aspect("equal")
+        ax.autoscale()
+        ax.set_title(title, fontsize=9)
+        ax.tick_params(labelsize=7)
+    fig.suptitle("Barney tail: TPU 95A felt substitutes and washers (0.4 mm nozzle)")
+    fig.savefig(out, bbox_inches="tight")
+    print(out)
 
 
 if __name__ == "__main__":

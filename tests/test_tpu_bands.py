@@ -22,15 +22,22 @@ class TestTpuBands(unittest.TestCase):
         self.assertEqual(len(self.straps), 18)
         for s in self.straps:
             self.assertAlmostEqual(s["T0_pair"], s["T0_target"], delta=0.01 * s["T0_target"], msg=s["name"])
-            tol = 0.15 if s["capped"] else 0.02
-            self.assertLessEqual(abs(s["k_pair"] / s["k_target"] - 1), tol, s["name"])
-            self.assertLessEqual(s["T_stop_pair"], s["T_stop_spring"] * 1.02, s["name"])   # never over the springs
+            if s["capped"]:             # strain-capped (high T0/k dorsals): stiffer, T0 still exact
+                self.assertLess(s["k_pair"] / s["k_target"], 3.0, s["name"])
+                self.assertLess(s["T_stop_pair"], s["T_stop_spring"] * 1.15, s["name"])
+            else:
+                self.assertLessEqual(abs(s["k_pair"] / s["k_target"] - 1), 0.02, s["name"])
+                self.assertLessEqual(s["T_stop_pair"], s["T_stop_spring"] * 1.02, s["name"])   # never over the springs
+            self.assertTrue(s["label"].startswith(f"{s['joint']}{s['side']}"), s["name"])
             self.assertLess(s["P_print"], s["span"], s["name"])
             self.assertLessEqual(s["eps"], MATERIALS[s["material"]].eps_max + 1e-9, s["name"])
 
     def test_stls_are_single_closed_bodies_on_the_bed(self):
         files = sorted(OUT.glob("*/*.stl"))
         self.assertGreaterEqual(len(files), 18 + 2)
+        plate = trimesh.load(OUT / "plate_all_straps.stl")
+        self.assertEqual(len(plate.split(only_watertight=False)), sum(s["count"] for s in self.straps))
+        self.assertLessEqual(max(plate.extents[:2]), 200.0)
         for f in files:
             m = trimesh.load(f)
             self.assertTrue(m.is_watertight, f.name)

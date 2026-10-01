@@ -112,19 +112,22 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 Tools: 3.4 and 4.5 mm drill bits (to size printed holes), hex keys, 7 mm nut driver, pliers.
 **Rough total ~$220–270 including the belt.**
 
-### Springs delayed? Printed TPU straps instead
+### Springs delayed / no felt? Printed TPU 95A parts (0.4 mm nozzle)
 
-[docs/tpu_bands.md](docs/tpu_bands.md) and [`cad/stl/barney_tpu_bands/`](cad/stl/barney_tpu_bands/) give a
-same-night stand-in for the 18 extension springs: TPU straps bolted through the existing spring holes. No other
-part changes.
-- **Sizing:** each strap matches its spring's rest preload exactly, and its rate within 1 % (J4 dorsal +11 %).
-- **Simulation:** the tail moves the same as with the springs (snap overshoot 9°, settles in 1.25 s).
-- **Fit check:** every strap, spacer and bolt clears the printed parts at rest and at every bend limit.
-- **Materials:** 22 straps in **TPU 65A** and the J2 dorsal pair in 95A. 95A alone is 2–4× too stiff at the
-  smallest section a 1.2 mm nozzle can print.
-- **Hardware:** 36 M4 bolts (25–40 mm) with nylocks and washers.
-- **Coupon test:** a 30-minute coupon test calibrates the straps to your filament
-  (`cad/tpu_bands.py --calib`).
+[docs/tpu_bands.md](docs/tpu_bands.md) covers same-night stand-ins, all in TPU 95A with a 0.4 mm nozzle. No
+other part changes.
+- **Straps:** [`plate_all_straps.stl`](cad/stl/barney_tpu_bands/) holds all 24 straps for the 18 spring
+  positions on one plate.
+  - Each is labelled with joint and side (`3D`, `3L-T`), bolts through the existing spring holes with M4 bolts,
+    and is fit-checked at every bend limit.
+  - Preload is exact everywhere, and the rate matches on 15 of 18 positions (J1/J4/J5 dorsal are stiffer).
+- **Felt substitutes:** [`cad/stl/barney_tpu_liners/`](cad/stl/barney_tpu_liners/).
+  - **Seat liner webs** print flat and close into true meridians and latitude circles in the seat. In simulation
+    they beat felt: settle 0.76 s against 1.25 s.
+  - **Cap-mouth bumper rings** have a bore cut from the real neck swept to each stop, so TPU lands before PETG.
+- **Washers:** 132 TPU M4 tension washers on one sheet.
+- **Pre-existing finding:** the rest-bend wedges move the PETG stops. J5/J6 pitch-down has no cap stop until
+  about 32–40°; see the doc.
 
 ![TPU strap print sheet](results/cad_renders_barney/tpu_straps_print_sheet.png)
 

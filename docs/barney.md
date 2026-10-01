@@ -62,6 +62,14 @@ The comparison of mechanisms on the hover profile (rigid gate hinges, elastic tu
 [gojira.md](gojira.md)) still applies. The spring-spine ball chain is the only one that is both compliant and
 self-centring.
 
+## Measured stop angles (finding, 2026-09-30)
+
+On the exported meshes, the PETG neck-to-cap contact angle of the rest-bent joints depends on direction, because
+the wedge neck turns toward the parent axis just outside the cap. For example, J5 meets the cap at 16.4° pitching
+up, but pitching down nothing touches until about 32–40°; the design and the simulation use ±22°. The TPU
+bumper rings restore the design stop everywhere except J5/J6 pitch-down. Details:
+[tpu_bands.md](tpu_bands.md#pre-existing-finding-the-stops-on-rest-bent-joints-dont-match-the-design).
+
 ## Build files
 
 | What | Where |

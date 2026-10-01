@@ -5,3 +5,5 @@ matplotlib
 pillow
 trimesh
 rtree
+manifold3d
+shapely
