@@ -108,6 +108,9 @@ All parts fit a 200 mm cube; the largest is `hip_mount` at 151 × 190 × 58 mm (
 
 ### Recommended: PETG for all structural parts, TPU only as optional bumpers
 
+(Exception: if the extension springs aren't available, printed TPU straps can stand in for them. See
+[tpu_bands.md](tpu_bands.md).)
+
 - **PETG** bonds well between layers with a 1.2 mm nozzle (thick, hot lines), is tough rather than brittle, and
   its glass transition (~80 °C) survives a hot costume and a car boot. A lightly-filled PETG frame is lighter than
   a solid resin part of the same shape.

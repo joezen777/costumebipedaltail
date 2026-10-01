@@ -1,0 +1,62 @@
+"""Top-view print sheet of the TPU straps (results/cad_renders_barney/tpu_straps_print_sheet.png).
+
+    PYTHONPATH=. python cad/render_tpu_bands.py
+"""
+import json
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+import trimesh  # noqa: E402
+from matplotlib.collections import PolyCollection  # noqa: E402
+
+ROOT = Path(__file__).resolve().parents[1]
+BANDS = ROOT / "cad" / "stl" / "barney_tpu_bands"
+OUT = ROOT / "results" / "cad_renders_barney" / "tpu_straps_print_sheet.png"
+
+
+def draw(ax, path, x0, y0, color):
+    m = trimesh.load(path)
+    up = m.face_normals[:, 2] > 0.5
+    tris = m.triangles[up]
+    z = tris[:, :, 2].mean(1)
+    shade = 0.55 + 0.45 * z / max(z.max(), 1e-6)
+    cols = np.clip(np.outer(shade, matplotlib.colors.to_rgb(color)), 0, 1)
+    ax.add_collection(PolyCollection(tris[:, :, :2] + [x0, y0], facecolors=cols, edgecolors="none"))
+    return m.extents
+
+
+def main():
+    straps = json.loads((BANDS / "straps.json").read_text())["straps"]
+    fig, ax = plt.subplots(figsize=(11, 8.5), dpi=130)
+    colors = {"tpu65a": "#2f7fbf", "tpu95a": "#d1495b"}
+    x, y, row_h = 0.0, 0.0, 0.0
+    for s in straps:
+        f = BANDS / s["material"] / f"{s['name']}.stl"
+        for k in range(s["count"]):
+            if x > 200:
+                x, y, row_h = 0.0, y - row_h - 14, 0.0
+            ext = draw(ax, f, x + s["R_eye"], y, colors[s["material"]])
+            label = f"J{s['joint']}{s['side']}" + (f" ({k + 1}/2)" if s["count"] == 2 else "")
+            ax.text(x + ext[0] / 2, y - ext[1] / 2 - 4, f"{label}\n{s['P_print']:.1f} mm", ha="center", va="top", fontsize=7)
+            x += ext[0] + 8
+            row_h = max(row_h, ext[1] + 8)
+    yb = y - row_h - 6
+    for i, (name, c) in enumerate(colors.items()):
+        ax.text(0, yb - 7 * i, f"■ {name.upper()}", color=c, fontsize=10, weight="bold", va="top")
+    ax.text(60, yb, "Top view, as printed (outer face on the bed, spacer pads up). Length = printed pin-to-pin.\n"
+            "Dorsal springs: print 2 of the same strap (one each side of the ear). Lateral springs: 1 strap.",
+            fontsize=8, va="top")
+    ax.set_aspect("equal")
+    ax.autoscale()
+    ax.axis("off")
+    ax.set_title("Barney tail: TPU straps replacing the 18 extension springs (nominal material curves)")
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(OUT, bbox_inches="tight")
+    print(OUT)
+
+
+if __name__ == "__main__":
+    main()

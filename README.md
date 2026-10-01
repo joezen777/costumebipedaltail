@@ -112,6 +112,22 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 Tools: 3.4 and 4.5 mm drill bits (to size printed holes), hex keys, 7 mm nut driver, pliers.
 **Rough total ~$220–270 including the belt.**
 
+### Springs delayed? Printed TPU straps instead
+
+[docs/tpu_bands.md](docs/tpu_bands.md) and [`cad/stl/barney_tpu_bands/`](cad/stl/barney_tpu_bands/) give a
+same-night stand-in for the 18 extension springs: TPU straps bolted through the existing spring holes. No other
+part changes.
+- **Sizing:** each strap matches its spring's rest preload exactly, and its rate within 1 % (J4 dorsal +11 %).
+- **Simulation:** the tail moves the same as with the springs (snap overshoot 9°, settles in 1.25 s).
+- **Fit check:** every strap, spacer and bolt clears the printed parts at rest and at every bend limit.
+- **Materials:** 22 straps in **TPU 65A** and the J2 dorsal pair in 95A. 95A alone is 2–4× too stiff at the
+  smallest section a 1.2 mm nozzle can print.
+- **Hardware:** 36 M4 bolts (25–40 mm) with nylocks and washers.
+- **Coupon test:** a 30-minute coupon test calibrates the straps to your filament
+  (`cad/tpu_bands.py --calib`).
+
+![TPU strap print sheet](results/cad_renders_barney/tpu_straps_print_sheet.png)
+
 ### Assembly order (full size)
 
 **In one line:** hip mount → ball 1 → body 1 → cap 1 halves → J1 springs → ball 2 → body 2 → cap 2 halves →
