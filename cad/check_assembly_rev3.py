@@ -109,6 +109,17 @@ def flange_clip_in_ball_frame(clip, i, c, a, push=0.0):
     return m
 
 
+def tip_clip_in_joint_frame(clip, c, a, push=0.0):
+    """Tip clip over body N's distal flange and the tip adapter's flange (mating plane x = body_len(N))."""
+    i = c.joint_count
+    e = np.array([1.0, 0, 0])
+    r = Rx(a) @ np.array([0, 0, 1.0])
+    t = Rx(a) @ np.array([0, 1.0, 0])
+    m = clip.copy()
+    m.apply_transform(H(np.c_[e, r, -t], np.array([g.body_len(c, i), 0, 0]) + r * (g.bore_r(c) + 4 * c.line_w + 6 + push) + t * 3.0))
+    return m
+
+
 def main():
     c = g.CadParams(**json.loads((ROOT / "cad" / "variants" / "barney.json").read_text()))
     clip = trimesh.load(STL / "lobe_clip.stl")
@@ -209,6 +220,22 @@ def main():
                     f"path {path:.2f}; clear when pulled off 8 mm {free:.2f}")
             v = overlap([flange_clip_in_ball_frame(fclip, i, c, a) for a in FLANGE_CLIPS[i]], env)
             rep(v < 0.05, f"J{i} flange clips vs TPU straps: {v:.2f} mm^3")
+    # 6. tip clips (replace the M3 screws, which no tool can reach)
+    if not sys.argv[1:] or str(c.joint_count) in sys.argv[1:]:
+        i = c.joint_count
+        parent, child = parts_in_joint_frame(c, i)
+        tip = trimesh.load(STL / "tip_adapter.stl")
+        tip.apply_transform(H(t=(g.body_len(c, i), 0, 0)) @ H(Ry(-90).T))
+        tclip = trimesh.load(STL / "tip_clip.stl")
+        for a in (22.5, 202.5):
+            home = tip_clip_in_joint_frame(tclip, c, a)
+            snap = overlap([home], [child[2], tip])
+            others = overlap([home], parent + list(child[:2]))
+            path = max(overlap([tip_clip_in_joint_frame(tclip, c, a, push)], parent + list(child[:2])) for push in (3, 6))
+            free = overlap([tip_clip_in_joint_frame(tclip, c, a, 8)], [child[2], tip])
+            rep(snap < 30 and others < 0.05 and path < 0.05 and free < 0.05,
+                f"tip clip az {a}: clamp overlap with body {i} + tip adapter flanges {snap:.1f} mm^3; other parts {others:.2f}; "
+                f"path {path:.2f}; clear when pulled off 8 mm {free:.2f}")
     print("\nALL OK" if not fails else f"\n{len(fails)} FAILED")
 
 

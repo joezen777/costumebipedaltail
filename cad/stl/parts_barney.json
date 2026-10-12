@@ -570,5 +570,18 @@
   "mass_g": 0.1,
   "fits_200mm": true,
   "on_bed": true
+ },
+ "tip_clip": {
+  "volume_cm3": 0.314639109371838,
+  "area_cm2": 3.934616004998172,
+  "bbox_mm": [
+   16.6,
+   5.1,
+   6.0
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.4,
+  "fits_200mm": true,
+  "on_bed": true
  }
 }

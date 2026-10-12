@@ -281,13 +281,18 @@ module lobe_clip() linear_extrude(clip_len) lobe_clip2d();
 // ---- flange clip: a U that snaps radially over the ball flange and the parent's end flange (ball <-> body).
 // Frame: (u = along the flange axis, v = radial) profile, mating plane u = 0, ball flange u in [0, 6]; width w.
 fclip_t = 2.4; fclip_jaw = 2.5; fclip_w = 6; fclip_clamp = 0.2;
-module flange_clip2d(i) {
-    rf = flange_r(i); g = flange_t - fclip_clamp / 2;      // jaws clamp 0.2 mm in total
+module flange_clip2d(i, rf_override = 0) {
+    rf = rf_override > 0 ? rf_override : flange_r(i); g = flange_t - fclip_clamp / 2;      // jaws clamp 0.2 mm in total
     polygon([[-g - fclip_t, rf - fclip_jaw], [-g - fclip_t, rf + 0.2 + fclip_t], [g + fclip_t, rf + 0.2 + fclip_t],
              [g + fclip_t, rf - fclip_jaw], [g + 0.6, rf - fclip_jaw], [g, rf - fclip_jaw + 0.6], [g, rf + 0.2],
              [-g, rf + 0.2], [-g, rf - fclip_jaw + 0.6], [-g - 0.6, rf - fclip_jaw]]);
 }
 module flange_clip(i) linear_extrude(fclip_w) translate([0, -flange_r(i)]) flange_clip2d(i);   // printed lying flat
+// tip clip: the same U over the tip adapter's flange and body N's distal flange (both r = spine_r(N) + 6, 6 mm).
+// It replaces the M3 screws, which no tool can reach (cad/check_tool_access.py); the cord preload holds the
+// adapter against the body, the clips keep it centred and from turning.
+function tip_flange_r() = spine_r(N) + 6;
+module tip_clip() linear_extrude(fclip_w) translate([0, -tip_flange_r()]) flange_clip2d(N, tip_flange_r());
 
 
 // seat = the part of the socket inside the vertebra body (x >= 0)
@@ -653,6 +658,7 @@ else if (PART == "print_cap_key") bowtie_key(INDEX, 180);
 else if (PART == "print_cap_key_d") bowtie_key(INDEX, 0);
 else if (PART == "print_lobe_clip") lobe_clip();
 else if (PART == "print_flange_clip") flange_clip(INDEX);
+else if (PART == "print_tip_clip") tip_clip();
 else if (PART == "print_body") translate([0, 0, body_len(INDEX)]) rotate([0, 90, 0]) vertebra_frame(INDEX); // distal flange on the bed, socket up
 else if (PART == "print_hip_mount") rotate([0, 90, 0]) translate([harness_plate_offset, 0, 0]) hip_mount();
 else if (PART == "print_tip_adapter") rotate([0, -90, 0]) tip_adapter();

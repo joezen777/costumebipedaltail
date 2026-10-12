@@ -36,5 +36,13 @@ class TestAssemblyRev3(unittest.TestCase):
         self.assertFalse([k for k in parts if k.endswith("_left") or k.endswith("_right")])
 
 
+    def test_every_fastener_has_tool_access(self):
+        log = (ROOT / "results" / "data" / "tool_access_check.txt").read_text().strip().splitlines()
+        self.assertFalse([l for l in log if l.startswith("FAIL")])
+        done, total = log[-1].split()[0].split("/")
+        self.assertEqual(done, total)
+        self.assertGreaterEqual(int(total), 61)
+
+
 if __name__ == "__main__":
     unittest.main()

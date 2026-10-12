@@ -28,7 +28,8 @@ MAX = 200.0
 
 def parts(n):
     out = [("hip_mount", "print_hip_mount", 1), ("tip_adapter", "print_tip_adapter", 1),
-           ("test_ballast_plate", "print_test_ballast_plate", 1), ("lobe_clip", "print_lobe_clip", 1)]
+           ("test_ballast_plate", "print_test_ballast_plate", 1), ("lobe_clip", "print_lobe_clip", 1),
+           ("tip_clip", "print_tip_clip", 1)]
     for i in range(1, n + 1):
         # one-piece ball (flange down) with long-hex-key access holes; keyed cap halves + 2 bowtie keys
         out += [(f"ball_{i}", "print_ball_one", i),

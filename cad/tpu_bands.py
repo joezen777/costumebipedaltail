@@ -54,6 +54,21 @@ EYE_RATIO = 2.0       # eye section (2 ligaments x eye thickness) / gauge sectio
 CLEAR = 0.8           # running clearance to printed parts (mm)
 PARENT_STEP = {3: 0.4, 6: 1.5}  # strap plane steps in this much from child to parent eye (mm); default 1.0
 PAD_R = HOLE / 2 + 2.4    # spacer pad: a bearing ring round the hole (the ear flares wider further from the hole)
+# Fin-end attachment on J2-J6 (cad/check_tool_access.py): a bolt there cannot be inserted or reached with a key
+# (the parent body's base ring and skirt struts sit 7-34 mm beside the fin hole). Instead the strap threads
+# THROUGH the 4.5 mm fin hole on a stiff rounded "neck": a dorsal pair is ONE loop strap (neck through the hole,
+# a strand on each face, both eyes on the cap-ear bolt); a lateral strap ends in neck + groove + barb, locked
+# behind the fin by a snap-on PETG keyhole washer. A dorsal pair is two pieces: A threads through the hole like a
+# lateral strap; B, on the other face, ends in a thick TPU block with a sideways keyhole that slides onto A's
+# groove behind the fin (no strap end ever has to pass the hole: only A's neck and barb do). The keyhole opens
+# square to the pull, so load seats the groove against the closed side. J1 (hip-mount arms) keeps its bolts.
+NECK_W, NECK_H, NECK_CH = 3.0, 3.8, 0.7      # neck section (in-plane width, print height, edge chamfer): fits Ø4.5
+NECK_BEND = 3.0                              # neck length per side beyond the fin face (wrap + taper), mm
+GROOVE = 2.0                                 # square groove under the keyhole washer
+BARB, BARB_CH, BARB_L = 3.9, 1.0, 2.5        # barb section (passes the Ø4.5 fin hole) and length
+KW_OD, KW_T, KW_HOLE, KW_SLOT = 10.0, 3.0, 2.9, 1.9   # PETG keyhole washer (and piece B's keyhole)
+KEY_BLOCK_W, KEY_BLOCK_TAIL = 9.0, 5.0       # piece B end block: width, length beyond the hole centre
+LABEL_H_NECK = 2.2                           # label debossed on the neck's side faces
 
 
 # ----------------------------------------------------------------- materials
@@ -174,6 +189,8 @@ class Strap:
     tab_w: float = 0.0
     tab_t: float = 0.0
     tight_mm: float = 0.0  # the "_tight10" variant is this much shorter: +10 % preload for trimming the rest pose
+    fin_end: str = "bolt"  # "bolt" (J1 hip arms), "bead" (lateral), "pair" (dorsal: piece A threaded + piece B keyed)
+    R_f: float = 0.0       # fin-end stiff zone per strand (hole centre -> flat strand), mm
 
     @property
     def name(self):
@@ -190,13 +207,32 @@ def eye_compl(mat, sig_gauge, R):
     return R / (EYE_RATIO * mat.dsigma(e))
 
 
-def solve(mat, F0, k0, P, R):
+NECK_A = NECK_W * NECK_H - 2 * NECK_CH ** 2
+
+
+def end_zones(R, R_f, A):
+    """(length, section ratio) of the two end zones: child eye, then the fin end (eye or threaded neck)."""
+    if R_f <= 0:
+        return [(R, EYE_RATIO), (R, EYE_RATIO)]
+    return [(R, EYE_RATIO), (R_f, max(1.0, NECK_A / A))]
+
+
+def zones_ext(mat, sg, zones):
+    return sum(L * mat.strain(sg / q) for L, q in zones)
+
+
+def zones_compl(mat, sg, zones):
+    return sum(L / (q * mat.dsigma(mat.strain(sg / q))) for L, q in zones)
+
+
+def solve(mat, F0, k0, P, R, R_f=0.0):
     """Per-strap gauge strain, area and broken-in gauge length so that F(P) = F0 and dF/dP = k0."""
     def geom(eps):
         sg = mat.sigma(eps)
         A = F0 / sg
-        Lg = (P - 2 * R - 2 * eye_ext(mat, sg, R)) / (1 + eps)
-        k = A / (Lg / mat.dsigma(eps) + 2 * eye_compl(mat, sg, R))
+        z = end_zones(R, R_f, A)
+        Lg = (P - sum(L for L, _ in z) - zones_ext(mat, sg, z)) / (1 + eps)
+        k = A / (Lg / mat.dsigma(eps) + zones_compl(mat, sg, z))
         return A, Lg, k
     lo, hi = 0.01, mat.eps_max
     if geom(hi)[2] > k0:                     # cannot get soft enough: cap strain, keep T0
@@ -228,76 +264,92 @@ def bolt_len(stack):
 def design(c, sim_springs, mats, choose):
     straps = []
     for s in sim_springs:
-        i, side = s["joint"] + 1, s["side"]
-        child, parent, _, _ = anchors(c, i, side)
-        P = float(np.linalg.norm(child - parent))
-        lim = g.yaw_lim(c, i) if side in "LR" else g.pitch_lim(c, i)
-        k0, T0 = s["k"] / 1000, s["T0"]
-        st = Strap(i, side, "", 2 if side == "D" else 1, 1, k0, T0, P, s["arm"] * 1000,
-                   T_stop_spring=T0 + k0 * s["arm"] * 1000 * math.radians(lim))
-        # Lateral lines of action cross the ear plate at up to the rest bend (the parent fin is tilted by the wedge),
-        # so a far-side strap would have to wrap through the ear: lateral springs get ONE strap on the near side.
-        ax_c = anchors(c, i, side)[2]
-        st.sgn = 1 if float(np.dot(parent - child, ax_c)) >= 0 else -1
-        n = st.count
-        a, capR = g.spring_arm(c, i), g.cap_outer_r(c, i)
-        mat = mats[choose(i, side)]
-        st.material = mat.name
-        # radial room: inner edge above the cap surface beside the ear, outer edge inside the frame radius
-        w_max = min(2 * (a - capR - CLEAR), 2 * (g.RF(c, i) - a - 2), 14.0)
-        R = max(HOLE / 2 + 2.0, 0.5 * w_max / 2 + HOLE / 2)      # first guess, refined below
-        for _ in range(4):
-            eps, A, Lg, k, capped = solve(mat, T0 / n, k0 / n, P, R)
-            t, w = section(A, w_max)
-            R = max(HOLE / 2 + 2.0, w / 2 + 1.0)
-        st.eps, st.t, st.w, st.R_eye, st.Lg, st.capped = eps, t, w, R, Lg, capped
-        A = t * w
-        # forces from the as-printed section (width clamped to W_MIN can only add force: re-solve the length)
-        sg_rest = (T0 / n) / A
-        e_rest = mat.strain(sg_rest)
-        st.Lg = (P - 2 * R - 2 * eye_ext(mat, sg_rest, R)) / (1 + e_rest)
-        st.eps = e_rest
-        st.P_free = st.Lg + 2 * R
-        st.P_print = st.Lg / (1 + mat.set_frac) + 2 * R
-        st.T0_pair = n * A * mat.sigma(e_rest)
-        st.k_pair = n * A / (st.Lg / mat.dsigma(e_rest) + 2 * eye_compl(mat, sg_rest, R))
-        # force at the stop: line length grows by about arm * angle (physics arm)
-        dl = st.arm * math.radians(lim)
-
-        def F_at(dP):
-            return n * A * mat.sigma(brentq(lambda e: st.Lg * (1 + e) + 2 * R + 2 * eye_ext(mat, mat.sigma(e), R)
-                                             - (P + dP), 0, 20))
-        st.T_stop_pair = F_at(dl)
-        st.stretch_stop = (P + dl) / st.P_free - 1
-        st.breakin_len = round(st.P_print + 1.2 * (P + dl - st.P_print), 0)
-        # spacers: strap planes must clear the ear flanks over the strap's radial extent
-        st.plate_c = round(2 * ear_halfwidth(c, i, a - PAD_R), 1)
-        # lowest point of the strap beside the ear: at the eye (a - R) or, where the line of action dips toward a
-        # drooped parent, at the ear's proximal end (x = -cap_ear_t), where the ear hull is wider
-        u = (parent - child) / np.linalg.norm(parent - child)
-        rad = Rx(SIDE_ANGLE[side]) @ np.array([0, 0, 1.0])
-        lam = (g.cap_ear_t(c, i) - c.cap_ear_x) / max(-u[0], 1e-6)
-        z_end = float(np.dot(child + u * lam, rad)) - w / 2
-        ear_hw = ear_halfwidth(c, i, min(a - max(R, w / 2), z_end))
-        # at the out-of-plane bend limit the strap swings across the ear's proximal corner (x = -cap_ear_t):
-        # hold it off by the corner's sideways travel (fit check: cad/check_tpu_bands.py)
-        swing = g.yaw_lim(c, i) if side == "D" else g.pitch_lim(c, i)
-        corner = (g.cap_ear_t(c, i) - c.cap_ear_x) * math.sin(math.radians(swing))
-        st.ring_c = round(max(0.6, ear_hw - st.plate_c / 2 + CLEAR + corner), 1)
-        st.pad_c = round(max(0.8, st.ring_c, (EYE_RATIO * w * t / (2 * (R - HOLE / 2))) - t), 1)
-        st.plate_p = parent_plate(c, i)
-        # parent eye: the strap stays (nearly) parallel to its child-end plane so it cannot swing into the ear
-        # corner at full yaw; stepping it in by PARENT_STEP keeps the J6 bolt nut clear of body 5's skirt wall
-        st.pad_p = round(max(0.6, (EYE_RATIO * w * t / (2 * (R - HOLE / 2))) - t,
-                             st.pad_c + (st.plate_c - st.plate_p) / 2 - PARENT_STEP.get(i, 1.0)), 1)
-        st.bolt_c = bolt_len(st.plate_c + n * (st.pad_c + t))
-        st.bolt_p = bolt_len(st.plate_p + n * (st.pad_p + t))
-        st.label = f"{i}{side}" + ("" if side == "D" else ("-T" if face(c, st).startswith("top") else "-B"))
-        st.tab_w, st.tab_t = TAB_W, max(t, TAB_T)
-        st.tab_len = round(text_width(st.label) + 2.0, 1)
-        st.tight_mm = round(max(0.5, 0.10 * st.T0_pair / st.k_pair), 1)
+        st = _design_one(c, s, mats, choose, None)
+        if st.fin_end != "bolt":
+            # the neck must also climb the standoff block (pad_p) between the strand and the fin face
+            want = st.plate_p / 2 + max(NECK_BEND, st.pad_p + 1.0)
+            st = _design_one(c, s, mats, choose, want)
         straps.append(st)
     return straps
+
+
+def _design_one(c, s, mats, choose, R_f_override):
+    i, side = s["joint"] + 1, s["side"]
+    child, parent, _, _ = anchors(c, i, side)
+    P = float(np.linalg.norm(child - parent))
+    lim = g.yaw_lim(c, i) if side in "LR" else g.pitch_lim(c, i)
+    k0, T0 = s["k"] / 1000, s["T0"]
+    st = Strap(i, side, "", 2 if side == "D" else 1, 1, k0, T0, P, s["arm"] * 1000,
+               T_stop_spring=T0 + k0 * s["arm"] * 1000 * math.radians(lim))
+    # Lateral lines of action cross the ear plate at up to the rest bend (the parent fin is tilted by the wedge),
+    # so a far-side strap would have to wrap through the ear: lateral springs get ONE strap on the near side.
+    ax_c = anchors(c, i, side)[2]
+    st.sgn = 1 if float(np.dot(parent - child, ax_c)) >= 0 else -1
+    n = st.count
+    a, capR = g.spring_arm(c, i), g.cap_outer_r(c, i)
+    mat = mats[choose(i, side)]
+    st.material = mat.name
+    # radial room: inner edge above the cap surface beside the ear, outer edge inside the frame radius
+    w_max = min(2 * (a - capR - CLEAR), 2 * (g.RF(c, i) - a - 2), 14.0)
+    st.fin_end = "bolt" if i == 1 else ("pair" if side == "D" else "bead")
+    R_f = 0.0 if st.fin_end == "bolt" else (R_f_override or parent_plate(c, i) / 2 + NECK_BEND)
+    st.R_f = R_f
+    R = max(HOLE / 2 + 2.0, 0.5 * w_max / 2 + HOLE / 2)      # first guess, refined below
+    for _ in range(4):
+        eps, A, Lg, k, capped = solve(mat, T0 / n, k0 / n, P, R, R_f)
+        t, w = section(A, w_max)
+        R = max(HOLE / 2 + 2.0, w / 2 + 1.0)
+    st.eps, st.t, st.w, st.R_eye, st.Lg, st.capped = eps, t, w, R, Lg, capped
+    A = t * w
+    # forces from the as-printed section (width clamped to W_MIN can only add force: re-solve the length)
+    sg_rest = (T0 / n) / A
+    e_rest = mat.strain(sg_rest)
+    zones = end_zones(R, R_f, A)
+    zl = sum(L for L, _ in zones)
+    st.Lg = (P - zl - zones_ext(mat, sg_rest, zones)) / (1 + e_rest)
+    st.eps = e_rest
+    st.P_free = st.Lg + zl
+    st.P_print = st.Lg / (1 + mat.set_frac) + zl
+    st.T0_pair = n * A * mat.sigma(e_rest)
+    st.k_pair = n * A / (st.Lg / mat.dsigma(e_rest) + zones_compl(mat, sg_rest, zones))
+    # force at the stop: line length grows by about arm * angle (physics arm)
+    dl = st.arm * math.radians(lim)
+
+    def F_at(dP):
+        return n * A * mat.sigma(brentq(lambda e: st.Lg * (1 + e) + zl + zones_ext(mat, mat.sigma(e), zones)
+                                         - (P + dP), 0, 20))
+    st.T_stop_pair = F_at(dl)
+    st.stretch_stop = (P + dl) / st.P_free - 1
+    st.breakin_len = round(st.P_print + 1.2 * (P + dl - st.P_print), 0)
+    # spacers: strap planes must clear the ear flanks over the strap's radial extent
+    st.plate_c = round(2 * ear_halfwidth(c, i, a - PAD_R), 1)
+    # lowest point of the strap beside the ear: at the eye (a - R) or, where the line of action dips toward a
+    # drooped parent, at the ear's proximal end (x = -cap_ear_t), where the ear hull is wider
+    u = (parent - child) / np.linalg.norm(parent - child)
+    rad = Rx(SIDE_ANGLE[side]) @ np.array([0, 0, 1.0])
+    lam = (g.cap_ear_t(c, i) - c.cap_ear_x) / max(-u[0], 1e-6)
+    z_end = float(np.dot(child + u * lam, rad)) - w / 2
+    ear_hw = ear_halfwidth(c, i, min(a - max(R, w / 2), z_end))
+    # at the out-of-plane bend limit the strap swings across the ear's proximal corner (x = -cap_ear_t):
+    # hold it off by the corner's sideways travel (fit check: cad/check_tpu_bands.py)
+    swing = g.yaw_lim(c, i) if side == "D" else g.pitch_lim(c, i)
+    corner = (g.cap_ear_t(c, i) - c.cap_ear_x) * math.sin(math.radians(swing))
+    st.ring_c = round(max(0.6, ear_hw - st.plate_c / 2 + CLEAR + corner), 1)
+    st.pad_c = round(max(0.8, st.ring_c, (EYE_RATIO * w * t / (2 * (R - HOLE / 2))) - t), 1)
+    st.plate_p = parent_plate(c, i)
+    # parent eye: the strap stays (nearly) parallel to its child-end plane so it cannot swing into the ear
+    # corner at full yaw; stepping it in by PARENT_STEP keeps the J6 bolt nut clear of body 5's skirt wall
+    st.pad_p = round(max(0.6, (EYE_RATIO * w * t / (2 * (R - HOLE / 2))) - t,
+                         st.pad_c + (st.plate_c - st.plate_p) / 2 - PARENT_STEP.get(i, 1.0)), 1)
+    # threaded ends: pad_p is the height of the standoff block on the strand next to the neck (same job as the
+    # bolt-end spacer: keeps the strand clear of the ear corner at full yaw)
+    st.bolt_c = bolt_len(st.plate_c + n * (st.pad_c + t))
+    st.bolt_p = bolt_len(st.plate_p + n * (st.pad_p + t)) if st.fin_end == "bolt" else 0
+    st.label = f"{i}{side}" + ("" if side == "D" else ("-T" if face(c, st).startswith("top") else "-B"))
+    st.tab_w, st.tab_t = TAB_W, max(t, TAB_T)
+    st.tab_len = round(text_width(st.label) + 2.0, 1)
+    st.tight_mm = round(max(0.5, 0.10 * st.T0_pair / st.k_pair), 1)
+    return st
 
 
 def default_choice(straps_95, straps_65):
@@ -316,27 +368,160 @@ TAB_W = TEXT_H + 1.6
 TAB_T = 0.8
 
 
-def _text_path(txt):
+def _text_path(txt, h=None):
     from matplotlib.font_manager import FontProperties
     from matplotlib.textpath import TextPath
-    size = TEXT_H / 0.73                                # DejaVu cap height is ~0.73 em
+    size = (h or TEXT_H) / 0.73                         # DejaVu cap height is ~0.73 em
     return TextPath((0, 0), txt, size=size, prop=FontProperties(family="DejaVu Sans", weight="bold"))
 
 
-def text_width(txt):
-    ext = _text_path(txt).get_extents()
+def text_width(txt, h=None):
+    ext = _text_path(txt, h).get_extents()
     return ext.x1 - ext.x0
 
 
-def text_section(txt):
+def text_section(txt, h=None):
     """Label as a manifold CrossSection centred on the origin, reading along +x."""
     import manifold3d as m3
-    tp = _text_path(txt)
+    tp = _text_path(txt, h)
     ext = tp.get_extents()
     polys = [np.asarray(q)[:-1] - [(ext.x0 + ext.x1) / 2, (ext.y0 + ext.y1) / 2] for q in tp.to_polygons() if len(q) > 3]
     return m3.CrossSection(polys, m3.FillRule.EvenOdd)
 
+def _prism_x(poly_yz, x0, x1):
+    """Prism along x from a (y, z) section polygon."""
+    import manifold3d as m3
+    m = m3.Manifold.extrude(m3.CrossSection([np.asarray(poly_yz, float)]), x1 - x0)
+    return m.transform([[0, 0, 1, x0], [1, 0, 0, 0], [0, 1, 0, 0]])
+
+
+def _chamfered(W, H, c):
+    return [(-W / 2 + c, 0), (W / 2 - c, 0), (W / 2, c), (W / 2, H - c), (W / 2 - c, H), (-W / 2 + c, H),
+            (-W / 2, H - c), (-W / 2, c)]
+
+
+def _eye_strand(m3, R, w, t, x_eye, x_end, n):
+    """Flat eye + gauge from the eye centre x_eye to the gauge end x_end (either direction)."""
+    sgn = 1 if x_end > x_eye else -1
+    eye = m3.CrossSection.circle(R, n).translate((x_eye, 0))
+    fil = m3.CrossSection.batch_hull([eye, m3.CrossSection.square((0.5, w), center=True).translate((x_eye + sgn * (R + 2.0), 0))])
+    lo, hi = sorted((x_eye, x_end))
+    gauge = m3.CrossSection.square((hi - lo, w), center=True).translate(((lo + hi) / 2, 0))
+    return m3.Manifold.extrude((fil + gauge).simplify(0.02), t)
+
+
+def _child_pads(m3, st, x, n):
+    R, t, pad, ring = st.R_eye, st.t, st.pad_c, st.ring_c
+    out = None
+    if pad > 0:
+        if pad - ring >= 0.4:
+            out = m3.Manifold.cylinder(pad - ring + 0.01, R - 0.3, R - 0.3, n).translate((x, 0, t - 0.01))
+        rr = min(PAD_R, R - 0.6)
+        ring_m = m3.Manifold.cylinder(pad + 0.01, rr, rr, n).translate((x, 0, t - 0.01))
+        out = ring_m if out is None else out + ring_m
+    return out
+
+
+def _neck_label(m3, txt, xc):
+    """Label debossed 0.3 mm into both side faces of the neck, centred at xc."""
+    if text_width(txt, LABEL_H_NECK) > 2 * NECK_BEND + 4:
+        return None
+    let = m3.Manifold.extrude(text_section(txt, LABEL_H_NECK), 1.3)
+    a = let.transform([[1, 0, 0, xc], [0, 0, -1, NECK_W / 2 + 1.0], [0, 1, 0, NECK_H / 2]])
+    b = let.transform([[-1, 0, 0, xc], [0, 0, 1, -NECK_W / 2 - 1.0], [0, 1, 0, NECK_H / 2]])
+    return a + b
+
+
 def strap_mesh(st, tight=0.0, n=48):
+    """Strap in print orientation: outer face on the bed (z = 0), spacer pads up. Child (cap-ear) eye at x = 0.
+
+    bolt: eye - gauge - eye (J1: both ends bolted).
+    loop: eye A - strand - neck (through the fin hole) - strand - eye B: one piece for a dorsal pair; both eyes go
+          on the cap-ear bolt, one on each face of the ear (pads toward the ear on both).
+    bead: eye - strand - neck - groove - barb: through the fin hole, locked behind it by a keyhole washer."""
+    import manifold3d as m3
+    if st.fin_end == "bolt":
+        return _strap_mesh_bolt(st, tight, n)
+    P = st.P_print - tight
+    R, w, t = st.R_eye, st.w, st.t
+    neck_sec = _chamfered(NECK_W, NECK_H, NECK_CH)
+    x_n0 = P - st.R_f                                   # strand ends, neck begins
+    solid = _eye_strand(m3, R, w, t, 0.0, x_n0, n)
+    # taper: gauge section -> neck section over 3 mm
+    # (taper ends are inset 0.05 mm from the gauge and neck walls: coincident walls leave degenerate STL facets)
+    inset = _chamfered(NECK_W - 0.1, NECK_H - 0.05, NECK_CH)
+    gauge_slab = m3.Manifold.cube((0.2, w - 0.1, t - 0.05)).translate((x_n0 - 3.0, -(w - 0.1) / 2, 0))
+    neck_slab = _prism_x(inset, x_n0 + 0.3, x_n0 + 0.5)
+    solid = solid + m3.Manifold.batch_hull([gauge_slab, neck_slab])
+    def standoff(x_a, x_b):
+        """Block on the strand's inner face beside the neck: holds the strand pad_p off the fin face."""
+        bw = max(w + 0.6, 4.0)                  # never within 0.3 mm of the strand edge (clean STL)
+        return m3.Manifold.cube((x_b - x_a, bw - 0.1, t + st.pad_p)).translate((x_a, -(bw - 0.1) / 2, 0))
+    if st.pad_p > 0:
+        solid = solid + standoff(x_n0 - 7.0, x_n0 - 0.4)
+    if True:
+        x_face = P + st.plate_p / 2                     # far face of the fin
+        # groove under the keyhole: the PETG washer (bead) or piece B's end block (pair)
+        g_len = (st.t + st.pad_p if st.fin_end == "pair" else KW_T) + 0.3
+        x_g1 = x_face + g_len
+        solid = solid + _prism_x(neck_sec, x_n0 - 0.5, x_face + 0.01)
+        solid = solid + _prism_x([(-GROOVE / 2, 0), (GROOVE / 2, 0), (GROOVE / 2, GROOVE), (-GROOVE / 2, GROOVE)],
+                                 x_face - 0.3, x_g1 + 0.3)
+        barb = _chamfered(BARB, BARB, BARB_CH)
+        tip = _chamfered(BARB - 1.6, BARB - 1.6, 0.5)
+        solid = solid + _prism_x(barb, x_g1, x_g1 + BARB_L - 1.0)
+        solid = solid + m3.Manifold.batch_hull([_prism_x(_chamfered(BARB - 0.1, BARB - 0.05, BARB_CH), x_g1 + BARB_L - 1.3, x_g1 + BARB_L - 1.2),
+                                                _prism_x(tip, x_g1 + BARB_L + 0.5, x_g1 + BARB_L + 0.51)])
+        eyes, label_x = (0.0,), (x_n0 + x_face) / 2
+    for x in eyes:
+        pads = _child_pads(m3, st, x, n)
+        if pads is not None:
+            solid = solid + pads
+    if st.label:
+        lab = _neck_label(m3, st.label + ("A" if st.fin_end == "pair" else "") + ("+" if tight else ""), label_x)
+        if lab is not None:
+            solid = solid - lab
+    for x in eyes:
+        solid = solid - m3.Manifold.cylinder(t + st.pad_c + 2, HOLE / 2, HOLE / 2, 32).translate((x, 0, -1))
+    return solid
+
+
+def strap_mesh_keyed(st, tight=0.0, n=48):
+    """Dorsal piece B: eye - strand - end block with a sideways keyhole (slides onto piece A's groove behind the
+    fin). The block (t + pad_p tall) also stands the strand off the fin face, like piece A's standoff."""
+    import manifold3d as m3
+    P = st.P_print - tight
+    R, w, t = st.R_eye, st.w, st.t
+    x_b0 = P - st.R_f                                   # block starts where the strand's stiff zone starts
+    solid = _eye_strand(m3, R, w, t, 0.0, x_b0 + 0.5, n)
+    h = t + st.pad_p
+    block = m3.Manifold.cube((P + KEY_BLOCK_TAIL - x_b0, KEY_BLOCK_W, h)).translate((x_b0, -KEY_BLOCK_W / 2, 0))
+    solid = solid + block
+    hole = m3.Manifold.cylinder(h + 2, KW_HOLE / 2, KW_HOLE / 2, 24).translate((P, 0, -1))
+    slot = m3.Manifold.cube((KW_SLOT, KEY_BLOCK_W, h + 2)).translate((P - KW_SLOT / 2, 0, -1))   # opens toward +y
+    solid = solid - hole - slot
+    pads = _child_pads(m3, st, 0.0, n)
+    if pads is not None:
+        solid = solid + pads
+    if st.label:
+        txt = st.label + "B" + ("+" if tight else "")
+        if text_width(txt, LABEL_H_NECK) < P - x_b0 - KW_HOLE:
+            let = m3.Manifold.extrude(text_section(txt, LABEL_H_NECK), 1.3)
+            solid = solid - let.translate(((x_b0 + P - KW_HOLE) / 2, -KEY_BLOCK_W / 4, h - 0.3))
+    solid = solid - m3.Manifold.cylinder(t + st.pad_c + 2, HOLE / 2, HOLE / 2, 32).translate((0, 0, -1))
+    return solid
+
+
+def keyhole_washer(n=48):
+    """PETG keyhole washer: slides sideways onto a lateral strap's groove behind the fin; the barb holds it."""
+    import manifold3d as m3
+    disc = m3.Manifold.cylinder(KW_T, KW_OD / 2, KW_OD / 2, n)
+    hole = m3.Manifold.cylinder(KW_T + 2, KW_HOLE / 2, KW_HOLE / 2, 24).translate((0, 0, -1))
+    slot = m3.Manifold.cube((KW_OD, KW_SLOT, KW_T + 2)).translate((0, -KW_SLOT / 2, -1))
+    return disc - hole - slot
+
+
+def _strap_mesh_bolt(st, tight=0.0, n=48):
     """Strap in print orientation: outer face on the bed (z = 0), spacer pads up. Child eye at x = 0."""
     import manifold3d as m3
     P = st.P_print - tight
@@ -404,15 +589,20 @@ def write_table(c, straps, mats, calib):
     rows, bolts = [], {}
     for s in straps:
         for L in (s.bolt_c, s.bolt_p):
-            bolts[L] = bolts.get(L, 0) + 1
-        where = "pair, both faces" if s.count == 2 else f"1, {face(c, s)} face"
+            if L:
+                bolts[L] = bolts.get(L, 0) + 1
+        where = {"bolt": "pair, both faces" if s.count == 2 else f"1, {face(c, s)} face",
+                 "pair": "pieces A + B: A threads through the fin hole, B keys onto A's groove behind it",
+                 "bead": f"1, {face(c, s)} face; neck through the fin hole + keyhole washer"}[s.fin_end]
         rows.append(f"| J{s.joint} {dict(L='left', R='right', D='dorsal')[s.side]} | **{s.label}** | `{s.material}/{s.name}.stl` | {where} | "
                     f"{s.P_print:.1f} | {s.span:.1f} | {s.w:.1f} × {s.t:.1f} | {s.pad_c:.1f} / {s.pad_p:.1f} | "
                     f"{s.T0_pair:.1f} ({s.T0_target:.1f}) | {s.k_pair:.2f} ({s.k_target:.2f}) | "
                     f"{s.T_stop_pair:.0f} ({s.T_stop_spring:.0f}) | {s.eps * 100:.0f} % | {s.breakin_len:.0f} | "
-                    f"M4×{s.bolt_c} / M4×{s.bolt_p} |")
-    n95 = sum(s.count for s in straps if s.material == "tpu95a")
-    n65 = sum(s.count for s in straps if s.material == "tpu65a")
+                    f"M4×{s.bolt_c} / {('M4×' + str(s.bolt_p)) if s.bolt_p else 'none (threaded)'} |")
+    pieces = lambda s: s.count                                        # noqa: E731
+    n95 = sum(pieces(s) for s in straps if s.material == "tpu95a")
+    n65 = sum(pieces(s) for s in straps if s.material == "tpu65a")
+    nkw = sum(1 for s in straps if s.fin_end == "bead")
     src = f"calibrated from `{calib}`" if calib else "NOMINAL material curves (run the coupon test and --calib)"
     mat_lines = "\n".join(f"- `{m.name}`: {m.kind}, E0 {m.E0:.1f} MPa" + (f", s1 {m.s1:.1f}, E2 {m.E2:.1f}" if m.kind == 'tanh' else "")
                           + f", set after break-in {m.set_frac * 100:.0f} %, max rest strain {m.eps_max * 100:.0f} %"
@@ -420,21 +610,31 @@ def write_table(c, straps, mats, calib):
     txt = f"""# TPU strap schedule: Barney tail (replaces the 18 extension springs)
 
 Generated by `cad/tpu_bands.py` ({src}), {NOZZLE} mm nozzle, {LAYER} mm layers. STLs in `cad/stl/barney_tpu_bands/`.
-Print {n95} straps in TPU 95A{f" and {n65} in TPU 65A" if n65 else ""}. One-file print: `plate_all_straps.stl`
-(every strap, dorsal pairs included); spares 10 % tighter: `plate_tight10_spares.stl`.
-The label is debossed on a small tab at the **fin / hip-arm (parent) end**: "3D" = joint 3 dorsal (pair, one each
-side of the ear); "3L-T" / "3R-B" = joint 3 left / right lateral, strap on the **top** (dorsal) / **bottom**
-(ventral) face of the ear and fin. A trailing "+" marks a tight spare.
+Print {n95} strap pieces in TPU 95A{f" and {n65} in TPU 65A" if n65 else ""} (`plate_all_straps.stl`, every piece once) and
+{nkw} PETG keyhole washers + 2 spares (`plate_keyhole_washers_PETG_{nkw + 2}x.stl`); spares 10 % tighter: `plate_tight10_spares.stl`.
+
+**Fin ends (J2-J6) have no fasteners:** a bolt there could neither be inserted nor reached with a key (the parent
+body's base ring and skirt struts are 7-34 mm beside the fin hole; `cad/check_tool_access.py`).
+- Dorsal: two pieces. Thread piece A's neck and barb through the fin hole from one face; on the other face slide
+  piece B's end block sideways onto A's groove (between the fin and A's barb). Bolt both eyes on the cap-ear bolt,
+  one each side of the ear, pads toward the ear.
+- Lateral: thread the neck + barb through the fin hole from the strap's face, then slide the keyhole washer
+  sideways onto the groove behind the fin; the barb keeps it on.
+- J1 (hip-mount arms) keeps a bolt at both ends.
+
+Labels: on J1 a tab at the hip-arm end; on J2-J6 debossed on the neck's sides (piece B: on its end block; "A"/"B" suffix). "3D" = joint 3 dorsal; "3L-T" /
+"3R-B" = joint 3 left / right lateral on the **top** (dorsal) / **bottom** (ventral) face. A "+" marks a tight spare.
 
 Lengths are pin-centre to pin-centre (mm). Forces are for the whole spring position (both straps of a pair);
 the spring targets are in brackets. "Break-in" is the pin-to-pin length to stretch each strap to, 10 times,
 before installing.
 
-| spring | tab label | file | straps | printed length | installed span | gauge w × t | spacer child / parent | T0 at rest, N | k, N/mm | T at stop, N | rest strain | break-in | bolts child / parent |
+| spring | label | file | pieces | printed length (per strand) | installed span | gauge w × t | spacer child / parent | T0 at rest, N | k, N/mm | T at stop, N | rest strain | break-in | bolts child / parent |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 """ + "\n".join(rows) + f"""
 
-Bolts (M4 socket head + washer each side + nylock): {", ".join(f"{n} × M4×{L}" for L, n in sorted(bolts.items()))}.
+Bolts (M4 + washer each side + nylock): {", ".join(f"{n} × M4×{L}" for L, n in sorted(bolts.items()))}; all cap-ear
+bolts and the J1 hip-arm bolts have >= 50 mm of straight key room (`cad/check_tool_access.py`).
 
 Material curves used:
 {mat_lines}
@@ -543,12 +743,21 @@ def main():
     if args.no_stl:
         return
     import shutil
-    for d in ("tpu95a", "tpu65a", "calibration"):
+    for d in ("tpu95a", "tpu65a", "calibration", "petg"):
         shutil.rmtree(OUT / d, ignore_errors=True)
     for f in OUT.glob("plate_*.stl"):
         f.unlink()
     main_items, tight_items = [], []
     for s in straps:
+        if s.fin_end == "pair":                         # dorsal J2-J6: threaded piece A + keyed piece B
+            for tag, fn in (("A", strap_mesh), ("B", strap_mesh_keyed)):
+                m = fn(s)
+                to_stl(m, OUT / s.material / f"{s.name}_{tag}.stl")
+                main_items.append((m, 1))
+                mt = fn(s, tight=s.tight_mm)
+                to_stl(mt, OUT / s.material / f"{s.name}_{tag}_tight10.stl")
+                tight_items.append((mt, 1))
+            continue
         m = strap_mesh(s)
         to_stl(m, OUT / s.material / f"{s.name}.stl")
         main_items.append((m, s.count))
@@ -556,6 +765,15 @@ def main():
             mt = strap_mesh(s, tight=s.tight_mm)
             to_stl(mt, OUT / s.material / f"{s.name}_tight10.stl")
             tight_items.append((mt, s.count))
+    n_kw = sum(1 for s in straps if s.fin_end == "bead")
+    if n_kw:
+        kw = keyhole_washer()
+        to_stl(kw, OUT / "petg" / "keyhole_washer.stl")
+        pl = plate([(kw, n_kw + 2)], gap=3.0)[0]
+        man = pl[0]
+        for m in pl[1:]:
+            man = man + m
+        to_stl(man, OUT / f"plate_keyhole_washers_PETG_{n_kw + 2}x.stl")
     for name, items in (("all_straps", main_items), ("tight10_spares", tight_items)):
         plates = plate(items)
         for k, pl in enumerate(plates):

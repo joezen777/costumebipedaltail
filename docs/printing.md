@@ -149,7 +149,7 @@ the same benefit at no risk. That is the default.
 | M4 × 16 socket-head cap screw + M4 nylock | 24 + 24 | Cap bolts (4 per joint) |
 | M4 × 16 socket-head cap screw + M4 nylock | 24 + 24 | Ball flange → hip mount (J1) / previous body's distal flange (J2–J6), 4 each |
 | M4 × 12 socket-head (roll key), all 6 joints | 6 | Head captured inside the ball; protrudes 3 mm into the socket slot |
-| M3 × 8 screws | 4 | Tip adapter to body 6 |
+| Tip clips (printed, `tip_clip.stl`) | 2 | Tip adapter to body 6 (replaces 4 × M3 × 8, which no tool could reach) |
 | 25 mm hook-and-loop straps / 50 mm webbing | 4 / 1 | Hip-mount plate to the lumbar belt (corner slots / top slot) |
 | Extension springs | 3 per joint (18) | Dorsal + left + right; see `docs/tables/barney_springs.md` |
 | 6 mm braided polyester cord | ~1.5 m | Central cord, knotted in the knot chamber of the hip mount (loose end down the rope tunnel) |

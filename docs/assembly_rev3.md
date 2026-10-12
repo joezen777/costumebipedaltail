@@ -83,6 +83,42 @@ ends.
 | Lobe clips: grip only their lobes, push on radially, clear of the ball, parent and TPU straps | 22 clips: 2.7 mm³ snap grip each, 0.00 elsewhere and on the push-on path; J6 uses only its 2 ventral lobes (the TPU strap nuts at the cap ear sit beside the dorsal ones) |
 | Flange clips: grip only the two flanges, push on radially, clear of the cap, body and TPU straps | 10 clips: 2.2 mm³ clamp each, 0.00 elsewhere and on the push-on path |
 
+## Tool access for every fastener
+
+Test (`cad/check_tool_access.py`). Every fastener is checked at the assembly step where it is tightened, with
+only the parts present at that step:
+- **Insertion:** the bolt plus its head must fit along its own axis on the head face.
+- **Key room:** at least 50 mm of straight room past the head (a 2.5–3 mm hex-key column; a head-size column is
+  also reported).
+- **Holes count:** a key passing through a hole (the ball access holes) is clear. Holes are only added where they
+  don't weaken a part.
+- **Heads:** M4 button head, 7.6 × 2.2 mm.
+
+| Fastener | How it passes |
+|---|---|
+| Ball-flange bolts (16) | dropped in and driven straight down the ball's access holes: 60 mm clear |
+| Cap bolts (24) | 18 have ≥ 50 mm at rest. 6 are blocked at rest by the parent's lateral fin (31–41 mm): J2 135°/225°, J3 135°/225°, J5 45°/315°. **Bend the joint while tightening them**, within its stops (the springs aren't on yet), and the fin swings clear: 60 mm. The check log gives the bend for each |
+| Strap cap-ear bolts (15 positions on J2–J6, plus J1's 3) | ≥ 50 mm on the face the check names |
+| Strap hip-arm bolts, J1 (3) | ≥ 50 mm |
+| Strap fin-end bolts, J2–J6 | **removed.** Several couldn't even be inserted (7.5–24 mm of room for a 27–37 mm bolt), and none had key room: the parent body's base ring and skirt struts sit beside every fin hole. Drilling through them would weaken the frame, so the straps now thread through the fin hole instead ([tpu_bands.md](tpu_bands.md)) |
+| Tip-adapter M3 screws (4) | **removed.** On the tip side the head can't seat (the plug is in the way); from inside body 6 a key gets only 46 mm. The adapter is now held by the cord preload plus **2 tip clips** (`tip_clip.stl`), mesh-checked like the flange clips |
+
+Result: **all 61 remaining fasteners pass** (16 ball-flange, 24 cap, 21 strap bolts).
+
+The six cap bolts that need the joint bent while tightening (the joint swings freely until the straps or springs
+go on):
+
+| Cap bolt (azimuth from dorsal) | Bend the joint | Key room then |
+|---|---|---|
+| J2 135° (lower left) | 10°, child tipped up and to the right | 55 mm |
+| J2 225° (lower right) | 10°, child tipped up | 56 mm |
+| J3 135° | 13°, child tipped to the right and slightly up | 60 mm |
+| J3 225° | 13°, child tipped up and to the right | 60 mm |
+| J5 45° (upper left) | 20°, child tipped to the right and slightly up | 60 mm |
+| J5 315° (upper right) | 11°, child tipped up | 60 mm |
+
+"Right" is the +y side, the right lateral spring's side. The log is in `results/data/tool_access_check.txt`.
+
 ## Printing
 
 | Part | Material, nozzle | Orientation and settings |
@@ -92,6 +128,7 @@ ends.
 | `cap_key_N_v`, `cap_key_N_d` (1 each per joint) | PETG, 0.4 mm nozzle preferred (1.2 works) | as exported, standing on the bowtie profile; tight fit (0.15 mm per side). `_v` goes in the ventral-side seam from the mouth face. `_d` goes in the dorsal-side seam: from the mouth face on J1–J3, but from the **body-side face** on J4–J6 (fit it before the cap slides onto the body; there the roll-key slot and the spring ear crowd the mouth face) |
 | `lobe_clip` (×22) | PETG | as exported (C profile on the bed); 4 per cap, but only the 2 ventral lobes on J6 |
 | `flange_clip_N` (×2 each, J2–J6) | PETG | as exported (U profile on the bed) |
+| `tip_clip` (×2) | PETG | as exported; snaps over body 6's end flange and the tip adapter's flange (replaces the M3 screws) |
 
 - **Supports:** the scars land on the ball's cap-side half, never on the seat side the cord preload bears on.
   - The rest-bent balls stand tilted up to 30° on their wedge flange, so on one side the supported band reaches

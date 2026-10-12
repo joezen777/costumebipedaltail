@@ -36,25 +36,28 @@ def main():
     colors = {k: v for k, v in colors.items() if any(s["material"] == k for s in straps)}
     x, y, row_h = 0.0, 0.0, 0.0
     for s in straps:
-        f = BANDS / s["material"] / f"{s['name']}.stl"
-        for k in range(s["count"]):
+        if s.get("fin_end") == "pair":
+            items = [(BANDS / s["material"] / f"{s['name']}_{t}.stl", f"J{s['joint']}D piece {t}") for t in "AB"]
+        else:
+            items = [(BANDS / s["material"] / f"{s['name']}.stl",
+                      f"J{s['joint']}{s['side']}" + (f" ({k + 1}/2)" if s["count"] == 2 else "")) for k in range(s["count"])]
+        for f, label in items:
             if x > 200:
                 x, y, row_h = 0.0, y - row_h - 14, 0.0
             ext = draw(ax, f, x + s["R_eye"], y, colors[s["material"]])
-            label = f"J{s['joint']}{s['side']}" + (f" ({k + 1}/2)" if s["count"] == 2 else "")
             ax.text(x + ext[0] / 2, y - ext[1] / 2 - 4, f"{label}\n{s['P_print']:.1f} mm", ha="center", va="top", fontsize=7)
             x += ext[0] + 8
             row_h = max(row_h, ext[1] + 8)
     yb = y - row_h - 6
     for i, (name, c) in enumerate(colors.items()):
         ax.text(0, yb - 7 * i, f"■ {name.upper()}", color=c, fontsize=10, weight="bold", va="top")
-    ax.text(60, yb, "Top view, as printed (outer face on the bed, spacer pads up). Length = printed pin-to-pin.\n"
-            "Dorsal springs: print 2 of the same strap (one each side of the ear). Lateral springs: 1 strap.",
+    ax.text(60, yb, "Top view, as printed (outer face on the bed, pads/standoffs up). Length = eye to fin-hole centre.\n"
+            "J2-J6 fin ends thread through the fin hole (neck + barb; piece B / PETG keyhole washer lock it). J1: bolts.",
             fontsize=8, va="top")
     ax.set_aspect("equal")
     ax.autoscale()
     ax.axis("off")
-    ax.set_title("Barney tail: TPU 95A straps replacing the 18 extension springs (0.4 mm nozzle; label tab = fin end)")
+    ax.set_title("Barney tail: TPU 95A straps replacing the 18 extension springs (0.4 mm nozzle)")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight")
     print(OUT)

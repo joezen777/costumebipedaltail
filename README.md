@@ -69,7 +69,7 @@ Four changes made the short tail work, all found in simulation ([docs/barney.md]
 - 6 **one-piece balls** (`ball_N`, each with its rest-curve wedge; keep them in joint order), with straight access
   holes for a long hex key.
 - The tip adapter.
-- Snap latches: 22 `lobe_clip` (cap to body; 4 per cap, 2 on J6) and 2 `flange_clip_N` per joint on J2–J6 (ball to body).
+- Snap latches: 22 `lobe_clip` (cap to body; 4 per cap, 2 on J6), 2 `tip_clip` (tip adapter to body 6) and 2 `flange_clip_N` per joint on J2–J6 (ball to body).
 - **Revision 3 (Oct 2026):** one-piece balls, keyed caps and latches. Why, and which flanges are bonded:
   [docs/assembly_rev3.md](docs/assembly_rev3.md).
 - **Caps are split on purpose.** A one-piece cap can't be fitted: its opening is smaller than both the ball and the
@@ -97,7 +97,7 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 | 1.2 mm nozzle for the Sprite Pro | 1 | | $10 |
 | M4 × 16 socket-head cap screws | 40 | 4 per cap (24) + ball flanges (16: 4 on J1 and J4, 2 on J2/J3/J5/J6) | $6 |
 | M4 nylock nuts | 48 | press into the printed hex pockets (8 stay empty under bonded flanges) | $4 |
-| M4 × 12 set screws (grub screws) / M3 × 8 (tip adapter) | 6 / 4 | roll keys in the one-piece balls, tip adapter | $2 |
+| M4 × 12 set screws (grub screws) | 6 | roll keys in the one-piece balls (the tip adapter now snaps on with 2 printed clips) | $2 |
 | 2-part epoxy (or CA) | 1 | bonded flange faces on J2, J3, J5, J6; cap keys | $6 |
 | Long hex key 3 mm (long arm ≥ 100 mm, ball end helps) | 1 | flange bolts, driven through the ball's access holes | $5 |
 | **Extension springs** | **18** | 3 per joint; schedule in [docs/tables/barney_springs.md](docs/tables/barney_springs.md) | $20–35 |
@@ -117,7 +117,9 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 | 4-way stretch fabric + contact cement / spray adhesive | ~1 m² + 1 can | outer skin | $25 |
 | CA glue | 1 | cap keys (optional), TPU mouth rings | $4 |
 
-Tools: 3.4 and 4.5 mm drill bits (to size printed holes), hex keys, 7 mm nut driver, pliers.
+Tools: 3.4 and 4.5 mm drill bits (to size printed holes), a long hex key (≥ 100 mm), hex keys, 7 mm nut driver,
+pliers. Every fastener has ≥ 50 mm of straight key room at the step where it's tightened
+(`cad/check_tool_access.py`; a few cap bolts need the joint bent, see [docs/assembly_rev3.md](docs/assembly_rev3.md)).
 **Rough total ~$220–270 including the belt.**
 
 ### Springs delayed / no felt? Printed TPU 95A parts (0.4 mm nozzle)
@@ -150,7 +152,7 @@ smaller than both the ball and the ball's bolt flange. The halves are locked by 
 ![cap halves closing around ball 1](results/cad_renders_barney/cap_split_assembly.png)
 
 1. **Prep:**
-   - Drill the printed holes to size: 4.5 mm for M4, 3.4 mm for M3.
+   - Drill the printed holes to size: 4.5 mm for M4.
    - Press M4 nylock nuts into every hex pocket: 4 in the hip mount, 8 in each of bodies 1–5 (4 at the socket
      end for the cap, 4 at the distal flange for the next ball), and 4 in body 6 (socket end only).
 2. **Hip mount:** start here, and lay it plate-down on the bench.
@@ -195,7 +197,9 @@ smaller than both the ball and the ball's bolt flange. The halves are locked by 
 
    Balls are **not interchangeable** between joints, because each carries its joint's rest-bend wedge. Keep them
    numbered.
-9. **Tip adapter → body 6:** screw it to body 6's distal flange with 4 × M3 × 8.
+9. **Tip adapter → body 6:**
+   - Set it on body 6's distal flange and snap the two `tip_clip`s over both flange rims, between the fins.
+   - The cord preload (step 10) holds it on. The old M3 screws were dropped because no tool can reach them.
 10. **Cord:**
     - Thread the 6 mm cord from the tip adapter through every bore and out of the hip mount's belt-side face.
     - Tie a figure-eight or double-overhand stopper knot, pull it up into the knot chamber, and tuck the loose end

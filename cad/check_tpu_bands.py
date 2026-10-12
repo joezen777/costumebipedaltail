@@ -89,18 +89,19 @@ def strap_envelope(st, child, parent, ax_c, ax_p, sgn, seg=8):
     takes it off the plate when the line of action leaves at an angle."""
     ax_c = ax_c * sgn
     ax_p = ax_p * sgn
+    threaded = st.get("fin_end", "bolt") != "bolt"
     yc0 = st["plate_c"] / 2 + st["pad_c"]
-    yp0 = st["plate_p"] / 2 + st["pad_p"]
+    yp0 = st["plate_p"] / 2 + st["pad_p"]          # bolt: spacer pad; threaded: standoff block beside the neck
     R, t, w = st["R_eye"], st["t"], st["w"]
     pc, pp = child + ax_c * yc0, parent + ax_p * yp0          # inner face centre of each eye
     discs = []
     for k in range(seg + 1):
         f = k / seg
         ax = frame_slerp(ax_c, ax_p, f)
-        r = R if k in (0, seg) else w / 2
+        r = R if k == 0 else (max(w / 2, 2.5) if threaded and k == seg else (R if k == seg else w / 2))
         discs.append(disc((1 - f) * pc + f * pp, ax, r, 0.0, t))
     slab = [trimesh.convex.convex_hull(np.vstack([discs[k].vertices, discs[k + 1].vertices])) for k in range(seg)]
-    if st.get("tab_len", 0) > 0:
+    if st.get("tab_len", 0) > 0 and not threaded:
         # label tab: continues past the parent eye, away from the child, in the parent eye's plane
         u = pp - pc
         u = u - np.dot(u, ax_p) * ax_p
@@ -110,14 +111,25 @@ def strap_envelope(st, child, parent, ax_c, ax_p, sgn, seg=8):
         slab.append(trimesh.convex.convex_hull(np.vstack([disc(a0, ax_p, r, 0.0, st["tab_t"]).vertices,
                                                           disc(a1, ax_p, r, 0.0, st["tab_t"]).vertices])))
     ring = st.get("ring_c", 0.6)
-    pads = [disc(child, ax_c, R, st["plate_c"] / 2 + ring, yc0), disc(child, ax_c, 4.6, st["plate_c"] / 2 + 0.05, yc0),
-            disc(parent, ax_p, R, st["plate_p"] / 2 + 0.6, yp0), disc(parent, ax_p, 4.6, st["plate_p"] / 2 + 0.05, yp0)]
-    # washer + bolt head or nylock nut (8 mm across corners, 5 mm tall) outside each eye
-    hw = [disc(child, ax_c, 4.6, yc0 + t, yc0 + t + 5.8), disc(parent, ax_p, 4.6, yp0 + t, yp0 + t + 5.8)]
-    # on single-strap springs the bare side of each plate carries the other end of the bolt
+    pads = [disc(child, ax_c, R, st["plate_c"] / 2 + ring, yc0), disc(child, ax_c, 4.6, st["plate_c"] / 2 + 0.05, yc0)]
+    # washer + bolt head or nylock nut (8 mm across corners, 5 mm tall) outside the cap-ear eye
+    hw = [disc(child, ax_c, 4.6, yc0 + t, yc0 + t + 5.8)]
     if st.get("count", 2) == 1:
-        hw += [disc(child, -ax_c, 4.6, st["plate_c"] / 2 + 0.05, st["plate_c"] / 2 + 5.8),
-               disc(parent, -ax_p, 4.6, st["plate_p"] / 2 + 0.05, st["plate_p"] / 2 + 5.8)]
+        hw.append(disc(child, -ax_c, 4.6, st["plate_c"] / 2 + 0.05, st["plate_c"] / 2 + 5.8))
+    if not threaded:
+        pads += [disc(parent, ax_p, R, st["plate_p"] / 2 + 0.6, yp0), disc(parent, ax_p, 4.6, st["plate_p"] / 2 + 0.05, yp0)]
+        hw.append(disc(parent, ax_p, 4.6, yp0 + t, yp0 + t + 5.8))
+        if st.get("count", 2) == 1:
+            hw.append(disc(parent, -ax_p, 4.6, st["plate_p"] / 2 + 0.05, st["plate_p"] / 2 + 5.8))
+    else:
+        # standoff block + neck turning into the hole, between the strand and the fin face
+        hw.append(disc(parent, ax_p, max(w + 0.6, 4.0) / 2 + 0.5, st["plate_p"] / 2 + 0.05, yp0 + t))
+        if st["fin_end"] == "bead":    # keyhole washer + barb on the far face
+            hw.append(disc(parent, -ax_p, 5.0, st["plate_p"] / 2 + 0.05, st["plate_p"] / 2 + 3.0))
+            hw.append(disc(parent, -ax_p, 2.3, st["plate_p"] / 2 + 3.0, st["plate_p"] / 2 + 6.0))
+        if st["fin_end"] == "pair":    # piece B's key block (r ~ 6.5 round the hole) + piece A's barb beyond it
+            hw.append(disc(parent, ax_p, 6.5, st["plate_p"] / 2 + 0.05, yp0 + t))
+            hw.append(disc(parent, ax_p, 2.3, yp0 + t, yp0 + t + 3.0))
     return slab + pads + hw
 
 

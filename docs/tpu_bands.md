@@ -6,8 +6,9 @@ already built needs reprinting.
 
 | What | Print file(s) | Replaces |
 |---|---|---|
-| 24 straps (18 spring positions), labelled | `cad/stl/barney_tpu_bands/plate_all_straps.stl`: **one plate, print once** | the 18 extension springs |
-| 12 spare straps, +10 % preload | `cad/stl/barney_tpu_bands/plate_tight10_spares.stl` (optional) | rest-pose trimming |
+| 24 strap pieces (18 spring positions), labelled | `cad/stl/barney_tpu_bands/plate_all_straps.stl`: **one plate, print once** | the 18 extension springs |
+| 12 PETG keyhole washers (10 + 2 spares) | `cad/stl/barney_tpu_bands/plate_keyhole_washers_PETG_12x.stl` (PETG, any nozzle) | lock the lateral straps behind the fin |
+| 12 spare pieces, +10 % preload | `cad/stl/barney_tpu_bands/plate_tight10_spares.stl` (optional) | rest-pose trimming |
 | 6 seat liner webs | `cad/stl/barney_tpu_liners/plate_seat_liners_part1of2_print1x.stl` + `..._part2of2_print1x.stl` | 0.5 mm felt in each socket seat |
 | 6 cap-mouth bumper rings | `cad/stl/barney_tpu_liners/plate_mouth_rings_print1x.stl` | 0.8 mm felt stop pads |
 | 132 M4 tension washers | `cad/stl/barney_tpu_liners/plate_washers_M4_132x_print1x.stl` | backup for the nylon washers |
@@ -40,29 +41,44 @@ The three exceptions are the high-preload dorsal positions:
 
 ## Straps
 
-- **Dorsal springs:** a pair of identical straps, one on each face of the cap ear and the fin (or hip-mount arm).
+- **Dorsal springs:** two strands, one on each face of the cap ear and the fin (or hip-mount arm).
 - **Lateral springs:** one strap, on the face the pull leans toward.
   - The rest-curve wedges tilt the parent fin by up to 30°, so a far-side strap would have to pass through the
     ear.
-- **Mounting:** M4 bolts through the existing 4.5 mm spring holes.
-- **Spacer pads:** printed on the eyes. They clear the flared ear and the ear's corner at full yaw.
-- **Label tab:** at the **fin / hip-arm end**, debossed:
-  - `3D`: joint 3 dorsal (pair).
-  - `3L-T` / `3R-B`: joint 3 left or right lateral, on the **top** (dorsal) or **bottom** (ventral) face of the
-    ear and fin.
+- **Cap-ear end (all joints):** an M4 bolt through the existing 4.5 mm spring hole. Every one of these has
+  ≥ 50 mm of straight hex-key room ([fastener check](#tool-access)).
+- **Fin end:**
+  - **J1** (hip-mount arms): an M4 bolt, also fully accessible.
+  - **J2–J6: no fastener.** A bolt there can't even be inserted on several joints: the parent body's base ring
+    and skirt struts sit 7–34 mm beside the fin hole, and you can't drill through them without weakening the
+    frame. Instead the strap **threads through the fin hole** on a stiff, chamfered TPU neck (3.0 × 3.8 mm,
+    passes the Ø4.5 hole).
+    - **Lateral:** neck, then a groove, then a barb. Push it through from the strap's face, then slide a PETG
+      **keyhole washer** sideways onto the groove behind the fin. The barb keeps the washer on.
+    - **Dorsal:** two pieces. **Piece A** threads through like a lateral strap. **Piece B**, on the other face,
+      ends in a thick TPU block with a sideways keyhole that slides onto A's groove, between the fin and A's
+      barb. The keyhole opens square to the pull, so load seats the groove against the closed side.
+    - No strap eye or block ever has to pass the hole; only A's neck and barb do.
+- **Spacer pads / standoff blocks:** pads on the cap-ear eyes; on J2–J6 a standoff block on the strand next to
+  the neck. Together they keep the strands clear of the flared ear and of the ear's corner at full yaw.
+- **Labels:**
+  - J1: on a tab at the hip-arm end.
+  - J2–J6: debossed on the neck's sides; piece B's is on its end block, and dorsal pieces get an `A`/`B` suffix.
+  - `3D` means joint 3 dorsal. `3L-T` / `3R-B` mean joint 3 left or right lateral, on the **top** (dorsal) or
+    **bottom** (ventral) face of the ear and fin.
   - A trailing `+` marks a tight spare.
 - **Fit check:**
-  - Strap, spacers, label tab, washers, bolt heads and nylocks were checked against the printed part meshes at
-    rest and at ±yaw and ±pitch limits.
-  - The worst case is a 0.4 mm³ graze at a full-bend stop.
-- **Bolts:** M4 socket head with a washer each side plus a nylock: 12 × M4×25, 17 × M4×30, 6 × M4×35, 1 × M4×40.
+  - Strap, spacers, standoffs, neck, keyhole washer or piece-B block, barb, label tab, washers, bolt heads and
+    nylocks were checked against the printed part meshes at rest and at ±yaw and ±pitch limits.
+  - The worst case is a 0.18 mm³ graze at a full-bend stop.
+- **Bolts:** M4 with a washer each side plus a nylock: 2 × M4×25, 14 × M4×30, 4 × M4×35, 1 × M4×40 (21 in all).
   The fit check assumed 0.8 mm washers, which matches the TPU washer sheet.
 
 | Check | Result |
 |---|---|
 | Preload T0 | equals the spring on all 18 positions |
-| Rate k | equal on 15 positions; J1 dorsal 2.0×, J4 dorsal 2.5×, J5 dorsal 1.65× |
-| Force at the angular stop | below the springs except J1 dorsal (158 vs 146 N) and J4 dorsal (55 vs 50 N) |
+| Rate k | equal on 12 positions. J1 dorsal 2.0×, J4 dorsal 3.3×, J5 dorsal 2.4×, J4 laterals 1.3×, J6 dorsal 1.24×: the threaded neck and standoff take up some working length |
+| Force at the angular stop | below the springs except J1 dorsal (158 vs 146 N), J4 dorsal (61 vs 51 N) and J5 dorsal (66 vs 61 N) |
 | Peak tension over every simulated motion (jump included) | J1 dorsal 180 N (springs 148 N). Cap-ear bending safety factor 9.2 (springs 11.2) |
 | Strap stress | 7–10 MPa at the stops, about 10 MPa at the J1 peak: well under 95A's ~30 MPa strength, but near its knee, so expect a little set after hard stops (use the `+` spares) |
 
@@ -72,9 +88,9 @@ The simulation decided it: [tables/tpu_band_sim.md](tables/tpu_band_sim.md), all
 
 | Seat surface | Snap overshoot | Settle | 45° turn overshoot | Peak belt moment |
 |---|---|---|---|---|
-| Felt liner (design, μ 0.25) | 9° | 1.25 s | 32° | 21.6 N·m |
-| **TPU liner web (μ ≈ 0.45)** | **11°** | **0.76 s** | **25°** | **13.2 N·m** |
-| Bare PETG (μ 0.12) | 24° | 3.61 s | 53° | 41 N·m |
+| Felt liner (design, μ 0.25) | 10° | 1.22 s | 33° | 33.2 N·m |
+| **TPU liner web (μ ≈ 0.45)** | **11°** | **0.77 s** | **25°** | **13.2 N·m** |
+| Bare PETG (μ 0.12) | 24° | 3.45 s | 53° | 47 N·m |
 
 - **Bare PETG** isn't just noisy: the tail swings much more and loads the belt three times as hard.
 - **The TPU liner's** extra friction calms the stiffer straps. It is the best of the three.
@@ -138,9 +154,10 @@ Because of that, the real PETG neck-to-cap contact angle depends on direction:
 
 - **Size:** 9 mm OD, 3.7 mm bore (snug on the M4 thread, so it stays put and acts as a light lock and spring
   washer), 0.8 mm thick.
-- **Count:** 24 cap bolts and 24 ball-flange bolts (under the heads) plus 72 at the strap bolts (one each side)
-  is 120. With 10 % spares that's 132, all on one sheet, printed once.
-- **Under cap and flange heads:** the extra 0.8 mm still leaves the M4×16 bolts fully through their nylocks.
+- **Count:** 24 cap bolts plus 42 at the 21 strap bolts (one each side) need 66. The 132-washer sheet covers that
+  with plenty to spare.
+- **Ball-flange bolts:** no washers. A 9 mm washer won't go down the ball's 7.8 mm access hole.
+- **Under cap heads:** the extra 0.8 mm still leaves the M4×16 bolts fully through their nylocks.
 
 ## Printing (Ender 3 V2, Sprite Pro, 0.4 mm nozzle, TPU 95A)
 
@@ -173,17 +190,37 @@ The straps use a nominal 95A curve; brands differ by up to 3×.
 1. **Break in each strap:** 10 stretches to its "break-in" length in the schedule.
 2. **Seat liners:** fit one into each body's seat before that body goes onto its ball.
 3. **Bumper rings:** glue one onto each cap face once the cap halves are bolted.
-4. **Strap bolt stack:**
-   - Dorsal pair: head, washer, strap (pad toward the ear), ear, strap, washer, nylock.
-   - Lateral strap: head, washer, ear, strap on the labelled face, washer, nylock.
-   - The label tab end goes on the **fin / hip arm**.
-5. **Fitting the heavy dorsal straps:** cap end first, with the joint pitched up against its stop. Pull the eye
-   over with a screwdriver shaft through it.
+4. **Fin end first (J2–J6, no tools):**
+   - **Lateral:** push the neck and barb through the parent fin's spring hole from the labelled face, then slide
+     a keyhole washer sideways onto the groove on the far face.
+   - **Dorsal:** push piece A's neck and barb through from one face, then slide piece B's end block sideways onto
+     A's groove on the other face.
+   - **J1:** bolt the hip-arm end like the cap-ear end.
+5. **Cap-ear bolt stack:**
+   - Dorsal: head, washer, piece A (pad toward the ear), ear, piece B (pad toward the ear), washer, nylock.
+   - Lateral: head, washer, ear, strap on the labelled face, washer, nylock.
+   - Put the head on the face the [fastener check](#tool-access) names: that face has ≥ 50 mm of straight key
+     room. For the heavy dorsal straps, pitch the joint up against its stop and pull the eye over with a
+     screwdriver shaft through it.
 6. **Leave the eyes free to swivel:** snug each nylock, then back it off ¼ turn.
 7. **Trim the rest pose:** the tail end should sit level, sticking straight back, with skin about 52 cm off the
    floor. Swap a sagging joint's dorsal pair for its `+` spare.
-8. **When the springs arrive:** unbolt the straps and hook the springs into the same holes, using
+8. **When the springs arrive:**
+   - Unbolt the cap ends.
+   - Slide off the keyhole washers or piece B's block, and pull the necks back out of the fin holes.
+   - Hook the springs into the same holes, using
    [tables/barney_springs.md](tables/barney_springs.md). Keep the liners, rings and washers.
+
+## Tool access
+
+`PYTHONPATH=. python cad/check_tool_access.py` checks every fastener in the build at the assembly step where it
+is tightened, with only the parts present at that step. Two conditions:
+- **Insertion:** the bolt plus its head must fit along its own axis on the head face.
+- **Key room:** ≥ 50 mm of straight room past the head, counting holes the key can pass through (like the ball
+  access holes).
+
+The results are in `results/data/tool_access_check.txt` and summarised in
+[assembly_rev3.md](assembly_rev3.md#tool-access-for-every-fastener).
 
 ## Caveats
 
