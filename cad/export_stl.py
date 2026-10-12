@@ -28,10 +28,15 @@ MAX = 200.0
 
 def parts(n):
     out = [("hip_mount", "print_hip_mount", 1), ("tip_adapter", "print_tip_adapter", 1),
-           ("test_ballast_plate", "print_test_ballast_plate", 1)]
+           ("test_ballast_plate", "print_test_ballast_plate", 1), ("lobe_clip", "print_lobe_clip", 1)]
     for i in range(1, n + 1):
-        out += [(f"ball_{i}_left", "print_ball_left", i), (f"ball_{i}_right", "print_ball_right", i),
-                (f"cap_{i}_a", "print_cap_a", i), (f"cap_{i}_b", "print_cap_b", i), (f"body_{i}", "print_body", i)]
+        # one-piece ball (flange down) with long-hex-key access holes; keyed cap halves + 2 bowtie keys
+        out += [(f"ball_{i}", "print_ball_one", i),
+                (f"cap_{i}_a", "print_cap_a", i), (f"cap_{i}_b", "print_cap_b", i),
+                (f"cap_key_{i}_v", "print_cap_key", i), (f"cap_key_{i}_d", "print_cap_key_d", i),
+                (f"body_{i}", "print_body", i)]
+        if i > 1:
+            out.append((f"flange_clip_{i}", "print_flange_clip", i))     # J1's parent (hip boss) has no rim to grip
     return out
 
 
@@ -178,8 +183,8 @@ def main():
     # 4-joint test-section kit
     ts = OUT / (f"{VARIANT}_test_section" if VARIANT else "test_section")
     ts.mkdir(exist_ok=True)
-    kit = ["hip_mount", "test_ballast_plate"] + [f"{k}_{i}{s}" for i in range(1, 5) for k, s in
-                                                 (("ball", "_left"), ("ball", "_right"), ("cap", "_a"), ("cap", "_b"), ("body", ""))]
+    kit = ["hip_mount", "test_ballast_plate", "lobe_clip"] + [f"{k}_{i}{s}" for i in range(1, 5) for k, s in
+                                                 (("ball", ""), ("cap", "_a"), ("cap", "_b"), ("cap_key", "_v"), ("cap_key", "_d"), ("body", ""))]
     for k in kit:
         src = full_dir() / f"{k}.stl"
         if src.exists():

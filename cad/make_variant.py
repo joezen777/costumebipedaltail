@@ -10,6 +10,11 @@ from cad import geometry as g
 
 ROOT = Path(__file__).resolve().parent
 
+# One-piece ball access holes: per joint, the flange-bolt azimuths a straight long hex key can reach from above.
+# On the rest-bent joints the neck leans over the other two bolts (cad/check_assembly_rev3.py verifies that no
+# listed hole cuts the neck); those two positions are bonded instead (docs/assembly_rev3.md).
+BALL_ACCESS = {"barney": [[45, 135, 225, 315], [135, 225], [135, 225], [45, 135, 225, 315], [45, 315], [45, 315]]}
+
 
 def gojira_params():
     import sys
@@ -31,6 +36,8 @@ def write(name, c):
     lines.append(f"max_yaw = {[round(x, 4) for x in c.max_yaw]};")
     lines.append("max_pitch = [for (y = max_yaw) y * pitch_ratio];")
     lines.append(f"rest_droop_list = {[round(x, 4) for x in c.rest_droop_list]};")
+    if name in BALL_ACCESS:
+        lines.append(f"ball_access = {BALL_ACCESS[name]};")
     (ROOT / "openscad" / f"suit_tail_{name}.scad").write_text("\n".join(lines) + "\n")
     return c
 

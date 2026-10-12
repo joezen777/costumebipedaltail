@@ -39,13 +39,21 @@ def load(name, M):
     return m
 
 
+def ball_print_matrix(c, i):
+    """print_ball_one: rotate([0,-90,0]) translate([DF + flange_t, 0, 0]) rotate([0, droop, 0]) ball(i, true)."""
+    return H(Ry(-90)) @ H(t=(g.DF(c, i) + g.flange_t(c), 0, 0)) @ H(Ry(g.droop(c, i)))
+
+
 def parts_in_joint_frame(c, i):
     """Return (parent_parts, child_parts) as meshes in the joint-i frame."""
     L = g.spacing(c)
     Ry90T = H(Ry(90).T)
     cap = [load(f"cap_{i}_{h}", Ry90T) for h in "ab"]
     body = load(f"body_{i}", Ry90T @ H(t=(0, 0, -g.body_len(c, i))))
-    balls = [load(f"ball_{i}_left", H(Rx(90).T)), load(f"ball_{i}_right", H(Rx(-90).T))]
+    if (STL / f"ball_{i}.stl").exists():          # one-piece ball (printed flange-down)
+        balls = [load(f"ball_{i}", np.linalg.inv(ball_print_matrix(c, i)))]
+    else:                                          # older clamshell halves
+        balls = [load(f"ball_{i}_left", H(Rx(90).T)), load(f"ball_{i}_right", H(Rx(-90).T))]
     if i == 1:
         rp = c.root_pitch
         M_root = H(t=(-c.root_back_offset, 0, c.root_dz)) @ H(Ry(180 - rp)) @ H(Rx(180))

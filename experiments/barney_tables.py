@@ -71,15 +71,31 @@ def main():
         (OUT / "barney_mass_budget.md").write_text(
             "# Moving-mass budget: Barney tail (grams)\n\nPrinted masses from the exported STLs (PETG, 3 perimeters, 20 % infill).\n\n"
             + md(["segment", "printed", "hardware", "springs", "foam", "skin", "total", "simulated"], rows))
-        parts = json.loads(pj.read_text())
-        rows = [[k, "x".join(f"{v:.0f}" for v in st["bbox_mm"]), f"{st['mass_g']:.0f}"] for k, st in sorted(parts.items())]
-        (OUT / "barney_parts.md").write_text(
-            "# Print list: Barney tail\n\nAll STLs in `cad/stl/barney/`, "
-            "already in print orientation. One of each file; every part fits a 200 mm cube.\n\n"
-            + md(["part", "bounding box (mm)", "est. mass (g)"], rows)
-            + f"\n**Total printed PETG: {sum(st['mass_g'] for st in parts.values()) / 1000:.2f} kg** "
-              f"({len(parts)} files).\n")
+        write_parts_table(pj)
     print("barney tables written")
+
+
+def part_count(name):
+    """Copies to print of each STL (revision 3 latches; see docs/assembly_rev3.md)."""
+    if name == "lobe_clip":
+        return 22                       # 4 per cap, but only the 2 ventral ones on J6 (TPU strap nuts)
+    if name.startswith("flange_clip_"):
+        return 2
+    return 1
+
+
+def write_parts_table(pj):
+    parts = {k: v for k, v in json.loads(pj.read_text()).items() if k != "test_ballast_plate"}
+    rows = [[k, str(part_count(k)), "x".join(f"{v:.0f}" for v in st["bbox_mm"]), f"{st['mass_g']:.0f}"]
+            for k, st in sorted(parts.items())]
+    total = sum(st["mass_g"] * part_count(k) for k, st in parts.items())
+    (OUT / "barney_parts.md").write_text(
+        "# Print list: Barney tail\n\nAll STLs in `cad/stl/barney/`, already in print orientation; every part fits a "
+        "200 mm cube. Masses are estimates at 3 perimeters / 20 % infill; the one-piece balls are printed with 8 walls "
+        "(necks solid), which makes them close to solid: about 55-116 g each (docs/assembly_rev3.md).\n\n"
+        + md(["part", "print", "bounding box (mm)", "est. mass (g)"], rows)
+        + f"\n**Total printed PETG: {total / 1000:.2f} kg** at the estimate ({sum(part_count(k) for k in parts)} pieces), "
+          f"about {(total + 190) / 1000:.2f} kg with the near-solid balls.\n")
 
 
 if __name__ == "__main__":

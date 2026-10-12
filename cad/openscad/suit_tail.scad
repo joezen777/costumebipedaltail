@@ -120,7 +120,14 @@ module ellip_cone_mx(h, by, bp) {
 }
 
 // ---- ball ------------------------------------------------------------------------
-module ball(i) {
+// one = true: the one-piece ball (revision 2026-10). The roll key is an M4 x 12 set screw in a tapped hole (no
+// captured head), the clamshell dowels are gone, and straight access holes (head 7 mm + 0.8) run up through the
+// ball along every flange bolt in access_az(i): drop the bolt in, drive it with a long hex key.
+ball_access = [];                        // per-joint azimuth lists (set by the variant); default all four
+function access_az(i) = len(ball_access) > 0 ? ball_access[i - 1] : [45, 135, 225, 315];
+access_r = 3.9;
+tap_d = 3.4;                             // M4 self-tapping in PETG
+module ball(i, one = false) {
     R = RB(i); rn = RN(i); df = DF(i); p = pin(i); d = droop(i);
     x1 = cap_h(i) + 3;                      // neck stays on the joint axis through the cap mouth
     difference() {
@@ -140,11 +147,19 @@ module ball(i) {
         along_x(R + 1, bore_r, bore_r + (R + 1) * tan(cord_flare(i)));
         // flange bolts (heads on the neck side)
         rotate([0, -d, 0]) at_lobes() translate([-df - flange_t - 1, 0, flange_bolt_r(i)]) along_x(flange_t + 2, bolt_clear / 2, bolt_clear / 2);
-        // roll-key screw: head captured inside the ball, shank out through the dorsal pole
-        translate([0, 0, pin_pocket_z(i) - p[3]]) cylinder(d = p[2] + 0.6, h = p[3] + 0.2, $fn = 24);
-        translate([0, 0, pin_pocket_z(i)]) cylinder(d = p[0] + 0.3, h = R + 1, $fn = 24);
-        // registration dowels (1.75 mm filament) in the split plane
-        for (s = [-1, 1]) translate([s * 0.55 * R, 0, -0.45 * R]) rotate([90, 0, 0]) cylinder(d = 1.9, h = 12, center = true, $fn = 12);
+        if (!one) {
+            // roll-key screw: head captured inside the ball, shank out through the dorsal pole
+            translate([0, 0, pin_pocket_z(i) - p[3]]) cylinder(d = p[2] + 0.6, h = p[3] + 0.2, $fn = 24);
+            translate([0, 0, pin_pocket_z(i)]) cylinder(d = p[0] + 0.3, h = R + 1, $fn = 24);
+            // registration dowels (1.75 mm filament) in the split plane
+            for (s = [-1, 1]) translate([s * 0.55 * R, 0, -0.45 * R]) rotate([90, 0, 0]) cylinder(d = 1.9, h = 12, center = true, $fn = 12);
+        } else {
+            // set-screw roll key: tapped hole from the dorsal pole, screw protrudes pin_protrude
+            translate([0, 0, R + pin_protrude - p[1] - 0.5]) cylinder(d = tap_d, h = p[1] + 2, $fn = 24);
+            // long-hex-key access holes along the reachable flange bolts
+            rotate([0, -d, 0]) for (a = access_az(i)) rotate([a, 0, 0])
+                translate([-df - 0.01, 0, flange_bolt_r(i)]) along_x(df + R + 10, access_r, access_r);
+        }
     }
 }
 
@@ -212,11 +227,68 @@ function ear_w(i) = max(12, 0.6 * cap_outer_r(i));
 // lobes 225/315 + the other lateral ear, the dorsal ear and the roll-key slot. (cad/geometry.py CAP_SPLIT_DEG)
 cap_split = 22.5;
 module cap_half(i, side = "a")
-    intersection() {
-        cap(i);
-        rotate([cap_split, 0, 0]) translate([-500, side == "a" ? -1000 : 0, -500]) cube([1000, 1000, 1000]);
+    difference() {
+        intersection() {
+            cap(i);
+            rotate([cap_split, 0, 0]) translate([-500, side == "a" ? -1000 : 0, -500]) cube([1000, 1000, 1000]);
+        }
+        key_pockets(i);
     }
 function cap_ear_t(i) = RB(i) >= 22 ? 16 : 12;   // root caps carry dorsal spring pairs up to ~400 N
+
+// ---- bowtie keys: the cap halves are locked across both seams by printed double-dovetail keys pushed in from
+// the mouth face (the halves still close round the neck from the sides; a sliding rail dovetail cannot engage,
+// because neither half can slide a rail length along the neck past the ball or the ball flange).
+key_clear = 0.15;                                   // per side
+key_Lw = 4.5;                                       // wing length either side of the seam
+key_Lw_short = 2.5;                                 // dorsal-side wing of a body-face key (clears the roll-key slot)
+// On the smallest caps (ball 22 mm: J4-J6) the dorsal-side seam (s = 0) pocket would break into the roll-key slot
+// and, on J5/J6, sit under the spring ear that overhangs the mouth face. That seam's key therefore goes in from the
+// BODY-side face (before the cap slides onto the body), with a short wing on the slot side.
+function key_body_face(i, s) = s == 0 && RB(i) <= 22;
+function key_D(i, s = 180) = key_body_face(i, s) ? 6 : min(6, cap_h(i) - 7);
+function key_rin(i, s = 180) = key_body_face(i, s) ? RS(i) :
+    let(z = cap_h(i) - key_D(i, s))                 // cavity radius at the pocket bottom (sphere or 45 deg relief cone)
+    (z > RS(i) * sin(45) ? RS(i) * cos(45) - (z - RS(i) * sin(45)) : sqrt(RS(i) * RS(i) - z * z));
+function key_w1(i, s = 180) = key_body_face(i, s) ? min(5, cap_outer_r(i) - RS(i) - 2.3) : min(6, cap_outer_r(i) - key_rin(i, s) - 3);
+function key_w0(i, s = 180) = 0.55 * key_w1(i, s);
+function key_rk(i, s = 180) = (key_rin(i, s) + cap_outer_r(i)) / 2;
+function key_Ld(i, s) = key_body_face(i, s) ? key_Lw_short : key_Lw;   // wing on the dorsal (+y) side
+// profile: X = radial, Y = across the seam (+Y toward dorsal); waist on the seam
+module bowtie2d(w0, w1, L, Ld) let(wd = w0 + (w1 - w0) * Ld / L)
+    polygon([[-w1 / 2, -L], [-w0 / 2, 0], [-wd / 2, Ld], [wd / 2, Ld], [w0 / 2, 0], [w1 / 2, -L]]);
+module key2d(i, s, grow) offset(delta = grow) bowtie2d(key_w0(i, s), key_w1(i, s), key_Lw, key_Ld(i, s));
+// pocket at seam s (0 or 180) in the cap frame: radial = z, across the seam = y; open at the mouth or body face
+module key_pocket(i, s)
+    rotate([cap_split + s, 0, 0]) translate([key_body_face(i, s) ? -key_D(i, s) : -cap_h(i) - 1, 0, key_rk(i, s)])
+        rotate([0, 90, 0]) linear_extrude(key_D(i, s) + 1) key2d(i, s, key_clear);
+module key_pockets(i) for (s = [0, 180]) key_pocket(i, s);
+module bowtie_key(i, s = 180) linear_extrude(key_D(i, s) - 0.3) key2d(i, s, -key_clear);
+
+// ---- lobe clip: snaps radially over a cap bolt lobe and the body lobe behind it (cap <-> body soft latch).
+// Frame: lobe axis = z, outward = +y. A 230 deg C; its tips pass the lobe's widest line and hook the body
+// lobe's taper (the cap lobe has parallel sides: friction there).
+clip_len = 10; clip_t = 2.4; clip_arc = 230;
+module lobe_clip2d() {
+    ri = lobe_r + 0.1;
+    difference() {
+        circle(r = ri + clip_t, $fn = 64);
+        circle(r = ri, $fn = 64);
+        rotate(-90) polygon([[0, 0], for (a = [-(360 - clip_arc) / 2 : 5 : (360 - clip_arc) / 2]) 30 * [cos(a), sin(a)]]);
+    }
+}
+module lobe_clip() linear_extrude(clip_len) lobe_clip2d();
+// ---- flange clip: a U that snaps radially over the ball flange and the parent's end flange (ball <-> body).
+// Frame: (u = along the flange axis, v = radial) profile, mating plane u = 0, ball flange u in [0, 6]; width w.
+fclip_t = 2.4; fclip_jaw = 2.5; fclip_w = 6; fclip_clamp = 0.2;
+module flange_clip2d(i) {
+    rf = flange_r(i); g = flange_t - fclip_clamp / 2;      // jaws clamp 0.2 mm in total
+    polygon([[-g - fclip_t, rf - fclip_jaw], [-g - fclip_t, rf + 0.2 + fclip_t], [g + fclip_t, rf + 0.2 + fclip_t],
+             [g + fclip_t, rf - fclip_jaw], [g + 0.6, rf - fclip_jaw], [g, rf - fclip_jaw + 0.6], [g, rf + 0.2],
+             [-g, rf + 0.2], [-g, rf - fclip_jaw + 0.6], [-g - 0.6, rf - fclip_jaw]]);
+}
+module flange_clip(i) linear_extrude(fclip_w) translate([0, -flange_r(i)]) flange_clip2d(i);   // printed lying flat
+
 
 // seat = the part of the socket inside the vertebra body (x >= 0)
 module socket_half(i, which = "seat") {
@@ -576,6 +648,11 @@ else if (PART == "print_ball_right") ball_half(INDEX, -1);
 else if (PART == "print_cap") translate([0, 0, 0]) rotate([0, 90, 0]) cap(INDEX);            // x=0 face on the bed (reference only: print the halves)
 else if (PART == "print_cap_a") rotate([0, 90, 0]) cap_half(INDEX, "a");
 else if (PART == "print_cap_b") rotate([0, 90, 0]) cap_half(INDEX, "b");
+else if (PART == "print_ball_one") rotate([0, -90, 0]) translate([DF(INDEX) + flange_t, 0, 0]) rotate([0, droop(INDEX), 0]) ball(INDEX, true);
+else if (PART == "print_cap_key") bowtie_key(INDEX, 180);
+else if (PART == "print_cap_key_d") bowtie_key(INDEX, 0);
+else if (PART == "print_lobe_clip") lobe_clip();
+else if (PART == "print_flange_clip") flange_clip(INDEX);
 else if (PART == "print_body") translate([0, 0, body_len(INDEX)]) rotate([0, 90, 0]) vertebra_frame(INDEX); // distal flange on the bed, socket up
 else if (PART == "print_hip_mount") rotate([0, 90, 0]) translate([harness_plate_offset, 0, 0]) hip_mount();
 else if (PART == "print_tip_adapter") rotate([0, -90, 0]) tip_adapter();

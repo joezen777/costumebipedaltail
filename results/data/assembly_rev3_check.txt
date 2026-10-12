@@ -1,0 +1,91 @@
+ok   J1 neck intact: material removed outside the ball sphere = 0.00 mm^3
+ok   J1 access shaft az 45: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J1 access shaft az 135: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J1 access shaft az 225: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J1 access shaft az 315: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J1 key pocket seam 0 (mouth face): wall material missing within 0.8 mm = 0.00 mm^3 (D 6.0, w 3.3/6.0, r 29.6)
+ok   J1 key seam 0: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J1 key pocket seam 180 (mouth face): wall material missing within 0.8 mm = 0.00 mm^3 (D 6.0, w 3.3/6.0, r 29.6)
+ok   J1 key seam 180: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J1 lobe clip az 45: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J1 lobe clip az 135: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J1 lobe clip az 225: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J1 lobe clip az 315: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J1 lobe clips vs TPU straps: 0.00 mm^3
+ok   J2 neck intact: material removed outside the ball sphere = 0.17 mm^3
+ok   J2 access shaft az 135: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J2 access shaft az 225: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J2 key pocket seam 0 (mouth face): wall material missing within 0.8 mm = 0.00 mm^3 (D 6.0, w 3.3/6.0, r 28.0)
+ok   J2 key seam 0: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J2 key pocket seam 180 (mouth face): wall material missing within 0.8 mm = 0.00 mm^3 (D 6.0, w 3.3/6.0, r 28.0)
+ok   J2 key seam 180: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J2 lobe clip az 45: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J2 lobe clip az 135: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J2 lobe clip az 225: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J2 lobe clip az 315: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J2 lobe clips vs TPU straps: 0.00 mm^3
+ok   J2 flange clip az 22.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J2 flange clip az 337.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J2 flange clips vs TPU straps: 0.00 mm^3
+ok   J3 neck intact: material removed outside the ball sphere = 0.13 mm^3
+ok   J3 access shaft az 135: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J3 access shaft az 225: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J3 key pocket seam 0 (mouth face): wall material missing within 0.8 mm = 0.00 mm^3 (D 6.0, w 3.3/6.0, r 25.9)
+ok   J3 key seam 0: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J3 key pocket seam 180 (mouth face): wall material missing within 0.8 mm = 0.00 mm^3 (D 6.0, w 3.3/6.0, r 25.9)
+ok   J3 key seam 180: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J3 lobe clip az 45: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J3 lobe clip az 135: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J3 lobe clip az 225: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J3 lobe clip az 315: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J3 lobe clips vs TPU straps: 0.00 mm^3
+ok   J3 flange clip az 22.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J3 flange clip az 337.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J3 flange clips vs TPU straps: 0.00 mm^3
+ok   J4 neck intact: material removed outside the ball sphere = 0.26 mm^3
+ok   J4 access shaft az 45: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J4 access shaft az 135: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J4 access shaft az 225: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J4 access shaft az 315: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J4 key pocket seam 0 (body-side face): wall material missing within 0.8 mm = 1.05 mm^3 (D 6.0, w 2.3/4.2, r 26.1)
+ok   J4 key seam 0: held 8 mm out and pushed straight in from the body-side face: hits 0.00 mm^3
+ok   J4 key pocket seam 180 (mouth face): wall material missing within 0.8 mm = 0.04 mm^3 (D 6.0, w 2.9/5.4, r 25.2)
+ok   J4 key seam 180: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J4 lobe clip az 45: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J4 lobe clip az 135: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J4 lobe clip az 225: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J4 lobe clip az 315: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J4 lobe clips vs TPU straps: 0.00 mm^3
+ok   J4 flange clip az 22.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J4 flange clip az 337.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J4 flange clips vs TPU straps: 0.00 mm^3
+ok   J5 neck intact: material removed outside the ball sphere = 0.01 mm^3
+ok   J5 access shaft az 45: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J5 access shaft az 315: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J5 key pocket seam 0 (body-side face): wall material missing within 0.8 mm = 1.05 mm^3 (D 6.0, w 2.3/4.2, r 26.1)
+ok   J5 key seam 0: held 8 mm out and pushed straight in from the body-side face: hits 0.00 mm^3
+ok   J5 key pocket seam 180 (mouth face): wall material missing within 0.8 mm = 0.01 mm^3 (D 6.0, w 2.7/4.9, r 25.5)
+ok   J5 key seam 180: held 8 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J5 lobe clip az 45: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J5 lobe clip az 135: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J5 lobe clip az 225: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J5 lobe clip az 315: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J5 lobe clips vs TPU straps: 0.00 mm^3
+ok   J5 flange clip az 157.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J5 flange clip az 202.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J5 flange clips vs TPU straps: 0.00 mm^3
+ok   J6 neck intact: material removed outside the ball sphere = 0.10 mm^3
+ok   J6 access shaft az 45: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J6 access shaft az 315: 7.2 mm column from the bolt seat out of the ball hits 0.00 mm^3
+ok   J6 key pocket seam 0 (body-side face): wall material missing within 0.8 mm = 1.05 mm^3 (D 6.0, w 2.3/4.2, r 26.1)
+ok   J6 key seam 0: held 8 mm out and pushed straight in from the body-side face: hits 0.00 mm^3
+ok   J6 key pocket seam 180 (mouth face): wall material missing within 0.8 mm = 0.00 mm^3 (D 5.5, w 2.5/4.6, r 25.6)
+ok   J6 key seam 180: held 7 mm out and pushed straight in from the mouth face: hits 0.00 mm^3
+ok   J6 lobe clip az 135: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J6 lobe clip az 225: snap interference with the lobes 2.7 mm^3; ball/parent 0.00; path 0.00; clear when pulled off 12 mm 0.00
+ok   J6 lobe clips vs TPU straps: 0.00 mm^3
+ok   J6 flange clip az 157.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J6 flange clip az 202.5: clamp/snap overlap with the two flanges 2.2 mm^3; cap/body 0.00; path 0.00; clear when pulled off 8 mm 0.00
+ok   J6 flange clips vs TPU straps: 0.00 mm^3
+
+ALL OK

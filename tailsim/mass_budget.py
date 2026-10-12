@@ -36,8 +36,12 @@ def budget(cad=None, spring_table=None, parts_json=ROOT / "cad" / "stl" / "parts
     for i in range(1, n + 1):
         cap = (parts[f"cap_{i}_a"]["mass_g"] + parts[f"cap_{i}_b"]["mass_g"]) if f"cap_{i}_a" in parts else parts[f"cap_{i}"]["mass_g"]
         printed = parts[f"body_{i}"]["mass_g"] + cap
+        printed += 2 * parts.get(f"cap_key_{i}", {}).get("mass_g", 0.0) + 4 * parts.get("lobe_clip", {}).get("mass_g", 0.0)
         if i < n:
-            printed += parts[f"ball_{i+1}_left"]["mass_g"] + parts[f"ball_{i+1}_right"]["mass_g"]
+            if f"ball_{i+1}" in parts:          # one-piece ball (revision 3) + its flange clips
+                printed += parts[f"ball_{i+1}"]["mass_g"] + 2 * parts.get(f"flange_clip_{i+1}", {}).get("mass_g", 0.0)
+            else:
+                printed += parts[f"ball_{i+1}_left"]["mass_g"] + parts[f"ball_{i+1}_right"]["mass_g"]
         else:
             printed += parts["tip_adapter"]["mass_g"]
         hardware = 4 * (M4_SHCS_16 + M4_NYLOCK) + FELT_LINER

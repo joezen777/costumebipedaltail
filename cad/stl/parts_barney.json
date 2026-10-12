@@ -25,32 +25,6 @@
   "fits_200mm": true,
   "on_bed": true
  },
- "ball_1_left": {
-  "volume_cm3": 49.61021705555115,
-  "area_cm2": 102.67543391599833,
-  "bbox_mm": [
-   65.2,
-   55.9,
-   28.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 32.9,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_1_right": {
-  "volume_cm3": 49.61021706546913,
-  "area_cm2": 102.67543391639909,
-  "bbox_mm": [
-   65.2,
-   55.9,
-   28.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 32.9,
-  "fits_200mm": true,
-  "on_bed": true
- },
  "body_1": {
   "volume_cm3": 227.13360451088298,
   "area_cm2": 925.7265271670885,
@@ -61,32 +35,6 @@
   ],
   "min_z": 0.0,
   "mass_g": 241.1,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_2_left": {
-  "volume_cm3": 41.00534061863239,
-  "area_cm2": 98.7880715994797,
-  "bbox_mm": [
-   77.1,
-   69.5,
-   25.8
-  ],
-  "min_z": 0.0,
-  "mass_g": 30.0,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_2_right": {
-  "volume_cm3": 41.00534143559442,
-  "area_cm2": 98.78807149468804,
-  "bbox_mm": [
-   77.1,
-   69.5,
-   25.8
-  ],
-  "min_z": 0.0,
-  "mass_g": 30.0,
   "fits_200mm": true,
   "on_bed": true
  },
@@ -103,32 +51,6 @@
   "fits_200mm": true,
   "on_bed": true
  },
- "ball_3_left": {
-  "volume_cm3": 29.373123133057927,
-  "area_cm2": 81.50046140261246,
-  "bbox_mm": [
-   69.1,
-   59.8,
-   23.1
-  ],
-  "min_z": 0.0,
-  "mass_g": 23.6,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_3_right": {
-  "volume_cm3": 29.37312317454198,
-  "area_cm2": 81.50046150609825,
-  "bbox_mm": [
-   69.1,
-   59.8,
-   23.1
-  ],
-  "min_z": 0.0,
-  "mass_g": 23.6,
-  "fits_200mm": true,
-  "on_bed": true
- },
  "body_3": {
   "volume_cm3": 182.67772060359417,
   "area_cm2": 807.15144029554,
@@ -139,32 +61,6 @@
   ],
   "min_z": 0.0,
   "mass_g": 206.3,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_4_left": {
-  "volume_cm3": 24.46997317378405,
-  "area_cm2": 70.74752800349196,
-  "bbox_mm": [
-   56.3,
-   45.2,
-   22.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 20.2,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_4_right": {
-  "volume_cm3": 24.469972250897914,
-  "area_cm2": 70.74752804160262,
-  "bbox_mm": [
-   56.3,
-   45.2,
-   22.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 20.2,
   "fits_200mm": true,
   "on_bed": true
  },
@@ -181,32 +77,6 @@
   "fits_200mm": true,
   "on_bed": true
  },
- "ball_5_left": {
-  "volume_cm3": 25.34420430436882,
-  "area_cm2": 76.70235303522404,
-  "bbox_mm": [
-   68.9,
-   64.0,
-   22.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 21.6,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_5_right": {
-  "volume_cm3": 25.34420579995781,
-  "area_cm2": 76.702353087566,
-  "bbox_mm": [
-   68.9,
-   64.0,
-   22.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 21.6,
-  "fits_200mm": true,
-  "on_bed": true
- },
  "body_5": {
   "volume_cm3": 133.95527273145356,
   "area_cm2": 589.0257780782418,
@@ -217,32 +87,6 @@
   ],
   "min_z": 0.0,
   "mass_g": 150.7,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_6_left": {
-  "volume_cm3": 25.00996507405503,
-  "area_cm2": 75.58147918916916,
-  "bbox_mm": [
-   67.7,
-   58.1,
-   22.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 21.3,
-  "fits_200mm": true,
-  "on_bed": true
- },
- "ball_6_right": {
-  "volume_cm3": 25.009966962865505,
-  "area_cm2": 75.58147927546864,
-  "bbox_mm": [
-   67.7,
-   58.1,
-   22.0
-  ],
-  "min_z": 0.0,
-  "mass_g": 21.3,
   "fits_200mm": true,
   "on_bed": true
  },
@@ -260,158 +104,470 @@
   "on_bed": true
  },
  "cap_1_a": {
-  "volume_cm3": 29.33514901674473,
-  "area_cm2": 96.8342179230408,
+  "volume_cm3": 29.05568994405732,
+  "area_cm2": 98.33415407354563,
   "bbox_mm": [
    69.0,
    78.5,
    22.5
   ],
   "min_z": 0.0,
-  "mass_g": 26.6,
+  "mass_g": 26.9,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_1_b": {
-  "volume_cm3": 36.69243804145737,
-  "area_cm2": 116.75223941880424,
+  "volume_cm3": 36.412978968769984,
+  "area_cm2": 118.25217556930909,
   "bbox_mm": [
    98.6,
    78.5,
    22.5
   ],
   "min_z": 0.0,
-  "mass_g": 32.5,
+  "mass_g": 32.7,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_2_a": {
-  "volume_cm3": 23.503267877795693,
-  "area_cm2": 82.76601426618274,
+  "volume_cm3": 23.22381221860489,
+  "area_cm2": 84.26596162997961,
   "bbox_mm": [
    65.2,
    72.1,
    19.9
   ],
   "min_z": 0.0,
-  "mass_g": 22.4,
+  "mass_g": 22.6,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_2_b": {
-  "volume_cm3": 29.480587324031625,
-  "area_cm2": 99.97645627676808,
+  "volume_cm3": 29.201131664840826,
+  "area_cm2": 101.47640364056493,
   "bbox_mm": [
    91.4,
    72.1,
    19.9
   ],
   "min_z": 0.0,
-  "mass_g": 27.3,
+  "mass_g": 27.5,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_3_a": {
-  "volume_cm3": 18.04281368819429,
-  "area_cm2": 68.52607610578546,
+  "volume_cm3": 17.763359543399183,
+  "area_cm2": 70.0260218766805,
   "bbox_mm": [
    60.6,
    65.5,
    17.0
   ],
   "min_z": 0.0,
-  "mass_g": 18.2,
+  "mass_g": 18.4,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_3_b": {
-  "volume_cm3": 22.809421434382394,
-  "area_cm2": 83.33066352073111,
+  "volume_cm3": 22.52996728958728,
+  "area_cm2": 84.83060929162615,
   "bbox_mm": [
    83.9,
    65.5,
    17.0
   ],
   "min_z": 0.0,
-  "mass_g": 22.3,
+  "mass_g": 22.5,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_4_a": {
-  "volume_cm3": 14.681117176994078,
-  "area_cm2": 59.73244220679021,
+  "volume_cm3": 14.455393779434255,
+  "area_cm2": 61.14670752142401,
   "bbox_mm": [
    58.8,
    59.4,
    16.0
   ],
   "min_z": 0.0,
-  "mass_g": 15.6,
+  "mass_g": 15.8,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_4_b": {
-  "volume_cm3": 18.26423259184025,
-  "area_cm2": 72.14216765239902,
+  "volume_cm3": 18.088300307895846,
+  "area_cm2": 73.26079704324448,
   "bbox_mm": [
    77.6,
    59.4,
    16.0
   ],
   "min_z": 0.0,
-  "mass_g": 18.9,
+  "mass_g": 19.1,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_5_a": {
-  "volume_cm3": 12.419652715159572,
-  "area_cm2": 54.12261172142709,
+  "volume_cm3": 12.204677792984963,
+  "area_cm2": 55.51982336476532,
   "bbox_mm": [
    58.8,
    53.8,
    16.0
   ],
   "min_z": 0.0,
-  "mass_g": 13.9,
+  "mass_g": 14.1,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_5_b": {
-  "volume_cm3": 14.754391192542263,
-  "area_cm2": 63.941929611580946,
+  "volume_cm3": 14.58920908157104,
+  "area_cm2": 65.04351075212642,
   "bbox_mm": [
    72.0,
    53.8,
    16.0
   ],
   "min_z": 0.0,
-  "mass_g": 16.4,
+  "mass_g": 16.6,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_6_a": {
-  "volume_cm3": 10.604602182662031,
-  "area_cm2": 49.62141662370816,
+  "volume_cm3": 10.405110426447127,
+  "area_cm2": 50.94726616855649,
   "bbox_mm": [
    58.8,
    50.1,
    16.0
   ],
   "min_z": 0.0,
-  "mass_g": 12.5,
+  "mass_g": 12.7,
   "fits_200mm": true,
   "on_bed": true
  },
  "cap_6_b": {
-  "volume_cm3": 12.171376590484972,
-  "area_cm2": 57.04447110476713,
+  "volume_cm3": 12.021679055798058,
+  "area_cm2": 58.074683621019524,
   "bbox_mm": [
    68.3,
    50.1,
    16.0
   ],
   "min_z": 0.0,
-  "mass_g": 14.4,
+  "mass_g": 14.6,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "lobe_clip": {
+  "volume_cm3": 0.6396463453802772,
+  "area_cm2": 7.0955453756747024,
+  "bbox_mm": [
+   15.7,
+   11.2,
+   10.0
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.8,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "ball_1": {
+  "volume_cm3": 91.59553202565212,
+  "area_cm2": 194.2883089253932,
+  "bbox_mm": [
+   55.9,
+   56.0,
+   65.2
+  ],
+  "min_z": 3.6326900954009034e-07,
+  "mass_g": 61.8,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "ball_2": {
+  "volume_cm3": 78.80716849861817,
+  "area_cm2": 171.90206891782535,
+  "bbox_mm": [
+   51.6,
+   51.6,
+   74.8
+  ],
+  "min_z": 8.185190125686859e-08,
+  "mass_g": 54.1,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "flange_clip_2": {
+  "volume_cm3": 0.31463889731674977,
+  "area_cm2": 3.934615657563886,
+  "bbox_mm": [
+   16.6,
+   5.1,
+   6.0
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.4,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "ball_3": {
+  "volume_cm3": 56.0573530191365,
+  "area_cm2": 142.72803480547256,
+  "bbox_mm": [
+   46.2,
+   46.2,
+   67.0
+  ],
+  "min_z": -2.0327699701283564e-07,
+  "mass_g": 42.5,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "flange_clip_3": {
+  "volume_cm3": 0.3146385641141221,
+  "area_cm2": 3.934614354383955,
+  "bbox_mm": [
+   16.6,
+   5.1,
+   6.0
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.4,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "ball_4": {
+  "volume_cm3": 43.43704505034831,
+  "area_cm2": 136.46097451167591,
+  "bbox_mm": [
+   44.0,
+   44.0,
+   55.8
+  ],
+  "min_z": 1.6638400879287474e-08,
+  "mass_g": 38.1,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "flange_clip_4": {
+  "volume_cm3": 0.3146407481804747,
+  "area_cm2": 3.9346236480500307,
+  "bbox_mm": [
+   16.6,
+   5.1,
+   6.0
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.4,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "ball_5": {
+  "volume_cm3": 48.52262751889682,
+  "area_cm2": 134.11976355506965,
+  "bbox_mm": [
+   44.0,
+   44.0,
+   69.2
+  ],
+  "min_z": 2.508000136458577e-07,
+  "mass_g": 38.9,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "flange_clip_5": {
+  "volume_cm3": 0.3146407481804747,
+  "area_cm2": 3.9346236480500307,
+  "bbox_mm": [
+   16.6,
+   5.1,
+   6.0
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.4,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "ball_6": {
+  "volume_cm3": 47.818306139843656,
+  "area_cm2": 132.16518878137416,
+  "bbox_mm": [
+   44.0,
+   44.0,
+   67.3
+  ],
+  "min_z": -2.565830072853714e-07,
+  "mass_g": 38.3,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "flange_clip_6": {
+  "volume_cm3": 0.3146407481804747,
+  "area_cm2": 3.9346236480500307,
+  "bbox_mm": [
+   16.6,
+   5.1,
+   6.0
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.4,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_1_v": {
+  "volume_cm3": 0.21283033875286853,
+  "area_cm2": 2.4202806885176296,
+  "bbox_mm": [
+   5.6,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.3,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_1_d": {
+  "volume_cm3": 0.21283033875286853,
+  "area_cm2": 2.4202806885176296,
+  "bbox_mm": [
+   5.6,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.3,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_2_v": {
+  "volume_cm3": 0.21283033875286853,
+  "area_cm2": 2.4202806885176296,
+  "bbox_mm": [
+   5.6,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.3,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_2_d": {
+  "volume_cm3": 0.21283033875286853,
+  "area_cm2": 2.4202806885176296,
+  "bbox_mm": [
+   5.6,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.3,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_3_v": {
+  "volume_cm3": 0.21283033875286853,
+  "area_cm2": 2.4202806885176296,
+  "bbox_mm": [
+   5.6,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.3,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_3_d": {
+  "volume_cm3": 0.21283033875286853,
+  "area_cm2": 2.4202806885176296,
+  "bbox_mm": [
+   5.6,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.3,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_4_v": {
+  "volume_cm3": 0.1882514998900646,
+  "area_cm2": 2.252648308111843,
+  "bbox_mm": [
+   5.0,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.2,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_4_d": {
+  "volume_cm3": 0.10577233910654879,
+  "area_cm2": 1.5403834527161804,
+  "bbox_mm": [
+   3.8,
+   6.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.1,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_5_v": {
+  "volume_cm3": 0.16969190142528026,
+  "area_cm2": 2.1267041213142472,
+  "bbox_mm": [
+   4.5,
+   8.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.2,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_5_d": {
+  "volume_cm3": 0.10577233910654879,
+  "area_cm2": 1.5403834527161804,
+  "bbox_mm": [
+   3.8,
+   6.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.1,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_6_v": {
+  "volume_cm3": 0.1447258155773628,
+  "area_cm2": 1.9186703457838308,
+  "bbox_mm": [
+   4.2,
+   8.7,
+   5.2
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.2,
+  "fits_200mm": true,
+  "on_bed": true
+ },
+ "cap_key_6_d": {
+  "volume_cm3": 0.10577233910654879,
+  "area_cm2": 1.5403834527161804,
+  "bbox_mm": [
+   3.8,
+   6.7,
+   5.7
+  ],
+  "min_z": 0.0,
+  "mass_g": 0.1,
   "fits_200mm": true,
   "on_bed": true
  }

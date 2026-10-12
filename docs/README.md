@@ -8,6 +8,7 @@ Brief: [brief.md](brief.md) (original design brief). Results overview: [../READM
 | [gojira.md](gojira.md) | (Superseded variant) Gojira "x² + 1" hovering profile: five mechanisms compared; the approved mechanics came from here |
 | [physics.md](physics.md) | Simulation model, the design findings it produced, validation tests, how to reproduce |
 | [design.md](design.md) | Mechanical architecture, twist-stable spring geometry, performer fit (5 ft 8 in), strength approach |
+| [assembly_rev3.md](assembly_rev3.md) | **Revision 3 (Oct 2026):** one-piece balls with long-hex-key access holes, bowtie-keyed caps, lobe and flange snap clips; which flange bolts can't be reached (J2/J3/J5/J6) and why those flanges are bonded; mesh checks |
 | [printing.md](printing.md) | 1.2 mm nozzle settings, print orientation per part, material choice (PETG vs PLA/TPU vs resin), hardware list, assembly |
 | [tpu_bands.md](tpu_bands.md) | **TPU 95A stand-ins (0.4 mm nozzle):** labelled spring straps on one plate, seat liner webs and cap-mouth bumper rings instead of felt, M4 tension washers, coupon calibration, install, the measured stop-angle finding ([tables/tpu_bands.md](tables/tpu_bands.md), [tables/tpu_band_sim.md](tables/tpu_band_sim.md)) |
 | [test_plan.md](test_plan.md) | 4-joint physical prototype: build, ballast, measurements that calibrate the model |
@@ -34,6 +35,7 @@ Brief: [brief.md](brief.md) (original design brief). Results overview: [../READM
 | `cad/stl/barney/` | **Print-ready STLs for the Barney tail** (6 joints); `cad/stl/parts_barney.json` = sizes, volumes, masses |
 | `cad/tpu_bands.py`, `cad/check_tpu_bands.py`, `cad/stl/barney_tpu_bands/` | TPU strap generator (spring targets → strap sections and lengths, nozzle profiles, labels, plates, coupon calibration), fit check against the part meshes, strap STLs |
 | `cad/tpu_liners.py`, `cad/check_tpu_liners.py`, `cad/stl/barney_tpu_liners/` | Seat liner webs (flat → sphere gore mapping), cap-mouth bumper rings (bore from the swept neck), TPU M4 washer sheet; stop-angle mesh check |
+| `cad/check_assembly_rev3.py` | Revision-3 assembly checks: neck intact, access shafts, key pockets and insertion, clip fits and push-on paths |
 | `cad/add_support_columns.py` | Overhang checker (optionally writes break-away columns). The bodies and hip mount are self-supporting by design |
 | `cad/stl/replica_1to8_resin/`, `cad/openscad/mini_kit.scad` | 1:8 snap-together resin kit (twine + orthodontic elastics); `cad/export_replica.py` |
 | `cad/stl/figurine_1to8_resin/`, `cad/openscad/figurine_1to8.scad` | 1:8 low-poly protogen-head figurine with a T-slot for the kit's plate at 14 levels; `cad/export_figurine.py`, `cad/render_figurine.py` |

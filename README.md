@@ -63,17 +63,23 @@ Four changes made the short tail work, all found in simulation ([docs/barney.md]
 
 ## 2. What to print (full size)
 
-**[`cad/stl/barney/`](cad/stl/barney/): 32 print-ready STLs, 1.91 kg of PETG.**
-- One hip mount, 6 vertebra bodies, 6 caps **printed as two halves each** (`cap_N_a` + `cap_N_b`), 12 ball halves
-  (with the rest-curve wedges; keep them in joint order) and the tip adapter.
+**[`cad/stl/barney/`](cad/stl/barney/): 44 print-ready STLs (70 pieces), about 2.1 kg of PETG.**
+- One hip mount and 6 vertebra bodies.
+- 6 caps **printed as two halves each** (`cap_N_a` + `cap_N_b`), locked by 2 bowtie keys per cap (`cap_key_N_v`, `cap_key_N_d`).
+- 6 **one-piece balls** (`ball_N`, each with its rest-curve wedge; keep them in joint order), with straight access
+  holes for a long hex key.
+- The tip adapter.
+- Snap latches: 22 `lobe_clip` (cap to body; 4 per cap, 2 on J6) and 2 `flange_clip_N` per joint on J2–J6 (ball to body).
+- **Revision 3 (Oct 2026):** one-piece balls, keyed caps and latches. Why, and which flanges are bonded:
+  [docs/assembly_rev3.md](docs/assembly_rev3.md).
 - **Caps are split on purpose.** A one-piece cap can't be fitted: its opening is smaller than both the ball and the
   ball's bolt flange. The two halves close around the neck of the assembled ball instead.
 - Sizes and masses: [docs/tables/barney_parts.md](docs/tables/barney_parts.md).
-- Settings: [docs/printing.md](docs/printing.md). PETG, 1.3 mm lines, 0.6 mm layers (0.4 mm for ball halves),
-  100 % infill for ball halves 1–3.
-- **No slicer supports:** the vertebra bodies and hip mount carry their own overhangs with thin structural walls
-  (a 45° cone, an arched skirt, arm webs). Every part prints from `cad/stl/barney/` with slicer
-  supports off; the few remaining roofs are short bridges. See [docs/printing.md](docs/printing.md).
+- Settings: [docs/printing.md](docs/printing.md). PETG, 1.3 mm lines, 0.6 mm layers (0.4 mm for balls),
+  8 walls on the balls (solid necks).
+- **Supports:** only the one-piece balls need slicer supports, under the ball's cap side. The vertebra bodies and
+  hip mount carry their own overhangs with thin structural walls (a 45° cone, an arched skirt, arm webs) and print
+  with supports off. See [docs/printing.md](docs/printing.md).
   ![self-supporting parts](results/cad_renders_barney/print_orientation_self_supporting.png)
 - The whole tail is only 6 joints, so it doubles as the prototype for the calibration tests in
   [docs/test_plan.md](docs/test_plan.md).
@@ -87,11 +93,13 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 
 | Item | Qty | Use | ~Cost |
 |---|---|---|---|
-| PETG filament 1.75 mm | 3 × 1 kg | 1.91 kg of parts + purge and reprints (2 kg leaves under 0.1 kg spare) | $60 |
+| PETG filament 1.75 mm | 3 × 1 kg | about 2.1 kg of parts + purge and reprints | $60 |
 | 1.2 mm nozzle for the Sprite Pro | 1 | | $10 |
-| M4 × 16 socket-head cap screws | 48 | 4 per cap + 4 per ball flange, 6 joints | $6 |
-| M4 nylock nuts | 48 | press into the printed hex pockets | $4 |
-| M4 × 12 socket-head (roll keys, all 6 joints) / M3 × 8 (tip adapter) | 6 / 4 | roll-key pins, tip adapter | $2 |
+| M4 × 16 socket-head cap screws | 40 | 4 per cap (24) + ball flanges (16: 4 on J1 and J4, 2 on J2/J3/J5/J6) | $6 |
+| M4 nylock nuts | 48 | press into the printed hex pockets (8 stay empty under bonded flanges) | $4 |
+| M4 × 12 set screws (grub screws) / M3 × 8 (tip adapter) | 6 / 4 | roll keys in the one-piece balls, tip adapter | $2 |
+| 2-part epoxy (or CA) | 1 | bonded flange faces on J2, J3, J5, J6; cap keys | $6 |
+| Long hex key 3 mm (long arm ≥ 100 mm, ball end helps) | 1 | flange bolts, driven through the ball's access holes | $5 |
 | **Extension springs** | **18** | 3 per joint; schedule in [docs/tables/barney_springs.md](docs/tables/barney_springs.md) | $20–35 |
 | · heavy (dorsal J1–J2) | 2 | ~5.5–5.9 N/mm, 66–96 N at rest, up to ~145 N, OD ≤ 15 mm | |
 | · medium (dorsal J3–J6) | 4 | ~1.6–3.3 N/mm, 9–41 N at rest, up to ~78 N, OD ≤ 12 mm | |
@@ -107,7 +115,7 @@ Rough commodity prices in USD; buy about 10 % spare small hardware.
 | Upholstery foam (~20 mm and ~10 mm sheets) | ~1 m × 1 m | skin over the frame, 20 → 10 mm thick | $25 |
 | Foam block | 150 × 100 × 100 mm | rounded 150 mm foam tip | $6 |
 | 4-way stretch fabric + contact cement / spray adhesive | ~1 m² + 1 can | outer skin | $25 |
-| 1.75 mm filament offcuts; CA or epoxy | 12 × 10 mm | ball-half dowels; glue | $5 |
+| CA glue | 1 | cap keys (optional), TPU mouth rings | $4 |
 
 Tools: 3.4 and 4.5 mm drill bits (to size printed holes), hex keys, 7 mm nut driver, pliers.
 **Rough total ~$220–270 including the belt.**
@@ -133,11 +141,11 @@ other part changes.
 
 ### Assembly order (full size)
 
-**In one line:** hip mount → ball 1 → body 1 → cap 1 halves → J1 springs → ball 2 → body 2 → cap 2 halves →
-J2 springs → … → ball 6 → body 6 → cap 6 halves → J6 springs → tip adapter → cord → foam skin → belt.
+**In one line:** hip mount → ball 1 → body 1 → cap 1 (halves + keys + clips) → J1 springs → ball 2 → … → J6
+springs → tip adapter → cord → foam skin → belt.
 
 **Caps come in two halves** (`cap_N_a` + `cap_N_b`). A one-piece cap can't be fitted at all: its opening is
-smaller than both the ball and the ball's bolt flange.
+smaller than both the ball and the ball's bolt flange. The halves are locked by bowtie keys.
 
 ![cap halves closing around ball 1](results/cad_renders_barney/cap_split_assembly.png)
 
@@ -146,38 +154,47 @@ smaller than both the ball and the ball's bolt flange.
    - Press M4 nylock nuts into every hex pocket: 4 in the hip mount, 8 in each of bodies 1–5 (4 at the socket
      end for the cap, 4 at the distal flange for the next ball), and 4 in body 6 (socket end only).
 2. **Hip mount:** start here, and lay it plate-down on the bench.
-3. **Ball 1:**
-   - Put the roll-key screw in one half of ball 1 (M4 × 12, head in the pocket, shank out of the dorsal hole).
-   - Close the second half onto two 1.75 mm filament dowels, and glue if you want.
-4. **Ball 1 → hip mount:** bolt ball 1's flange to the hip mount's flange with 4 × M4 × 16. The bolt heads go on
-   the neck side.
+3. **Ball 1:** thread the M4 × 12 set screw into the dorsal tap hole until 3 mm stands proud. This is the roll key.
+4. **Ball 1 → hip mount:**
+   - Set ball 1 on the hip-mount flange with the roll key on top.
+   - Drop an M4 × 16 down each of the 4 access holes, head up.
+   - Drive each one with a long hex key through the same hole.
 5. **Body 1:**
-   - Line its socket seat with felt or PTFE tape.
-   - Set it onto ball 1 with the roll-key screw in the seat's dorsal slot.
+   - Fit the seat liner (felt, PTFE tape or the TPU liner web).
+   - Set the body onto ball 1 with the roll key in the seat's dorsal slot.
 6. **Cap 1 → body 1:**
    - Close the two cap-1 halves around ball 1's neck **about 5 mm back from the body**, toward the flange. The
      spherical side faces the ball.
    - Half `b` (the one with the dorsal ear and the key slot) goes on the roll-key side.
-   - Hold them together, then slide the closed cap forward onto body 1. The roll-key screw slides into the cap's
-     key slot from its open end.
-   - Bolt it with 4 × M4 × 16 (2 per half). Ball 1 is now captured; check that the joint swivels.
-   - Don't try to push a half straight into its final spot: half `b` would hit the roll-key screw.
+   - Slide the closed cap forward onto body 1. The roll key slides into the cap's key slot from its open end.
+   - Push the two bowtie keys (`cap_key_1_v`, `cap_key_1_d`) into the seam pockets from the mouth face, with a
+     drop of CA if you want it permanent.
+     - J4–J6: the `_d` key goes in from the body-side face before the cap slides on.
+   - Snap a `lobe_clip` over each of the 4 cap-bolt lobes (it grips the body lobe behind too). On J6, fit only the
+     2 ventral ones.
+   - Bolt the cap with 4 × M4 × 16. Ball 1 is now captured; check that the joint swivels.
+   - Glue the TPU mouth ring (if used) onto the mouth face.
 7. **J1 springs:**
    - Hook the three springs from the hip-mount arms to cap 1's ears: dorsal (the heavy, strongly preloaded one),
-     left and right.
+     left and right. Use the TPU straps if the springs aren't in yet.
    - The rates are in [docs/tables/barney_springs.md](docs/tables/barney_springs.md).
-8. **Joints 2–6:** repeat steps 3–7, with each new ball bolting to the *previous body's distal flange*:
+8. **Joints 2–6:** repeat steps 3–7, with each new ball fixed to the *previous body's distal flange*.
+   - On J2, J3, J5 and J6 the bent neck covers two of the four flange bolts, so those flanges are **bonded**.
+   - Spread epoxy on both flange faces, set the ball on (roll key on top), and snap the two `flange_clip_N` over
+     both rims on the unbolted side.
+   - Then drive the 2 reachable bolts through their access holes.
+   - Details: [docs/assembly_rev3.md](docs/assembly_rev3.md).
 
-   | Joint | Ball bolts to | Body | Cap halves | Springs run from → to |
-   |---|---|---|---|---|
-   | J2 | body 1 distal flange | body 2 | cap_2_a + cap_2_b | body 1 fin holes → cap 2 ears |
-   | J3 | body 2 distal flange | body 3 | cap_3_a + cap_3_b | body 2 fin holes → cap 3 ears |
-   | J4 | body 3 distal flange | body 4 | cap_4_a + cap_4_b | body 3 fin holes → cap 4 ears |
-   | J5 | body 4 distal flange | body 5 | cap_5_a + cap_5_b | body 4 fin holes → cap 5 ears |
-   | J6 | body 5 distal flange | body 6 | cap_6_a + cap_6_b | body 5 fin holes → cap 6 ears |
+   | Joint | Ball fixes to | Flange bolts | Bonded | Body | Cap | Springs run from → to |
+   |---|---|---|---|---|---|---|
+   | J2 | body 1 distal flange | 2 (ventral) | yes | body 2 | cap_2_a + cap_2_b + cap_key_2_v/_d | body 1 fin holes → cap 2 ears |
+   | J3 | body 2 distal flange | 2 (ventral) | yes | body 3 | cap_3 + keys | body 2 fin holes → cap 3 ears |
+   | J4 | body 3 distal flange | 4 | no | body 4 | cap_4 + keys | body 3 fin holes → cap 4 ears |
+   | J5 | body 4 distal flange | 2 (dorsal) | yes | body 5 | cap_5 + keys | body 4 fin holes → cap 5 ears |
+   | J6 | body 5 distal flange | 2 (dorsal) | yes | body 6 | cap_6 + keys | body 5 fin holes → cap 6 ears |
 
-   Ball halves are **not interchangeable** between joints, because each carries its joint's rest-bend wedge. Keep
-   them numbered.
+   Balls are **not interchangeable** between joints, because each carries its joint's rest-bend wedge. Keep them
+   numbered.
 9. **Tip adapter → body 6:** screw it to body 6's distal flange with 4 × M3 × 8.
 10. **Cord:**
     - Thread the 6 mm cord from the tip adapter through every bore and out of the hip mount's belt-side face.

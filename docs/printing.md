@@ -24,7 +24,8 @@ Barney-specific notes:
 - **Belt attachment:** thread 25 mm hook-and-loop straps through the four corner slots and around the lumbar belt's
   back panel; the top 50 mm slot takes an optional extra webbing strap. (There used to be a bottom one too, but it
   sat under the boss where no strap could pass, so it was removed.)
-- **Ball halves:** each carries its joint's rest-bend wedge (up to ±20°), so keep them in joint order.
+- **Balls (one piece since revision 3):** each carries its joint's rest-bend wedge (up to ±30°), so keep them in
+  joint order. See [assembly_rev3.md](assembly_rev3.md).
 
 ## Printer and nozzle: Ender 3 V2 + Sprite Pro, 1.2 mm nozzle
 
@@ -33,9 +34,9 @@ The whole geometry is dimensioned around a 1.2 mm nozzle:
 | Setting | Value | Why |
 |---|---|---|
 | Extrusion width | 1.3 mm | Every wall, fin and rib in the CAD is a whole number of lines (`line_w = 1.3`) |
-| Layer height | 0.6 mm frames, caps and hip mount; 0.4 mm ball halves | 50 % of the nozzle; finer layers make the ball's bearing band smoother |
+| Layer height | 0.6 mm frames, caps and hip mount; 0.4 mm balls | 50 % of the nozzle; finer layers make the ball's bearing band smoother |
 | Perimeters | 3 (= 3.9 mm) | Socket walls are 5 lines (6.5 mm) so the roll-key slot keeps a 2.5 mm back wall |
-| Infill | 20 % gyroid; **100 % for ball halves of joints 1–3** | The root necks carry the highest bending moment (see docs/design.md) |
+| Infill | 20 % gyroid; **8 walls on all six one-piece balls** (the neck becomes solid perimeters) | The necks carry the highest bending moment, and printed upright their layers run across the neck (see assembly_rev3.md) |
 | Top/bottom | 3 layers | |
 | Nozzle / bed | PETG 240–250 °C / 80 °C, fan 30–50 % | Big nozzles need higher flow: keep volumetric flow ≤ ~25 mm³/s on the Sprite Pro |
 | Speed | 25–35 mm/s outer wall | At 1.3 × 0.6 mm this is already 20–27 mm³/s |
@@ -74,9 +75,10 @@ structural walls that stay in the part:
 - **Hip mount:** the boss stands on the bed, the arm webs and flares described above, and plate lightening holes.
 - **Fin windows:** now cut from the fins only, so they never notch the new cone.
 
-**Every part prints from `cad/stl/barney/` with slicer supports off.**
+**Every part except the one-piece balls prints from `cad/stl/barney/` with slicer supports off.**
 
-- **Ball halves:** need no supports.
+- **One-piece balls:** print flange-down with tree supports under the ball's cap side; sand the scars. The
+  older clamshell halves needed none, but their flange bolts couldn't be reached (see assembly_rev3.md).
 - **Short roofs Cura bridges (with bridge settings on):**
   - the 3.6 mm pockets in caps 2–3;
   - the Ø14 mm spring pocket roof and a 5 mm side slot in the tip adapter;
@@ -154,23 +156,31 @@ the same benefit at no risk. That is the default.
 | Compression spring Ø ≤ 13 mm, ~2 N/mm, 20 mm long | 1 | Cord preload at the tip adapter (compress ~5 mm for 10 N) |
 | PTFE tape 0.25 mm or 0.5 mm self-adhesive felt | — | Seat liner (the friction level the physics was tuned for is MEDIUM ≈ felt, μ ≈ 0.25) |
 | Adhesive felt/rubber 0.8 mm | — | Cap-mouth stop pad |
-| 1.75 mm filament | 12 × 10 mm | Ball-half dowels (2 per ball) |
+| M4 × 12 set screw | 6 | Roll keys (one-piece balls) |
+| 2-part epoxy | — | Bonded flanges J2, J3, J5, J6 |
 
 ## Assembly
 
 1. Drill all holes to size. Press M4 nylocks into the body pockets (cap lobes and distal flange).
-2. Put the roll-key screw in one ball half (head in the pocket, shank out through the dorsal hole). Close the
-   second half on the dowels; glue if wanted.
-3. Bolt the ball's flange to the previous vertebra's distal flange (joint 1: the hip mount), bolt heads on the neck side.
-4. Line the seat with PTFE tape or felt. Put the ball in the seat with the roll-key screw in the dorsal slot.
-   Close the two cap halves around the neck about 5 mm back from the body (half `b`, with the dorsal ear and key
-   slot, on the roll-key side). Slide the closed cap forward so the screw enters the key slot from its open end,
-   then bolt it with 4 × M4 × 16 (2 per half).
+2. Thread the M4 × 12 set screw (the roll key) into the ball's dorsal tap hole, 3 mm proud.
+3. Fix the ball's flange to the previous vertebra's distal flange (joint 1: the hip mount), roll key on top.
+   - Drop the bolts down the ball's access holes and drive them with a long hex key through the same holes:
+     4 bolts on J1 and J4, 2 on J2, J3, J5 and J6.
+   - On J2, J3, J5 and J6 the bent neck covers the other two bolts. Those flanges are bonded with epoxy and held by
+     two flange clips while it cures.
+   - Full reasoning and checks: [assembly_rev3.md](assembly_rev3.md).
+4. Line the seat with PTFE tape, felt or the TPU liner web. Put the ball in the seat with the roll key in the
+   dorsal slot.
+   - Close the two cap halves around the neck about 5 mm back from the body (half `b`, with the dorsal ear and key
+     slot, on the roll-key side).
+   - Slide the closed cap forward so the roll key enters the key slot from its open end.
+   - Push in the two bowtie keys (mouth face; on J4–J6 the dorsal-side one from the body-side face before the
+     cap slides on), snap the lobe clips on, then bolt it with 4 × M4 × 16 (2 per half).
    - **Why two halves:** a one-piece cap's opening is smaller than the ball and its flange, so it can never be
      fitted. The split runs through the axis 22.5° from dorsal, clear of the ears, bolt lobes and key slot by at
      least 2.4 mm.
-   - **Why not straight in:** a collision check of every joint's ball, roll-key screw and cap halves confirms this
-     path is clear. Pushing half `b` straight into place would hit the screw.
+   - **Why not straight in:** a collision check of every joint's ball, roll key and cap halves confirms this path
+     is clear. Pushing half `b` straight into place would hit the key.
 5. Hook the three springs of each joint: parent fin hole (or hip-mount arm) → cap ear of the child.
    Dorsal = the stiff, strongly preloaded one.
 6. Thread the cord from the tip adapter through every bore and out of the hip mount's front (belt-side) face. Tie a
